@@ -16,6 +16,7 @@ CHANGES:
    "Example" results in first PD again.
 
 TO DO:
+ - "Next User PD" resets binary value and slider but not "Port" field
  - Fix error for EA Bits or PSID Offset bits = 0 in BMR Parameters editor
  - Fix "PSID Offset = 0" binary display
  - Need to display full CPE source IPv6 IP binary string
