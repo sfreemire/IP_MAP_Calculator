@@ -971,6 +971,7 @@ while True:
       window['-V4HOST_SLIDER-'].update(value=0)
       window['-USER_PD-'].update('')
       window['-USER_IP4-'].update('')
+      window['-USER_PORT-'].update('')
       window['-STRING_IN-'].update('')
       window['-SP_INDEX-'].update('')
       window['-SP_INT-'].update('')
