@@ -958,7 +958,7 @@ while True:
    if event == 'About':
       with open('applicensetext') as lt:
          abouttxt = lt.read()
-      about = sg.popup_scrolled(abouttxt, title='About', font=('Aril', 14))
+      about = sg.popup_scrolled(abouttxt, title='About', font=('Arial', 14))
 
 ## Prints all available element keys
 #   print('\n ---- VALUES KEYS ----')
