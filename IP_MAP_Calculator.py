@@ -280,6 +280,7 @@ button_col1 = [
     sg.Button('Clear', font='Helvetica 11', key='-CLEAR-'),
     sg.Push(),
 #    sg.Button('Save', font='Helvetica 11', key=('-SAVE_MAIN-')),
+    sg.Button('About', font=('Helvetica', 12)),
     sg.Button(' Exit ', font=('Helvetica', 12, 'bold'))]
 ]
 
@@ -325,7 +326,7 @@ layout = [
 #-------------------------------------------------------------------------#
 # Window remembers last screen location for next start
 #window = sg.Window('IP MAP Address Calculator', layout, font=windowfont,
-window = sg.Window('IpMapCalc IP MAP Address Calculator', layout, font=windowfont,
+window = sg.Window('IP MAP Calculator', layout, font=windowfont,
    enable_close_attempted_event=True,
    location=sg.user_settings_get_entry('-location-', (None, None)),
    keep_on_top=False, finalize=True)
@@ -953,6 +954,40 @@ while True:
       # Save screen location when closing window
       sg.user_settings_set_entry('-location-', window.current_location())
       break
+
+   if event == 'About':
+      text = '''IP MAP Calculator
+
+License:
+
+MIT License
+
+Copyright (c) 2023 David Scott Freemire
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
+
+Program graphics make use of the PySimpleGUI library which is shared under the
+GNU Lesser General Public License (LGPL 3) +
+https://www.pysimplegui.org/
+'''
+      about = sg.popup_scrolled(text, title='About', font=('Aril', 14))
 
 ## Prints all available element keys
 #   print('\n ---- VALUES KEYS ----')
