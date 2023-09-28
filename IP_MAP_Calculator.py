@@ -278,6 +278,7 @@ button_col1 = [
    [sg.Button('Example', font='Helvetica 11', key='-EXAMPLE-'),
     sg.Button('Next User PD', font='Helvetica 11', key='-NXT_USER_PD-'),
     sg.Button('Clear', font='Helvetica 11', key='-CLEAR-'),
+    sg.Text('', text_color='red', key='-BTN_MESSAGES-'),
     sg.Push(),
 #    sg.Button('Save', font='Helvetica 11', key=('-SAVE_MAIN-')),
     sg.Button('About', font=('Helvetica', 12)),
@@ -991,7 +992,7 @@ while True:
    # Load example values in main display and editors
    #-------------------------------------------------#
    if event == '-EXAMPLE-' and last_params:
-      window['-PD_MESSAGES-'].update('"Clear" or "Next User PD" for new example')
+      window['-BTN_MESSAGES-'].update('"Clear" or "Next User PD" for new example')
    elif event == '-EXAMPLE-':
       portidxadd = 0
       if example_obj:
