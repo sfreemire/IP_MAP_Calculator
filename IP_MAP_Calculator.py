@@ -4,34 +4,7 @@ import ipaddress as ip
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-'''
-IP_MAP_ADDRESS_CALCULATOR v0.5.1 - 09/01/2023 - Scott Freemire
-
-CHANGES:
- - Fixed binary display and 'ports per user' display for
-   PSID Offset = 0 from binery display slider
- - Fixed "missing parameter" error for PSID Offset = 0
-   from BMR Parameter Editor section
- - Require "Clear" for new "Example." This highlights that
-   "Example" results in first PD again.
-
-TO DO:
- - "Next User PD" resets binary value and slider but not "Port" field
- - Fix error for EA Bits or PSID Offset bits = 0 in BMR Parameters editor
- - Fix "PSID Offset = 0" binary display
- - Need to display full CPE source IPv6 IP binary string
- - Remove length check for string entry if not necessary
-   (if event == '-ENTER_STRING-':, elif len(values['-STRING_IN-']) > 69:)
- - String Entry - consider adding "name-change-only" scenario
- - Consider initializing sliders w/range = 0 and updating on rule entry
- - Review if "out of map-t range" error in ENTER_PARAMS & ENTER_STRING
-   sections is actually possible after pre-checks. Remove test?
- - Display number of port "sets"
- - Display number of excluded ports
- - Add additional notes for cryptic statements
- - Add "save to file" for saved rule strings
- - Add "generate DHCP option" function
-'''
+# IP_MAP_ADDRESS_CALCULATOR v0.5.2 - 09/28/2023 - Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -58,6 +31,11 @@ eabits = [n for n in range(33)]     # for edit rule Combo
 ██    ██ ██     ██      ██   ██    ██    ██    ██ ██    ██    ██         ██ 
  ██████  ██     ███████ ██   ██    ██     ██████   ██████     ██    ███████ 
 '''
+
+# sg.Push() is like a spring between elements
+# sg.Sizer(h_pixels=0, v_pixels=0) is like an adjustable block between elements
+# expand_x=True causes container element to expand to widest element contained
+# expand_y=True causes container element to expand vertically as needed
 
 # Main Display (top frame) - Calculated Values
 #----------------------------------------------#
@@ -86,6 +64,7 @@ display_col4 = [
     relief='ridge', key='-RATIO_DSPLY-')]
 ]
 
+# Top frame with results fields
 display_layout = [
    [sg.Column(display_col3, element_justification='centered'),
     sg.Text('x', pad=((0, 0), (20, 0))),
@@ -96,6 +75,8 @@ display_layout = [
     sg.Column(display_col2, element_justification='centered')],
    [sg.Text('BMR', font=('Arial', 14, 'bold')),
     sg.Input('', font=('Courier', 15, 'bold'),
+   # use_readonly... with disabled creates display field that can be
+   # selected and copied with cursor but not edited
     justification='centered', size=(60, 1), use_readonly_for_disable=True,
     disabled=True, pad=((0, 8), (0, 0)),
     key='-BMR_STRING_DSPLY-'),
@@ -105,7 +86,6 @@ display_layout = [
     sg.Text('Select and copy, or click Save', font=('Helvetica', 13, 'italic'),
     justification='centered', pad=((5, 5), (0, 5))),
     sg.Push()],
-#   [sg.Sizer(h_pixels=0, v_pixels=0)],
 ]
 
 # Parameter Editing Display (2nd frame)
@@ -122,7 +102,6 @@ param_edit_col1 = [
     enable_events=True, tooltip=name_tooltip, border_width=2,
     pad=((89, 5), (5, 5)), key='-RULENAME-'),
     sg.Push()],
-#    sg.Sizer(h_pixels=40, v_pixels=0)],
     [sg.Text('IPv6 Prefix/Length:', font=('Arial', 14, 'bold')),
     sg.Input('', font=('Arial', 14, 'bold'), size=(20, 1), enable_events=True,
     tooltip=v6_tooltip, border_width=2, key='-R6PRE-'),
@@ -167,7 +146,7 @@ editor_layout = [
 
 # Binary Display (3rd frame)
 #-------------------------------------#
-# nice white '#faf9f2', similar to default background '#e3dbcf'
+# '#faf9f2' is a nice white, similar to default background '#e3dbcf'
 bin_display_col1 = [
 #   [sg.HorizontalSeparator()],
    [sg.Sizer(h_pixels=0, v_pixels=8)],
@@ -190,7 +169,8 @@ bin_display_col1 = [
    [sg.Sizer(h_pixels=0, v_pixels=8)],
    [sg.Multiline(size=(80, 10), auto_size_text=True,
     font=('Courier', 14, 'bold'), background_color='#e3dbcf',
-    expand_x=True, enable_events=True, disabled=True,
+#   enable_events=True,
+    expand_x=True, disabled=True,
     no_scrollbar=True, key='MLINE_BIN_EDIT')],
    ]
 
@@ -249,12 +229,11 @@ bin_display_col2 = [
     sg.Button(' + 100', font='Helvetica 11', key='-P_IDX_UP100-'),
     sg.Button(' >>', font='Helvetica 11', key='-P_IDX_LAST-'),
     sg.Text(f'= Port', font=('Helvetica', 14, 'bold')),
-#    sg.Input('', size=(7, 1), justification='centered',
-#    use_readonly_for_disable=True, disabled=True, key='-SP_INT-'),
-#    sg.Push()],
     sg.Text('', font=('Arial', 14, 'bold'), justification='centered',
     size=(7, 1), background_color='white smoke', border_width=4, relief='ridge',
     key='-SP_INT-'),
+#    sg.Input('', size=(7, 1), justification='centered',
+#    use_readonly_for_disable=True, disabled=True, key='-SP_INT-'),
     sg.Push()]
 ]
 
@@ -292,11 +271,7 @@ button_layout = [
 # Saved rule string frame (5th frame)
 #-------------------------------------#
 MLINE_SAVED = '-MLINE_SAVED-'+sg.WRITE_ONLY_KEY
-save_layout =[
-#      [sg.Push(),
-#       sg.Text('warning', text_color='red', border_width=1,
-#       key='-MESSAGES_2-'), sg.Push()],
-#      [sg.VPush()],
+saved_layout = [
 #      [sg.Text('Saved Rule Strings:')],
       [sg.Push(),
        sg.Multiline(size=(77, 7), font=('Courier', 14, 'bold'),
@@ -318,15 +293,15 @@ layout = [
     relief='ridge')],
    [sg.Frame('', button_layout, expand_x=True, border_width=6, 
     relief='ridge')],
-   [sg.Frame('', save_layout, expand_x=True, border_width=6, 
+   [sg.Frame('', saved_layout, expand_x=True, border_width=6, 
     relief='ridge')]
    ]
 
 #-------------------------------------------------------------------------#
 # Create Main Window
 #-------------------------------------------------------------------------#
-# Window remembers last screen location for next start
-#window = sg.Window('IP MAP Address Calculator', layout, font=windowfont,
+# Window uses last screen location for next start
+# Location is set upon Exit or WINDOW_CLOSE... event
 window = sg.Window('IP MAP Calculator', layout, font=windowfont,
    enable_close_attempted_event=True,
    location=sg.user_settings_get_entry('-location-', (None, None)),
@@ -366,8 +341,12 @@ widget.tag_config('lt_blue', foreground='black', background='#B2CAFA') # lt blue
 #----------------------------------------------------------------------------#
 # Calculate Results
 #----------------------------------------------------------------------------#
-# param_ls = [name, v6pfx, v6pfx mask, v4pfx, v4pfx mask, ealen, psid offset]
+# param_ls contains BMR parameters
+# param_ls = [name, v6pfx, v6pfx len, v4pfx, v4pfx len, ealen, psid offset]
+# upd_obj is "User delegated prefix" received from DHCP
+# 'obj' indicates a class object created with the imported ipaddress module
 def rule_calc(param_ls, upd_obj, v4host = 0, portidx_b = None):
+   print('\n********** START rule_calc **************')
    '''The rule_calc function accepts a BMR paramater list, an IPv6
    user PD (ipaddress object), and an optional port index integer from
    a user input or editing option. It calculates the network address results,
@@ -375,37 +354,42 @@ def rule_calc(param_ls, upd_obj, v4host = 0, portidx_b = None):
    UI display function displays_update.
    '''
 
-
-
    # initial values
    #----------------------------------#
    psidlen = (param_ls[5] - (32 - param_ls[4])) # ea_len - host_len
    upd_len = upd_obj.prefixlen
 
-   # ppusr = 2^(16 - k) - 2^m (per rfc7597) (2^m [# of excluded ports])
-   # 16 = IP port bits constant
+   # ppusr = 2^(16 - k) - 2^m (per rfc7597) (2^m is # of excluded ports)
+   # 16 is the number of IP port bits (constant)
    # Used for d_dic and other calculations
-   if param_ls[6] > 0:
+   if param_ls[6] > 0: # Because PSID Offset > 0 excludes some ports
       ppusr = (2 ** (16 - psidlen)) - (2 ** (16 - psidlen - param_ls[6]))
    else:
       ppusr = (2 ** (16 - psidlen))
 
    # If call is from the host slider, update the upd with host bits
+   # and update v4pfx value in param_ls
    if v4host != 0:
+      print(f'>>> v4host is {v4host}')
       pdbin = f'{ip.IPv6Address(upd_obj.network_address):b}'
-      pdint = int(pdbin, 2)
+#      pdint = int(pdbin, 2)
 #      pd_add = ip.IPv6Address(pdint)
       pdbin_l = pdbin[:param_ls[2]]
       pdbin_r = pdbin[param_ls[2] + (32 - last_params[4]) : ]
       v4hostbin = bin(v4host)[2:].zfill(32 - param_ls[4])
+      print(f'>>> v4hostbin is {v4hostbin}')
       newpdbin = pdbin_l + v4hostbin + pdbin_r
       newpdint = int(newpdbin, 2)
-      new_upd_add_str = ip.IPv6Address(newpdint).compressed + '/' + str(upd_obj.prefixlen)
+      new_upd_add_str = \
+         ip.IPv6Address(newpdint).compressed + '/' + str(upd_obj.prefixlen)
       upd_obj = ip.IPv6Network(new_upd_add_str)
       v4pfxbin = f'{ip.IPv4Address(param_ls[3]):b}'[: int(param_ls[4])]
+      print(f'>>> v4pfxbin is {v4pfxbin}')
       v4addbin = v4pfxbin + v4hostbin
+      print(f'>>> v4addbin is {v4addbin}')
       newv4int = int(v4addbin, 2)
       newv4add = ip.IPv4Address(newv4int)
+      print(f'>>> newv4add is {newv4add}, type is {type(newv4add)}')
       param_ls[3] = newv4add
    else:
       window['-V4HOST_SLIDER-'].update(value=0)
@@ -449,7 +433,9 @@ def rule_calc(param_ls, upd_obj, v4host = 0, portidx_b = None):
    v4hostbin_len = 32 - param_ls[4]
    psid_idxl = param_ls[2] + v4hostbin_len
    psid_idxr = param_ls[2] + param_ls[5]
-   v4strobj = ip.IPv4Address(param_ls[3]) + v4host
+   v4strobj = ip.IPv4Address(param_ls[3])
+   print(f'\n *** User PD binary strings section ***')
+   print(f'>>> v4strobj is {v4strobj}')
    v4str = v4strobj.compressed # for d_dic
    psid = upd_bin[psid_idxl : psid_idxr]
    # is PSID > 0?
@@ -939,7 +925,7 @@ integer_inputs = ['-R6LEN-', '-R4LEN-', '-EABITS-', '-OFFSET-',
 example_obj = None
 userpd_cls_obj = None
 savctr = False
-portidxadd = 0
+portidxadd = 0 # used with 'Source Port Index n = Port' section
 last_params = None
 
 #-------------------------------------------------------------------------#
@@ -979,6 +965,7 @@ while True:
       window['-USER_PD-'].update('')
       window['-USER_IP4-'].update('')
       window['-USER_PORT-'].update('')
+      window['-V4HOST_SLIDER-'].update(range=(0, 0))
       window['-STRING_IN-'].update('')
       window['-SP_INDEX-'].update('')
       window['-SP_INT-'].update('')
@@ -994,7 +981,7 @@ while True:
    if event == '-EXAMPLE-' and last_params:
       window['-BTN_MESSAGES-'].update('"Clear" or "Next User PD" for new example')
    elif event == '-EXAMPLE-':
-      portidxadd = 0
+      portidxadd = 0      # reset port index setting
       if example_obj:
          param_ls = example_obj.new_params()
       else:
@@ -1129,22 +1116,24 @@ while True:
       next_userpd_obj = userpd_cls_obj.new_pd()
       next_pd_bin = f'{ip.IPv6Address(next_userpd_obj.network_address):b}'
       next_pd_bin_type = type(f'{ip.IPv6Address(next_userpd_obj.network_address):b}')
-      rule_calc(last_params, next_userpd_obj)
+      v4hostint = int(values['-V4HOST_SLIDER-']) # slider values are floats
+      rule_calc(last_params, next_userpd_obj, v4hostint)
 
-   # Display next IPv4 host
+   # Increment IPv4 host address
    #-----------------------------------------#
+   # Host slider initialized with range=0. It can't be incremented when range=0
+   # Range is updated when BMR parameters are Entered
+   # Range is reset to 0 when "Clear" is used
    if event == '-V4HOST_SLIDER-': # ---- May be able to use ip.addr + v4host_slider ----
       portidxadd = 0
-      v4hostint = int(values['-V4HOST_SLIDER-'])
-
+      v4hostint = int(values['-V4HOST_SLIDER-']) # slider values are floats
+      print(f'\n>>> v4host slider v4hostint is {v4hostint}')
       rule_calc(last_params, last_userpd_obj, v4hostint)
-
-   if event == '-NEXT_HOST-': 
-      portidxadd = 0
-      host = int(values['-V4HOST_SLIDER-']) + 1
-      max_add = 2 ** (32 - param_ls[4]) - 1
-      if host <= max_add:
+   elif event == '-NEXT_HOST-':
+      # If last_params=None (initial state or Clear used) disable button
+      if last_params:
          v4hostint = int(values['-V4HOST_SLIDER-']) + 1 # slider values are floats
+         print(f'>>> v4host button v4hostint is {v4hostint}')
          window['-V4HOST_SLIDER-'].update(value=v4hostint)
          rule_calc(last_params, last_userpd_obj, v4hostint)
 
