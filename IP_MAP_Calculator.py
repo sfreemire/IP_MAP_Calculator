@@ -260,7 +260,7 @@ button_col1 = [
     sg.Text('', text_color='red', key='-BTN_MESSAGES-'),
     sg.Push(),
 #    sg.Button('Save', font='Helvetica 11', key=('-SAVE_MAIN-')),
-    sg.Button('About', font=('Helvetica', 12)),
+#    sg.Button('About', font=('Helvetica', 12)),
     sg.Button(' Exit ', font=('Helvetica', 12, 'bold'))]
 ]
 
@@ -942,11 +942,11 @@ while True:
       sg.user_settings_set_entry('-location-', window.current_location())
       break
 
-   if event == 'About':
-      with open('applicensetext') as lt:
-         abouttxt = lt.read()
-      about = sg.popup_scrolled(abouttxt, title='About', 
-         size=(67, 33), font=('Arial', 14))
+#   if event == 'About':
+#      with open('applicensetext') as lt:
+#         abouttxt = lt.read()
+#      about = sg.popup_scrolled(abouttxt, title='About', 
+#         size=(67, 33), font=('Arial', 14))
 
 ## Prints all available element keys
 #   print('\n ---- VALUES KEYS ----')
