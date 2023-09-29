@@ -161,6 +161,7 @@ cython_debug/
 
 # Miscellaneous Files
 test.py
+.DS_Store
 
 # My folder
 notes/
