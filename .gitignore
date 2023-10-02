@@ -163,5 +163,6 @@ cython_debug/
 test.py
 .DS_Store
 
-# My folder
+# My folders
 notes/
+sandbox/
