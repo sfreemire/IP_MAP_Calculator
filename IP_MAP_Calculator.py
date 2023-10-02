@@ -942,12 +942,6 @@ while True:
       sg.user_settings_set_entry('-location-', window.current_location())
       break
 
-#   if event == 'About':
-#      with open('applicensetext') as lt:
-#         abouttxt = lt.read()
-#      about = sg.popup_scrolled(abouttxt, title='About', 
-#         size=(67, 33), font=('Arial', 14))
-
 ## Prints all available element keys
 #   print('\n ---- VALUES KEYS ----')
 #   for x in values.keys():
