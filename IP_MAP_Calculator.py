@@ -497,7 +497,7 @@ def rule_calc(param_ls, upd_obj, v4host = 0, portidx_b = None):
    #------------------------------------------------#
    pd_bs_dic = {}
    pd_bs_dic['upd_binstr'] = ' User PD: ' + upd_bin_fmt
-   pd_bs_dic['ea_binstr'] = ' MAP EA:  ' + '.' * V6Indices(param_ls[2]) + ea_bin_fmt
+   pd_bs_dic['ea_binstr'] = ' EA Bits: ' + '.' * V6Indices(param_ls[2]) + ea_bin_fmt
    pd_bs_dic['blank'] = ''
    pd_bs_dic['portidx_b'] = f' The "PORT INDEX" is PSID-Offset/Right-Padding:' \
                            f' {psid_ofst_bin}-{portrpad_bin}'
@@ -518,7 +518,7 @@ def rule_calc(param_ls, upd_obj, v4host = 0, portidx_b = None):
    upd_binstr_sbnt_l = upd_binstr_r
    upd_binstr_sbnt_r = pd_bs_dic['upd_binstr'].index('::')
    ea_binstr_l = next(i for (i, e) in enumerate(pd_bs_dic["ea_binstr"])
-      if e not in "MAP EA:.")
+      if e not in "EA Bits:.")
    ea_binstr_r = ea_binstr_l + len(ea_bin_fmt)
    # ea_binstr_div is v4host_r and psid_l
    ea_binstr_div = bmr_binstr_l + V6Indices(param_ls[2] + v4hostbin_len)
