@@ -167,10 +167,10 @@ bin_display_col1 = [
     disabled=True, key='-USER_PORT-'),
     sg.Push()],
    [sg.Sizer(h_pixels=0, v_pixels=8)],
-   [sg.Multiline(size=(80, 10), auto_size_text=True,
+   [sg.Multiline(size=(80, 20), auto_size_text=True,
     font=('Courier', 14, 'bold'), background_color='#e3dbcf',
 #   enable_events=True,
-    expand_x=True, disabled=True,
+    expand_x=True, disabled=True, horizontal_scroll = True,
     no_scrollbar=True, key='MLINE_BIN_EDIT')],
    ]
 
@@ -402,6 +402,8 @@ def rule_calc(param_ls, upd_obj, v4host = 0, portidx_b = None):
    #----------------------------------#
    v6p_hex_exp = ip.IPv6Address(param_ls[1]).exploded # 0000:0000:...
    v6p_hex_seglst = v6p_hex_exp.split(':')[:4] # ['0000', '0000', ...]
+   upd_hex_exp = ip.IPv6Address(upd_obj.network_address).exploded # 0000:0000:...
+   upd_hex_seglst = upd_hex_exp.split(':')[:4] # ['0000', '0000', ...]
    v6p_bin = f'{ip.IPv6Address(param_ls[1]):b}'[:64] # first 64 bits of pfx
    v6p_bin_seglst = [v6p_bin[i:i+16] for i in range(0, 64, 16)]
    v6p_bin_fmt = ':'.join(v6p_bin_seglst) + '::'
@@ -409,14 +411,18 @@ def rule_calc(param_ls, upd_obj, v4host = 0, portidx_b = None):
    # BMR binary strings dictionary entries
    #---------------------------------------#
    bmr_bs_dic = {}
-   bmr_bs_dic['blank'] = ''
-   bmr_bs_dic['params_str'] = f'          User IPv6 PD Len /{upd_len}' \
-                              f' with BMR IPv6 Len /{param_ls[2]}' \
+   bmr_bs_dic['params_str'] = f'          User PD Len /{upd_len},' \
+                              f' with BMR PD Len /{param_ls[2]}' \
                               f' = EA Bits Len {param_ls[5]}'
-   bmr_bs_dic['v6p_hexstr'] = f"{' ' * 16}" \
+   bmr_bs_dic['blank'] = ''
+#   bmr_bs_dic['v6p_hexstr'] = f"{' ' * 16}" \
+   bmr_bs_dic['v6p_hexstr'] = f" BMR PD:{' ' * 8}" \
                               f"{'      :      '.join(v6p_hex_seglst)}" \
                               f"      ::"
-   bmr_bs_dic['bmr_binstr'] = ' BMR:     ' + v6p_bin_fmt
+   bmr_bs_dic['upd_hexstr'] = f" User PD:{' ' * 7}" \
+                              f"{'      :      '.join(upd_hex_seglst)}" \
+                              f"      ::"
+   bmr_bs_dic['bmr_binstr'] = ' BMR PD:  ' + v6p_bin_fmt
 
    #-------------------------------------------------------------------------#
    # User PD (upd), IPv4, and Ports binary strings
@@ -492,11 +498,11 @@ def rule_calc(param_ls, upd_obj, v4host = 0, portidx_b = None):
    pd_bs_dic['upd_binstr'] = ' User PD: ' + upd_bin_fmt
    pd_bs_dic['ea_binstr'] = ' MAP EA:  ' + '.' * V6Indices(param_ls[2]) + ea_bin_fmt
    pd_bs_dic['blank'] = ''
-   pd_bs_dic['portidx_b'] = f' The "PORT INDEX" is PSID Offset/Right Padding:' \
+   pd_bs_dic['portidx_b'] = f' The "PORT INDEX" is PSID-Offset/Right-Padding:' \
                            f' {psid_ofst_bin}-{portrpad_bin}'
-   pd_bs_dic['port_bin'] = f' The PORT is PSID Offset/PSID/Right Padding: ' \
+   pd_bs_dic['port_bin'] = f' The PORT is PSID-Offset/PSID/Right-Padding: ' \
                            f'{psid_ofst_bin}-{psid}-{portrpad_bin}' \
-                           f' = {port_int}'
+                           f' = Port {port_int}'
 
    #-------------------------------------------------------------------------#
    # Binary display highlight indices
@@ -504,7 +510,7 @@ def rule_calc(param_ls, upd_obj, v4host = 0, portidx_b = None):
    # highlight index data
    #----------------------------------#
    bmr_binstr_l = next(i for (i, e) in enumerate(bmr_bs_dic["bmr_binstr"])
-      if e not in "BMR: ")
+      if e not in "BMR PD: ")
    bmr_binstr_r = bmr_binstr_l + V6Indices(param_ls[2])
    upd_binstr_l = bmr_binstr_l + V6Indices(param_ls[2])
    upd_binstr_r = bmr_binstr_l + V6Indices(upd_len)
@@ -625,39 +631,39 @@ def displays_update(dic, pd_obj):
    #----------------------------------------------------#
    # BMR binary string
    for i, x in enumerate(dic["hl_dic"]["bmr_hl"]):
-      dic["hl_dic"]["bmr_hl"][i] = '4.' + str(x)   # User PD is on line 4
+      dic["hl_dic"]["bmr_hl"][i] = '5.' + str(x)   # User PD is on line 4
 
    # User PD binary string
    for i, x in enumerate(dic["hl_dic"]["upd_hl"]):
-      dic["hl_dic"]["upd_hl"][i] = '5.' + str(x)
+      dic["hl_dic"]["upd_hl"][i] = '6.' + str(x)
 
    # IPv6 subnet bits in User PD binary string
    for i, x in enumerate(dic["hl_dic"]["sbnt_hl"]):
-      dic["hl_dic"]["sbnt_hl"][i] = '5.' + str(x)
+      dic["hl_dic"]["sbnt_hl"][i] = '6.' + str(x)
 
    # IPv4 host bits in MAP EA binary string
    for i, x in enumerate(dic["hl_dic"]["v4_hl"]):
-      dic["hl_dic"]["v4_hl"][i] = '6.' + str(x)
+      dic["hl_dic"]["v4_hl"][i] = '7.' + str(x)
 
    # PSID bits in MAP EA binary string
    for i, x in enumerate(dic["hl_dic"]["ea_psid_hl"]):
-      dic["hl_dic"]["ea_psid_hl"][i] = '6.' + str(x)
+      dic["hl_dic"]["ea_psid_hl"][i] = '7.' + str(x)
 
    # Port Index
    for i, x in enumerate(dic['hl_dic']['prtidx_ofst_hl']):
-      dic['hl_dic']['prtidx_ofst_hl'][i] = '8.' + str(x)
+      dic['hl_dic']['prtidx_ofst_hl'][i] = '9.' + str(x)
    for i, x in enumerate(dic['hl_dic']['prtidx_pad_hl']):
-      dic['hl_dic']['prtidx_pad_hl'][i] = '8.' + str(x)
+      dic['hl_dic']['prtidx_pad_hl'][i] = '9.' + str(x)
 
    # Port Index & PSID bits in port binary string
    for i, x in enumerate(dic['hl_dic']['portbin_ofst_hl']):
-      dic['hl_dic']['portbin_ofst_hl'][i] = '9.' + str(x)
+      dic['hl_dic']['portbin_ofst_hl'][i] = '10.' + str(x)
 
    for i, x in enumerate(dic['hl_dic']['portbin_psid_hl']):
-      dic['hl_dic']['portbin_psid_hl'][i] = '9.' + str(x)
+      dic['hl_dic']['portbin_psid_hl'][i] = '10.' + str(x)
 
    for i, x in enumerate(dic['hl_dic']['portbin_pad_hl']):
-      dic['hl_dic']['portbin_pad_hl'][i] = '9.' + str(x)
+      dic['hl_dic']['portbin_pad_hl'][i] = '10.' + str(x)
 
 
    # Apply highlights
@@ -950,6 +956,7 @@ while True:
    # Clear message fields on next event
    window['-PARAM_MESSAGES-'].update('')
    window['-PD_MESSAGES-'].update('')
+   window['-BTN_MESSAGES-'].update('')
 
    # Clear all fields except Save Frame
    if event == '-CLEAR-':
