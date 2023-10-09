@@ -1,3 +1,14 @@
+# ------- Project files and folders -------
+# Miscellaneous Files
+test.py
+.DS_Store
+IP_MAP_Calculator.zip
+
+# My folders
+notes/
+sandbox/
+
+# ------- .ignore template -------
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -159,10 +170,3 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-# Miscellaneous Files
-test.py
-.DS_Store
-
-# My folders
-notes/
-sandbox/
