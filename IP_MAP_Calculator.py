@@ -1159,7 +1159,8 @@ while True:
       if portidxadd > 100000:
          portidxadd = 100000  # avoiding allowing infinite growth
                               # --------------------------------- do this better!!!
-      rule_calc(last_params, last_userpd_obj, portidx_b = idx)
+      v4hostint = int(values['-V4HOST_SLIDER-'])
+      rule_calc(last_params, last_userpd_obj, v4host = v4hostint, portidx_b = idx)
 
    print(f'#------- End Event {cntr - 1} -------#')
 
