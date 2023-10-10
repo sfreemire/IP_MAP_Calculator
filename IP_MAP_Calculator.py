@@ -391,15 +391,16 @@ def rule_calc(param_ls, upd_obj, v4host = 0, portidx_b = None):
       newv4int = int(v4addbin, 2)
       newv4add = ip.IPv4Address(newv4int)
       print(f'>>> newv4add is {newv4add}, type is {type(newv4add)}')
-      param_ls[3] = newv4add
+      param_ls[3] = newv4add.compressed
+      print(f'>>> param_ls[3] is {param_ls[3]}, type {type(param_ls[3])}')
    else:
       window['-V4HOST_SLIDER-'].update(value=0)
 
    #-------------------------------------------------------------------------#
-   # binary strings
+   # Binary strings
    #-------------------------------------------------------------------------#
 
-   # BMR binary strings data
+   # BMR PD binary strings data
    #----------------------------------#
    v6p_hex_exp = ip.IPv6Address(param_ls[1]).exploded # 0000:0000:...
    v6p_hex_seglst = v6p_hex_exp.split(':')[:4] # ['0000', '0000', ...]
@@ -425,10 +426,6 @@ def rule_calc(param_ls, upd_obj, v4host = 0, portidx_b = None):
                               f"      ::/{upd_len}"
    bmr_bs_dic['bmr_binstr'] = ' BMR PD:  ' + v6p_bin_fmt
 
-   #-------------------------------------------------------------------------#
-   # User PD (upd), IPv4, and Ports binary strings
-   #-------------------------------------------------------------------------#
-
    # User PD (upd) binary strings data
    #-----------------------------------#
    upd_bin = f'{ip.IPv6Address(upd_obj.network_address):b}'[:64]
@@ -450,7 +447,6 @@ def rule_calc(param_ls, upd_obj, v4host = 0, portidx_b = None):
       psid_ofst_bin = bin(1)[2:].zfill(param_ls[6])
    else:
       psid_ofst_bin = ''
-#   psid_ofst_bin = bin(1)[2:].zfill(param_ls[6])     # NEED TO FIX "PSID OFFSET = 0" RESULT !!!
    portrpad_bin = '0' * (16 - param_ls[6] - psidlen) # MAY NEED TO ACCEPT EDITOR VALUES !!!
    port_bin = psid_ofst_bin + \
               psid + \
@@ -461,7 +457,7 @@ def rule_calc(param_ls, upd_obj, v4host = 0, portidx_b = None):
    # CE Source Port data
    #----------------------------------#
    # If call is from port index buttons, update Port data
-   # This if statement MUST be between IPv4 binary string data and dictionary!!!
+   # This if statement MUST be between User PD binary string data and User PD dictionary!!!
    # >>>> I don't think "elif" is ever used.
    # >>>> Maybe eliminate "ifs" and add higher val to ">>" button.
    # >>>> Then just rely on test for max index.
@@ -500,10 +496,38 @@ def rule_calc(param_ls, upd_obj, v4host = 0, portidx_b = None):
    pd_bs_dic['ea_binstr'] = ' EA Bits: ' + '.' * V6Indices(param_ls[2]) + ea_bin_fmt
    pd_bs_dic['blank'] = ''
    pd_bs_dic['portidx_b'] = f' The "PORT INDEX" is PSID-Offset/Right-Padding:' \
-                           f' {psid_ofst_bin}-{portrpad_bin}'
+                            f' {psid_ofst_bin}-{portrpad_bin}'
    pd_bs_dic['port_bin'] = f' The PORT is PSID-Offset/PSID/Right-Padding: ' \
                            f'{psid_ofst_bin}-{psid}-{portrpad_bin}' \
                            f' = Port {port_int}'
+
+   # IPv4 binary string data
+   #------------------------------------------------#
+   v4ip_str = param_ls[3]
+   v4_seglst = v4ip_str.split('.')
+   v4mask = param_ls[4]
+   print(f'\n>>> IPv4 binary string data')
+   print(f'>>> v4ip_str is {v4ip_str}, type {type(v4ip_str)}')
+   print(f'>>> v4mask is {v4mask}, type {type(v4mask)}')
+   v4_obj = ip.ip_network(v4ip_str + '/' + str(v4mask), strict=False)
+   v4_bin = f'{ip.IPv4Address(v4ip_str):b}'
+   v4_bin_seglst = [v4_bin[i:i+8] for i in range(0, 32, 8)]
+   v4_bin_fmt = '.'.join(v4_bin_seglst) + f'/{v4mask}'
+
+   # IPv4 binary string dictionary entries
+   #------------------------------------------------#
+   v4_bs_dic = {}
+   v4_bs_dic['blank'] = ''
+   v4_bs_dic['v4_intstr'] = f" v4 Addr: {' ' * 4}" \
+                            f"{'   .   '.join(v4_seglst)}" \
+                            f"   ::/{v4mask}"
+   v4_bs_dic['v4_binstr'] = v4_bin_fmt
+
+
+#   upd_bin = f'{ip.IPv6Address(upd_obj.network_address):b}'[:64]
+#   upd_bin_seglst = [upd_bin[i:i+16] for i in range(0, 64, 16)]
+#   upd_bin_fmt = ':'.join(upd_bin_seglst) + f'::/{upd_len}'
+
 
    #-------------------------------------------------------------------------#
    # Binary display highlight indices
@@ -564,6 +588,7 @@ def rule_calc(param_ls, upd_obj, v4host = 0, portidx_b = None):
    d_dic['pidx_bin'] = pidx_bin
    d_dic['bmr_bs_dic'] = bmr_bs_dic
    d_dic['pd_bs_dic'] = pd_bs_dic
+   d_dic['v4_bs_dic'] = v4_bs_dic
    d_dic['hl_dic'] = hl_dic
    d_dic['num_excl_ports'] = 2 ** (16 - param_ls[6])
 
@@ -615,6 +640,9 @@ def displays_update(dic, pd_obj):
 
    for num, bstr in enumerate(dic['pd_bs_dic']):
       multiline.update(''.join((dic['pd_bs_dic'][bstr], '\n')), append=True)
+
+   for num, bstr in enumerate(dic['v4_bs_dic']):
+      multiline.update(''.join((dic['v4_bs_dic'][bstr], '\n')), append=True)
 
    # Output values to binary editor sliders and input fields
    window['-V6PFX_LEN_SLDR-'].update(dic['paramlist'][2])
@@ -1117,10 +1145,11 @@ while True:
    if event == '-NXT_USER_PD-' and last_params:
       portidxadd = 0
       next_userpd_obj = userpd_cls_obj.new_pd()
+      last_userpd_obj = next_userpd_obj
       next_pd_bin = f'{ip.IPv6Address(next_userpd_obj.network_address):b}'
       next_pd_bin_type = type(f'{ip.IPv6Address(next_userpd_obj.network_address):b}')
       v4hostint = int(values['-V4HOST_SLIDER-']) # slider values are floats
-      rule_calc(last_params, next_userpd_obj, v4hostint)
+      rule_calc(last_params, next_userpd_obj, v4hostint, portidx_b = 0)
 
    # Increment IPv4 host address
    #-----------------------------------------#
@@ -1161,6 +1190,8 @@ while True:
          portidxadd = 100000  # avoiding allowing infinite growth
                               # --------------------------------- do this better!!!
       v4hostint = int(values['-V4HOST_SLIDER-'])
+   #   userpd_curr = ip.ip_network(values['-USER_PD-'])
+   #   print(f'>>> IDX Change - last_userpd_obj is {last_userpd_obj}')
       rule_calc(last_params, last_userpd_obj, v4host = v4hostint, portidx_b = idx)
 
    print(f'#------- End Event {cntr - 1} -------#')
