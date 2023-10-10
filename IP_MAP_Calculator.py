@@ -437,10 +437,7 @@ def rule_calc(param_ls, upd_obj, v4host = 0, portidx_b = None):
    v4hostbin_len = 32 - param_ls[4]
    psid_idxl = param_ls[2] + v4hostbin_len
    psid_idxr = param_ls[2] + param_ls[5]
-   v4strobj = ip.IPv4Address(param_ls[3])
-   print(f'\n *** User PD binary strings section ***')
-   print(f'>>> v4strobj is {v4strobj}')
-   v4str = v4strobj.compressed # for d_dic
+   v4str = param_ls[3]
    psid = upd_bin[psid_idxl : psid_idxr]
    # is PSID > 0?
    if param_ls[6] > 0:
@@ -506,28 +503,27 @@ def rule_calc(param_ls, upd_obj, v4host = 0, portidx_b = None):
    v4ip_str = param_ls[3]
    v4_seglst = v4ip_str.split('.')
    v4mask = param_ls[4]
-   print(f'\n>>> IPv4 binary string data')
-   print(f'>>> v4ip_str is {v4ip_str}, type {type(v4ip_str)}')
-   print(f'>>> v4mask is {v4mask}, type {type(v4mask)}')
    v4_obj = ip.ip_network(v4ip_str + '/' + str(v4mask), strict=False)
    v4_bin = f'{ip.IPv4Address(v4ip_str):b}'
+   # make segments equal length for display
    v4_bin_seglst = [v4_bin[i:i+8] for i in range(0, 32, 8)]
    v4_bin_fmt = '.'.join(v4_bin_seglst) + f'/{v4mask}'
+   for i, seg in enumerate(v4_seglst):
+      if len(seg) == 3:
+         pass
+      elif len(seg) == 2:
+         v4_seglst[i] = f' {seg}'
+      elif len(seg) == 1:
+         v4_seglst[i] = f' {seg} '
 
    # IPv4 binary string dictionary entries
    #------------------------------------------------#
    v4_bs_dic = {}
    v4_bs_dic['blank'] = ''
-   v4_bs_dic['v4_intstr'] = f" v4 Addr: {' ' * 4}" \
-                            f"{'   .   '.join(v4_seglst)}" \
-                            f"   ::/{v4mask}"
-   v4_bs_dic['v4_binstr'] = v4_bin_fmt
-
-
-#   upd_bin = f'{ip.IPv6Address(upd_obj.network_address):b}'[:64]
-#   upd_bin_seglst = [upd_bin[i:i+16] for i in range(0, 64, 16)]
-#   upd_bin_fmt = ':'.join(upd_bin_seglst) + f'::/{upd_len}'
-
+   v4_bs_dic['v4_intstr'] = f" IPv4 Addr:     " \
+                            f"{'  .   '.join(v4_seglst)}" \
+                            f"  /{v4mask}"
+   v4_bs_dic['v4_binstr'] = f" IPv4 Addr:  {v4_bin_fmt}"
 
    #-------------------------------------------------------------------------#
    # Binary display highlight indices
@@ -556,6 +552,9 @@ def rule_calc(param_ls, upd_obj, v4host = 0, portidx_b = None):
    portbin_psid_hl_r = portbin_psid_hl_l + psidlen
    portbin_pad_hl_l = portbin_psid_hl_r + 1
    portbin_pad_hl_r = portbin_pad_hl_l + (16 - param_ls[6] - psidlen)
+   v4ip_hl_l = 13 + V4Indices(param_ls[4])
+   v4ip_hl_r = 13 + V4Indices(32)
+
 
    # highlight index dictionary
    #----------------------------------#
@@ -571,6 +570,9 @@ def rule_calc(param_ls, upd_obj, v4host = 0, portidx_b = None):
    hl_dic['portbin_ofst_hl'] = [portbin_ofst_hl_l, portbin_ofst_hl_r]
    hl_dic['portbin_psid_hl'] = [portbin_psid_hl_l, portbin_psid_hl_r]
    hl_dic['portbin_pad_hl'] = [portbin_pad_hl_l, portbin_pad_hl_r]
+
+   hl_dic['v4ip_hl'] = [v4ip_hl_l, v4ip_hl_r]
+   hl_dic['v4ipbin_hl'] = [v4ip_hl_l, v4ip_hl_r]
 
    #-------------------------------------------------------------------------#
    # Results = Display values dictionary
@@ -694,6 +696,12 @@ def displays_update(dic, pd_obj):
    for i, x in enumerate(dic['hl_dic']['portbin_pad_hl']):
       dic['hl_dic']['portbin_pad_hl'][i] = '10.' + str(x)
 
+   # IPv4 strings
+   for i, x in enumerate(dic['hl_dic']['v4ip_hl']):
+      dic['hl_dic']['v4ip_hl'][i] = '12.' + str(x)
+
+   for i, x in enumerate(dic['hl_dic']['v4ipbin_hl']):
+      dic['hl_dic']['v4ipbin_hl'][i] = '13.' + str(x)
 
    # Apply highlights
    #----------------------------------#
@@ -711,6 +719,9 @@ def displays_update(dic, pd_obj):
    widget.tag_add('teal', *dic['hl_dic']['portbin_psid_hl'])
 
    widget.tag_add('yellow', *dic['hl_dic']['portbin_pad_hl'])
+
+   widget.tag_add('pink', *dic['hl_dic']['v4ip_hl'])
+   widget.tag_add('pink', *dic['hl_dic']['v4ipbin_hl'])
 
 
    return
@@ -811,7 +822,7 @@ class UserPd:
 
 # Account for IP address separators (: & .) in binary strings
 def V6Indices(bin_right):
-   '''For creation of hilight indices for IPv6 binary strings.
+   '''For creation of highlight indices for IPv6 binary strings.
    For a given string length, it returns that length increased
    by the number of separators ":" that will be inserted.
    '''
@@ -824,17 +835,25 @@ def V6Indices(bin_right):
    return bin_right
 
 def V4Indices(bin_right):
-   '''For creation of hilight indices for IPv4 binary strings.
+   '''For creation of highlight indices for IPv4 binary strings.
    For a given string length, it returns that length increased
    by the number of separators "." that will be inserted.
    '''
-   if bin_right > 32:
-      bin_right += 6
-   elif bin_right > 24:
+#   if bin_right > 32:
+#      bin_right += 3
+#   elif bin_right > 24:
+#      bin_right += 3
+#   elif bin_right > 16:
+#      bin_right += 2
+#   elif bin_right > 8:
+#      bin_right += 1
+#   return bin_right
+
+   if bin_right >= 24:
       bin_right += 3
-   elif bin_right > 16:
+   elif bin_right >= 16:
       bin_right += 2
-   elif bin_right > 8:
+   elif bin_right >= 8:
       bin_right += 1
    return bin_right
 
@@ -1186,9 +1205,9 @@ while True:
             idx = 100000
       idx = idx + portidxadd
       portidxadd = idx
-      if portidxadd > 100000:
-         portidxadd = 100000  # avoiding allowing infinite growth
-                              # --------------------------------- do this better!!!
+      if portidxadd > 100000: # avoiding allowing infinite growth
+         portidxadd = 100000  # ----------------------------- do this better!!!
+
       v4hostint = int(values['-V4HOST_SLIDER-'])
    #   userpd_curr = ip.ip_network(values['-USER_PD-'])
    #   print(f'>>> IDX Change - last_userpd_obj is {last_userpd_obj}')
