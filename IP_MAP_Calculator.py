@@ -979,7 +979,7 @@ while True:
       sg.user_settings_set_entry('-location-', window.current_location())
       break
 
-## This rints all available element keys:
+## This prints all available element keys:
 #   print('\n ---- VALUES KEYS ----')
 #   for x in values.keys():
 #      print(x)
