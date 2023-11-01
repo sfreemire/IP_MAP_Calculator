@@ -214,9 +214,9 @@ bin_display_col2 = [
     pad=((5, 10), (0, 10)), key='-V4HOST_SLIDER-'),
     sg.Button(' + 1', font='Helvetica 11', key='-NEXT_HOST-'),
     sg.Push()],
-   [sg.Sizer(h_pixels=0, v_pixels=8)],   
-   [sg.HorizontalSeparator()],
-   [sg.Sizer(h_pixels=0, v_pixels=10)],
+#   [sg.Sizer(h_pixels=0, v_pixels=8)],   
+#   [sg.HorizontalSeparator()],
+   [sg.Sizer(h_pixels=0, v_pixels=3)],
    [sg.Text('Source Port Index:', font=('Helvetica', 14, 'bold')),
     sg.Text('', font=('Arial', 14, 'bold'), justification='centered',
     size=(16, 1), background_color='white smoke', border_width=4, relief='ridge',
@@ -229,7 +229,7 @@ bin_display_col2 = [
     sg.Button(' + 100', font='Helvetica 11', key='-P_IDX_UP100-'),
     sg.Button(' >>', font='Helvetica 11', key='-P_IDX_LAST-'),
     sg.Text(f'= Port', font=('Helvetica', 14, 'bold')),
-    sg.Text('', font=('Arial', 14, 'bold'), justification='centered',
+    sg.Text('', font=('Helvetica', 14, 'bold'), justification='centered',
     size=(7, 1), background_color='white smoke', border_width=4, relief='ridge',
     key='-SP_INT-'),
 #    sg.Input('', size=(7, 1), justification='centered',
@@ -239,7 +239,8 @@ bin_display_col2 = [
 
 bin_display_col3 = [
    [sg.Push(),
-    sg.Text('', text_color='red', key='-PD_MESSAGES-'), # for error messages
+    # Error messages
+    sg.Text('', text_color='red', pad=((5, 5), (0, 0)), key='-PD_MESSAGES-'),
     sg.Push()]
 ]
 
@@ -274,7 +275,7 @@ MLINE_SAVED = '-MLINE_SAVED-'+sg.WRITE_ONLY_KEY
 saved_layout = [
 #      [sg.Text('Saved Rule Strings:')],
       [sg.Push(),
-       sg.Multiline(size=(77, 7), font=('Courier', 14, 'bold'),
+       sg.Multiline(size=(77, 5), font=('Courier', 14, 'bold'),
        disabled=True, autoscroll=True, expand_x=True, expand_y=True,
        pad=(2, 10), horizontal_scroll=True, key=MLINE_SAVED),
        sg.Push()]
