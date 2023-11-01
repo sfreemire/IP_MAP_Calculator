@@ -11,6 +11,12 @@ rules, as described in RFC7599 (MAP-T) and RFC7597 (MAP-E).
 * tkinter framework - Note: macOS (Ventura) required (brew install) python-tk@3.11
 * PySimpleGUI Python package
 
+## Executables
+
+Executables created with PyInstaller. They only run on the hardware they were created on.
+
+* To be added
+
 ## License
 
 IP_MAP_Calculator is distributed under the terms of the MIT license.
