@@ -13,12 +13,18 @@ rules, as described in RFC7599 (MAP-T) and RFC7597 (MAP-E).
 
 ## Executables
 
+<<<<<<< HEAD
 Executables created with PyInstaller. They only run on the hardware they were created on.
 
 * To be added
+=======
+Executables created with PyInstaller. They may only run on the OS or hardware they were built on.
+
+* IPMC_macOS_Ventura13-4_M1
+>>>>>>> about-popup
 
 ## License
 
-IP_MAP_Calculator is distributed under the terms of the MIT license.
+IP_MAP_Calculator is released under the "MIT License Agreement".
 
-See LICENSE for details.
+See LICENSE file for details.
