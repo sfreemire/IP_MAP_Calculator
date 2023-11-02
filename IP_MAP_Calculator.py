@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import PySimpleGUI as sg
 import ipaddress as ip
+import os
+import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
@@ -261,7 +263,7 @@ button_col1 = [
     sg.Text('', text_color='red', key='-BTN_MESSAGES-'),
     sg.Push(),
 #    sg.Button('Save', font='Helvetica 11', key=('-SAVE_MAIN-')),
-#    sg.Button('About', font=('Helvetica', 12)),
+    sg.Button('About', font=('Helvetica', 12)),
     sg.Button(' Exit ', font=('Helvetica', 12, 'bold'))]
 ]
 
@@ -922,6 +924,18 @@ def validate(param_ls):
          window['-PD_MESSAGES-'].update('PSID Offset + PSID length > 16 bits')
    return validflag
 
+
+# Path to additional data files
+#-------------------------------#
+def resource_path(relative_path):
+   """ Get absolute path to resource, works for dev and for PyInstaller """
+   try:
+      # PyInstaller creates a temp folder and stores path in _MEIPASS
+      base_path = sys._MEIPASS
+   except Exception:
+      base_path = os.path.abspath(".")
+   return os.path.join(base_path, relative_path)
+
 '''
 ███████ ██    ██ ███████ ███    ██ ████████     ██       ██████   ██████  ██████  
 ██      ██    ██ ██      ████   ██    ██        ██      ██    ██ ██    ██ ██   ██ 
@@ -979,6 +993,13 @@ while True:
       # Save screen location when closing window
       sg.user_settings_set_entry('-location-', window.current_location())
       break
+
+   if event == 'About':
+      about_txt_file = resource_path('files/about_txt')
+      with open(about_txt_file) as lt:
+         abouttxt = lt.read()
+      about = sg.popup_scrolled(abouttxt, title='About', 
+         size=(70, 33), font=('Arial', 14))
 
 ## This prints all available element keys:
 #   print('\n ---- VALUES KEYS ----')
