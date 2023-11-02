@@ -6,7 +6,7 @@ import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.6.0 - 10/11/2023 - Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.7.0 - 11/02/2023 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
