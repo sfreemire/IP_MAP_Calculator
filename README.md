@@ -13,7 +13,8 @@ rules, as described in RFC7599 (MAP-T) and RFC7597 (MAP-E).
 
 ## Executables
 
-Executables created with PyInstaller. They may only run on the OS or hardware they were built on.
+Executable files created with PyInstaller are located in the executables folder.
+They may only run on the OS or hardware they were built on.
 
 * IPMC_macOS_Ventura13-4_M1
 
