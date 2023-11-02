@@ -1,6 +1,6 @@
 # IP_MAP_Calculator
 
-IP Networking MAP-T and MAP-E Rule Parameter Calculator
+IP Networking MAP-T Rule Parameter Calculator
 
 Calculates IPv4 sharing and port allocations for stateless "Mapping of Address and Port" (MAP)  
 rules, as described in RFC7599 (MAP-T) and RFC7597 (MAP-E).
