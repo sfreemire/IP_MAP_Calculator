@@ -306,7 +306,27 @@ saved_frame_layout = [[collapse(saved_section_layout, '-SAVED_SEC-')]]
 
 # Master Window Layout
 #-------------------------------------#
-layout = [
+#layout = [
+##   [sg.Text('MAP Calculator', font=('Helvetica', 20), size=(49, 1),
+##      pad=((0, 0),(11, 0)), justification=('l'))],
+#   [sg.Frame('', display_layout, expand_x=True, border_width=6,
+#      relief='ridge', element_justification='centered')],
+#   [sg.Frame('', editor_layout, expand_x=True, border_width=6, 
+#    relief='ridge')],
+#   [sg.Frame('', bin_display_layout, expand_x=True, border_width=6, 
+#    relief='ridge')],
+#   [sg.Frame('', button_layout, expand_x=True, border_width=6, 
+#    relief='ridge')],
+##   [sg.Frame('', saved_section_layout, expand_x=True, border_width=6, 
+##    relief='ridge')]
+#   # Saved strings section
+#   [sg.T(SYMBOL_UP, enable_events=True, k='-OPEN SAVED-'),
+#    sg.T('Saved Rule Strings', enable_events=True, k='-OPEN SAVED-TEXT')],
+#   [sg.Frame('', saved_frame_layout, expand_x=True, border_width=6,
+#    relief='ridge')]
+#]
+
+main_layout = [
 #   [sg.Text('MAP Calculator', font=('Helvetica', 20), size=(49, 1),
 #      pad=((0, 0),(11, 0)), justification=('l'))],
    [sg.Frame('', display_layout, expand_x=True, border_width=6,
@@ -326,6 +346,11 @@ layout = [
     relief='ridge')]
 ]
 
+layout = [
+   [sg.Column(main_layout, size=(710, None), expand_y=True, scrollable=True, vertical_scroll_only = True)]
+]
+
+
 #-------------------------------------------------------------------------#
 # Create Main Window
 #-------------------------------------------------------------------------#
@@ -334,7 +359,7 @@ layout = [
 window = sg.Window('IP MAP Calculator', layout, font=windowfont,
    enable_close_attempted_event=True,
    location=sg.user_settings_get_entry('-location-', (None, None)),
-   keep_on_top=False, finalize=True)
+   keep_on_top=False, resizable=True, size=(755, 1200), finalize=True)
 
 # Display formatting for strings - applied immediately
 #------------------------------------------------------#
