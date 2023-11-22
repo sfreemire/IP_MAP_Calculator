@@ -137,8 +137,9 @@ param_edit_col1 = [
     sg.Button('Enter', font='Helvetica 11', pad=((5, 5), (5, 0)),
     key='-ENTER_STRING-')],
    [sg.Push(),
-    sg.Text('Edit or paste saved string and Enter (don\'t include parenthesis section)', font=('Helvetica', 13,
-    'italic'), justification='centered', pad=((5, 5), (0, 5))),
+    sg.Text('Edit or paste saved string and Enter (don\'t include parenthesis section)',
+    font=('Helvetica', 13, 'italic'), justification='centered',
+    pad=((5, 5), (0, 5))),
     sg.Push()]
 ]
 
@@ -305,7 +306,8 @@ sections_layout = [
 # Final Layout
 #-------------------------------------#
 layout = [
-   [sg.Column(sections_layout, size=(710, None), expand_y=True, scrollable=True, vertical_scroll_only = True)]
+   [sg.Column(sections_layout, size=(710, None), expand_y=True,
+    scrollable=True, vertical_scroll_only = True)]
 ]
 
 #-------------------------------------------------------------------------#
@@ -664,9 +666,7 @@ def displays_update(dic, pd_obj):
    widget.tag_add('pink', *dic['hl_dic']['v4ip_hl'])
    widget.tag_add('pink', *dic['hl_dic']['v4ipbin_hl'])
 
-
    return
-
 
 '''
  ██████ ██       █████  ███████ ███████ ███████ ███████         ██ 
@@ -1192,11 +1192,5 @@ while True:
       else:
          window[MLINE_SAVED].update(savstr)
          savctr = True
-
-   # if event.startswith('-OPEN SAVED-'):
-   #    saved_opened = not saved_opened
-   #    window['-OPEN SAVED-'].update(SYMBOL_DOWN if saved_opened else SYMBOL_UP)
-   #    window['-SAVED_SEC-'].update(visible=saved_opened)
-
 
 window.close()

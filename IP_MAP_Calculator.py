@@ -6,7 +6,7 @@ import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.7.0 - 11/02/2023 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.8.0 - 11/22/2023 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -38,21 +38,6 @@ eabits = [n for n in range(33)]     # for edit rule Combo
 # sg.Sizer(h_pixels=0, v_pixels=0) is like an adjustable block between elements
 # expand_x=True causes container element to expand to widest element contained
 # expand_y=True causes container element to expand vertically as needed
-
-# Collapsing section creator function
-#----------------------------------------------#
-SYMBOL_UP =    '▲'
-SYMBOL_DOWN =  '▼'
-
-def collapse(layout, key):
-    """
-    Helper function that creates a Column that can be later made hidden, thus appearing "collapsed"
-    :param layout: The layout for the section
-    :param key: Key used to make this seciton visible / invisible
-    :return: A pinned column that can be placed directly into your layout
-    :rtype: sg.pin
-    """
-    return sg.pin(sg.Column(layout, key=key, visible=False))
 
 # Main Display (top frame) - Calculated Values
 #----------------------------------------------#
@@ -152,8 +137,9 @@ param_edit_col1 = [
     sg.Button('Enter', font='Helvetica 11', pad=((5, 5), (5, 0)),
     key='-ENTER_STRING-')],
    [sg.Push(),
-    sg.Text('Edit or paste saved string and Enter', font=('Helvetica', 13,
-    'italic'), justification='centered', pad=((5, 5), (0, 5))),
+    sg.Text('Edit or paste saved string and Enter (don\'t include parenthesis section)',
+    font=('Helvetica', 13, 'italic'), justification='centered',
+    pad=((5, 5), (0, 5))),
     sg.Push()]
 ]
 
@@ -302,13 +288,9 @@ saved_section_layout = [
        sg.Push()]
 ]
 
-saved_frame_layout = [[collapse(saved_section_layout, '-SAVED_SEC-')]]
-
-# Master Window Layout
+# All Sections
 #-------------------------------------#
-layout = [
-#   [sg.Text('MAP Calculator', font=('Helvetica', 20), size=(49, 1),
-#      pad=((0, 0),(11, 0)), justification=('l'))],
+sections_layout = [
    [sg.Frame('', display_layout, expand_x=True, border_width=6,
       relief='ridge', element_justification='centered')],
    [sg.Frame('', editor_layout, expand_x=True, border_width=6, 
@@ -317,13 +299,15 @@ layout = [
     relief='ridge')],
    [sg.Frame('', button_layout, expand_x=True, border_width=6, 
     relief='ridge')],
-#   [sg.Frame('', saved_section_layout, expand_x=True, border_width=6, 
-#    relief='ridge')]
-   # Saved strings section
-   [sg.T(SYMBOL_UP, enable_events=True, k='-OPEN SAVED-'),
-    sg.T('Saved Rule Strings', enable_events=True, k='-OPEN SAVED-TEXT')],
-   [sg.Frame('', saved_frame_layout, expand_x=True, border_width=6,
+   [sg.Frame('', saved_section_layout, expand_x=True, border_width=6, 
     relief='ridge')]
+]
+
+# Final Layout
+#-------------------------------------#
+layout = [
+   [sg.Column(sections_layout, size=(710, None), expand_y=True,
+    scrollable=True, vertical_scroll_only = True)]
 ]
 
 #-------------------------------------------------------------------------#
@@ -334,7 +318,10 @@ layout = [
 window = sg.Window('IP MAP Calculator', layout, font=windowfont,
    enable_close_attempted_event=True,
    location=sg.user_settings_get_entry('-location-', (None, None)),
-   keep_on_top=False, finalize=True)
+   keep_on_top=False, resizable=True, size=(755, 1070), finalize=True)
+
+# Prevent horizontal window resizing
+#window.set_resizable(False, True) # Not available until PySimpleGUI v5
 
 # Display formatting for strings - applied immediately
 #------------------------------------------------------#
@@ -679,9 +666,7 @@ def displays_update(dic, pd_obj):
    widget.tag_add('pink', *dic['hl_dic']['v4ip_hl'])
    widget.tag_add('pink', *dic['hl_dic']['v4ipbin_hl'])
 
-
    return
-
 
 '''
  ██████ ██       █████  ███████ ███████ ███████ ███████         ██ 
@@ -1207,11 +1192,5 @@ while True:
       else:
          window[MLINE_SAVED].update(savstr)
          savctr = True
-
-   if event.startswith('-OPEN SAVED-'):
-      saved_opened = not saved_opened
-      window['-OPEN SAVED-'].update(SYMBOL_DOWN if saved_opened else SYMBOL_UP)
-      window['-SAVED_SEC-'].update(visible=saved_opened)
-
 
 window.close()
