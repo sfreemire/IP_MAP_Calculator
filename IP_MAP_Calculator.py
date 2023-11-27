@@ -6,7 +6,7 @@ import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.7.0 - 11/02/2023 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.8.0 - 11/22/2023 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -44,20 +44,20 @@ eabits = [n for n in range(33)]     # for edit rule Combo
 display_col1 = [
    [sg.Text('Users', font=('Arial', 14, 'bold'))],
    [sg.Text('', font=('Arial', 16, 'bold'), justification='centered',
-    size=(7, 1), background_color='white smoke', border_width=4, relief='ridge',
-    key='-USERS_DSPLY-')]
+    size=(7, 1), background_color='white smoke', border_width=4,
+    relief='ridge', key='-USERS_DSPLY-')]
 ]
 display_col2 = [
    [sg.Text('Ports/User', font=('Arial', 14, 'bold'))],
    [sg.Text('', font=('Arial', 16, 'bold'), justification='centered',
-    size=(7, 1), background_color='white smoke', border_width=4, relief='ridge',
-    key='-PORTS_DSPLY-')]
+    size=(7, 1), background_color='white smoke', border_width=4,
+    relief='ridge', key='-PORTS_DSPLY-')]
 ]
 display_col3 = [
    [sg.Text('Uniq v4 IPs', font=('Arial', 14, 'bold'))],
    [sg.Text('', font=('Arial', 16, 'bold'), justification='centered',
-    size=(7, 1), background_color='white smoke', border_width=4, relief='ridge',
-    key='-IPS_DSPLY-')]
+    size=(7, 1), background_color='white smoke', border_width=4,
+    relief='ridge', key='-IPS_DSPLY-')]
 ]
 display_col4 = [
    [sg.Text('Sharing', font=('Arial', 14, 'bold'))],
@@ -137,8 +137,9 @@ param_edit_col1 = [
     sg.Button('Enter', font='Helvetica 11', pad=((5, 5), (5, 0)),
     key='-ENTER_STRING-')],
    [sg.Push(),
-    sg.Text('Edit or paste saved string and Enter', font=('Helvetica', 13, 'italic'),
-    justification='centered', pad=((5, 5), (0, 5))),
+    sg.Text('Edit or paste saved string and Enter (don\'t include parenthesis section)',
+    font=('Helvetica', 13, 'italic'), justification='centered',
+    pad=((5, 5), (0, 5))),
     sg.Push()]
 ]
 
@@ -224,8 +225,8 @@ bin_display_col2 = [
    [sg.Sizer(h_pixels=0, v_pixels=3)],
    [sg.Text('Source Port Index:', font=('Helvetica', 14, 'bold')),
     sg.Text('', font=('Arial', 14, 'bold'), justification='centered',
-    size=(16, 1), background_color='white smoke', border_width=4, relief='ridge',
-    key='-SP_INDEX-'),
+    size=(16, 1), background_color='white smoke', border_width=4,
+    relief='ridge', key='-SP_INDEX-'),
 #    sg.Input('', size=(16, 1), justification='centered',
 #    use_readonly_for_disable=True,disabled=True, key='-SP_INDEX-'),
     sg.Button(' <<', font='Helvetica 11', key='-P_IDX_FIRST-'),
@@ -235,8 +236,8 @@ bin_display_col2 = [
     sg.Button(' >>', font='Helvetica 11', key='-P_IDX_LAST-'),
     sg.Text(f'= Port', font=('Helvetica', 14, 'bold')),
     sg.Text('', font=('Helvetica', 14, 'bold'), justification='centered',
-    size=(7, 1), background_color='white smoke', border_width=4, relief='ridge',
-    key='-SP_INT-'),
+    size=(7, 1), background_color='white smoke', border_width=4,
+    relief='ridge', key='-SP_INT-'),
 #    sg.Input('', size=(7, 1), justification='centered',
 #    use_readonly_for_disable=True, disabled=True, key='-SP_INT-'),
     sg.Push()]
@@ -277,20 +278,19 @@ button_layout = [
 # Saved rule string frame (5th frame)
 #-------------------------------------#
 MLINE_SAVED = '-MLINE_SAVED-'+sg.WRITE_ONLY_KEY
-saved_layout = [
+saved_section_layout = [
 #      [sg.Text('Saved Rule Strings:')],
-      [sg.Push(),
-       sg.Multiline(size=(77, 5), font=('Courier', 14, 'bold'),
+#      [sg.Push(),
+      [sg.Sizer(h_pixels=3, v_pixels=0),
+       sg.Multiline(size=(81, 8), font=('Courier', 14, 'bold'),
        disabled=True, autoscroll=True, expand_x=True, expand_y=True,
-       pad=(2, 10), horizontal_scroll=True, key=MLINE_SAVED),
+       pad=(0,0), horizontal_scroll=True, key=MLINE_SAVED),
        sg.Push()]
 ]
 
-# Master Window Layout
+# All Sections
 #-------------------------------------#
-layout = [
-#   [sg.Text('MAP Calculator', font=('Helvetica', 20), size=(49, 1),
-#      pad=((0, 0),(11, 0)), justification=('l'))],
+sections_layout = [
    [sg.Frame('', display_layout, expand_x=True, border_width=6,
       relief='ridge', element_justification='centered')],
    [sg.Frame('', editor_layout, expand_x=True, border_width=6, 
@@ -299,9 +299,16 @@ layout = [
     relief='ridge')],
    [sg.Frame('', button_layout, expand_x=True, border_width=6, 
     relief='ridge')],
-   [sg.Frame('', saved_layout, expand_x=True, border_width=6, 
+   [sg.Frame('', saved_section_layout, expand_x=True, border_width=6, 
     relief='ridge')]
-   ]
+]
+
+# Final Layout
+#-------------------------------------#
+layout = [
+   [sg.Column(sections_layout, size=(710, None), expand_y=True,
+    scrollable=True, vertical_scroll_only = True)]
+]
 
 #-------------------------------------------------------------------------#
 # Create Main Window
@@ -311,7 +318,10 @@ layout = [
 window = sg.Window('IP MAP Calculator', layout, font=windowfont,
    enable_close_attempted_event=True,
    location=sg.user_settings_get_entry('-location-', (None, None)),
-   keep_on_top=False, finalize=True)
+   keep_on_top=False, resizable=True, size=(755, 1070), finalize=True)
+
+# Prevent horizontal window resizing
+#window.set_resizable(False, True) # Not available until PySimpleGUI v5
 
 # Display formatting for strings - applied immediately
 #------------------------------------------------------#
@@ -352,7 +362,7 @@ widget.tag_config('lt_blue', foreground='black', background='#B2CAFA') # lt blue
 # upd_obj is "User delegated prefix" received from DHCP
 # 'obj' indicates a class object created with the imported ipaddress module
 def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
-   print('\n********** START rule_calc **************')
+#   print('\n********** START rule_calc **************')
    '''The rule_calc function accepts a BMR paramater list, an IPv6
    user PD (ipaddress object), and an optional port index integer from
    a user input or editing option. It calculates the network address results,
@@ -626,12 +636,6 @@ def displays_update(dic, pd_obj):
          multiline.update(''.join((dic['bin_str_dic'][bstr], '\n')))
       else:
          multiline.update(''.join((dic['bin_str_dic'][bstr], '\n')), append=True)
-#
-#   for num, bstr in enumerate(dic['pd_bs_dic']):
-#      multiline.update(''.join((dic['pd_bs_dic'][bstr], '\n')), append=True)
-#
-#   for num, bstr in enumerate(dic['v4_bs_dic']):
-#      multiline.update(''.join((dic['v4_bs_dic'][bstr], '\n')), append=True)
 
    # Output values to binary editor sliders and input fields
    window['-V6PFX_LEN_SLDR-'].update(dic['paramlist'][2])
@@ -642,55 +646,7 @@ def displays_update(dic, pd_obj):
 #   window['-PORT_SLIDER-'].update(range=(0, (dic['ppusr'] - 1) ))
 #   window['-PORT_INDEX-'].update('0') #### <<<<------ UPDATE WITH ACTUAL VALUE !!! !!!
 
-   #-------------------------------------------------------------------------#
-   # Binary string highlights
-   #-------------------------------------------------------------------------#
-   # Update received hl indices w/required line numbers
-   #----------------------------------------------------#
-   # BMR binary string
-#   for i, x in enumerate(dic["hl_dic"]["bmr_hl"]):
-#      dic["hl_dic"]["bmr_hl"][i] = '5.' + str(x)   # User PD is on line 4
-#
-#   # User PD binary string
-#   for i, x in enumerate(dic["hl_dic"]["upd_hl"]):
-#      dic["hl_dic"]["upd_hl"][i] = '6.' + str(x)
-#
-#   # IPv6 subnet bits in User PD binary string
-#   for i, x in enumerate(dic["hl_dic"]["sbnt_hl"]):
-#      dic["hl_dic"]["sbnt_hl"][i] = '6.' + str(x)
-#
-#   # IPv4 host bits in MAP EA binary string
-#   for i, x in enumerate(dic["hl_dic"]["ea_v4_hl"]):
-#      dic["hl_dic"]["ea_v4_hl"][i] = '7.' + str(x)
-#
-#   # PSID bits in MAP EA binary string
-#   for i, x in enumerate(dic["hl_dic"]["ea_psid_hl"]):
-#      dic["hl_dic"]["ea_psid_hl"][i] = '7.' + str(x)
-#
-#   # Port Index
-#   for i, x in enumerate(dic['hl_dic']['prtidx_ofst_hl']):
-#      dic['hl_dic']['prtidx_ofst_hl'][i] = '9.' + str(x)
-#   for i, x in enumerate(dic['hl_dic']['prtidx_pad_hl']):
-#      dic['hl_dic']['prtidx_pad_hl'][i] = '9.' + str(x)
-#
-#   # Port Index & PSID bits in port binary string
-#   for i, x in enumerate(dic['hl_dic']['portbin_ofst_hl']):
-#      dic['hl_dic']['portbin_ofst_hl'][i] = '10.' + str(x)
-#
-#   for i, x in enumerate(dic['hl_dic']['portbin_psid_hl']):
-#      dic['hl_dic']['portbin_psid_hl'][i] = '10.' + str(x)
-#
-#   for i, x in enumerate(dic['hl_dic']['portbin_pad_hl']):
-#      dic['hl_dic']['portbin_pad_hl'][i] = '10.' + str(x)
-#
-#   # IPv4 strings
-#   for i, x in enumerate(dic['hl_dic']['v4ip_hl']):
-#      dic['hl_dic']['v4ip_hl'][i] = '12.' + str(x)
-#
-#   for i, x in enumerate(dic['hl_dic']['v4ipbin_hl']):
-#      dic['hl_dic']['v4ipbin_hl'][i] = '13.' + str(x)
-
-   # Apply highlights
+   # Apply binary string highlights
    #----------------------------------#
    widget.tag_add('white', *dic['hl_dic']['bmr_hl'])
    widget.tag_add('white', *dic['hl_dic']['upd_hl'])
@@ -710,9 +666,7 @@ def displays_update(dic, pd_obj):
    widget.tag_add('pink', *dic['hl_dic']['v4ip_hl'])
    widget.tag_add('pink', *dic['hl_dic']['v4ipbin_hl'])
 
-
    return
-
 
 '''
  ██████ ██       █████  ███████ ███████ ███████ ███████         ██ 
@@ -982,6 +936,7 @@ portidxadd = 0 # used with 'Source Port Index n = Port' section
 last_params = None
 testvar = "testvar text"
 hostvalue = 1
+saved_opened, opened2_test = False, True
 
 #-------------------------------------------------------------------------#
 # Main Event Loop - runs once for each 'event'
