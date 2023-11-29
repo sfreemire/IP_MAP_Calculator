@@ -284,7 +284,8 @@ saved_section_layout = [
       [sg.Sizer(h_pixels=3, v_pixels=0),
        sg.Multiline(size=(81, 8), font=('Courier', 14, 'bold'),
        disabled=True, autoscroll=True, expand_x=True, expand_y=True,
-       pad=(0,0), horizontal_scroll=True, key=MLINE_SAVED),
+       pad=(0,0), horizontal_scroll=True, sbar_background_color='#D6CFBE',
+       sbar_arrow_color='#B6AF9E', key=MLINE_SAVED),
        sg.Push()]
 ]
 
@@ -307,7 +308,9 @@ sections_layout = [
 #-------------------------------------#
 layout = [
    [sg.Column(sections_layout, size=(710, None), expand_y=True,
-    scrollable=True, vertical_scroll_only = True)]
+    scrollable=True, vertical_scroll_only = True,
+    sbar_background_color='#D6CFBE', sbar_arrow_color='#B6AF9E',
+    sbar_relief='solid')]
 ]
 
 #-------------------------------------------------------------------------#
