@@ -37,10 +37,10 @@ v0.7.0:
 * IPMCv0-7-0_macOS_Ventura13-4_M1
 * IPMCv0-7-0_macOS_Ventura13-6_Intel
 
-v0.8.0:
+v0.8.1:
 Window is scrollable for use on smaller displays.
-* IPMCv0-8-0_macOS_Ventura13-4_M1
-* IPMCv0-8-0_macOS_Ventura13-6_Intel
+* IPMCv0-8-1_macOS_Ventura13-4_M1
+* IPMCv0-8-1_macOS_Ventura13-6_Intel
 
 ## License
 
