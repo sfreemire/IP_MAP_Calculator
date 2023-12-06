@@ -93,23 +93,29 @@ display_layout = [
 # Parameter Editing Display (2nd frame)
 #---------------------------------------#
 param_edit_col1 = [
-   [sg.Text('Enter or Edit BMR Parameters',
-      font=('Helvetica', 14, 'underline', 'bold')),
-      sg.Push(),
-    sg.Text('', text_color='red', key='-PARAM_MESSAGES-'),
+#   [sg.Text('Enter or Edit BMR Parameters',
+#      font=('Helvetica', 14, 'underline', 'bold')),
+#      sg.Push(),
+#    sg.Text('', text_color='red', key='-PARAM_MESSAGES-'),
 #    sg.Text('', text_color='red', key='-MESSAGES-'),
-    sg.Push()],
+#    sg.Push()],
    [sg.Text('Name:', font=('Arial', 14, 'bold')),
     sg.Input('', font=('Arial', 14, 'bold'), size=(20, 1),
     enable_events=True, tooltip=name_tooltip, border_width=2,
     pad=((89, 5), (5, 5)), key='-RULENAME-'),
+    sg.Push(),
+    sg.Text('Enter or Edit BMR Parameters',
+      font=('Helvetica', 14, 'underline', 'bold')),
     sg.Push()],
     [sg.Text('IPv6 Prefix/Length:', font=('Arial', 14, 'bold')),
     sg.Input('', font=('Arial', 14, 'bold'), size=(20, 1), enable_events=True,
     tooltip=v6_tooltip, border_width=2, key='-R6PRE-'),
     sg.Text('/'),
     sg.Combo(v6mask, readonly=True, font=('Helvetica', 14, 'bold'),
-    enable_events=True, key='-R6LEN-')],
+    enable_events=True, key='-R6LEN-'),
+    sg.Push(), # reduce test
+    sg.Text('', text_color='red', key='-PARAM_MESSAGES-'),
+    sg.Push()], # reduce test
    [sg.Text('IPv4 Prefix/Length:', font=('Arial', 14, 'bold')),
     sg.Input('', font=('Arial', 14, 'bold'), size=(20, 1), enable_events=True,
     tooltip=v4_tooltip,  border_width=2, key='-R4PRE-'),
@@ -282,7 +288,7 @@ saved_section_layout = [
 #      [sg.Text('Saved Rule Strings:')],
 #      [sg.Push(),
       [sg.Sizer(h_pixels=3, v_pixels=0),
-       sg.Multiline(size=(81, 8), font=('Courier', 14, 'bold'),
+       sg.Multiline(default_text='Saved rule strings:', size=(81, 8), font=('Courier', 14, 'bold'),
        disabled=True, autoscroll=True, expand_x=True, expand_y=True,
        pad=(0,0), horizontal_scroll=True, sbar_background_color='#D6CFBE',
        sbar_arrow_color='#B6AF9E', key=MLINE_SAVED),
@@ -1193,7 +1199,7 @@ while True:
       if savctr == True:
          window[MLINE_SAVED].update(savstr, append=True)
       else:
-         window[MLINE_SAVED].update(savstr)
+         window[MLINE_SAVED].update(f'\n{savstr}', append=True)
          savctr = True
 
 window.close()
