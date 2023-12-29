@@ -183,8 +183,13 @@ bin_display_col1 = [
     font=('Courier', 14, 'bold'), background_color='#e3dbcf',
 #   enable_events=True,
     expand_x=True, disabled=True, # horizontal_scroll = True,
-    no_scrollbar=True, key='MLINE_BIN_EDIT')],
-   ]
+    no_scrollbar=True, key='MLINE_BIN_1')],
+   [sg.Multiline(size=(83, 4), auto_size_text=True,
+    font=('Courier', 14, 'bold'), background_color='#e3dbcf',
+#   enable_events=True,
+    expand_x=True, disabled=True, horizontal_scroll = True,
+    no_scrollbar=True, key='MLINE_BIN_2')],
+]
 
 bin_display_col2 = [
    [sg.Text('IPv6\nPrefix Length:', font=('Helvetica', 14, 'bold'),
@@ -288,7 +293,8 @@ saved_section_layout = [
 #      [sg.Text('Saved Rule Strings:')],
 #      [sg.Push(),
       [sg.Sizer(h_pixels=3, v_pixels=0),
-       sg.Multiline(default_text='Saved rule strings:', size=(81, 8), font=('Courier', 14, 'bold'),
+#       sg.Multiline(default_text='Saved rule strings:', size=(81, 8), font=('Courier', 14, 'bold'),
+       sg.Multiline(size=(81, 8), font=('Courier', 14, 'bold'),
        disabled=True, autoscroll=True, expand_x=True, expand_y=True,
        pad=(0,0), horizontal_scroll=True, sbar_background_color='#D6CFBE',
        sbar_arrow_color='#B6AF9E', key=MLINE_SAVED),
@@ -306,8 +312,8 @@ sections_layout = [
     relief='ridge')],
    [sg.Frame('', button_layout, expand_x=True, border_width=6, 
     relief='ridge')],
-   [sg.Frame('', saved_section_layout, expand_x=True, border_width=6, 
-    relief='ridge')]
+   [sg.Frame('Saved Rule Strings', saved_section_layout, expand_x=True, border_width=6, 
+    relief='ridge', font=(None, 14, 'italic'))]
 ]
 
 # Final Layout
@@ -327,7 +333,7 @@ layout = [
 window = sg.Window('IP MAP Calculator', layout, font=windowfont,
    enable_close_attempted_event=True,
    location=sg.user_settings_get_entry('-location-', (None, None)),
-   keep_on_top=False, resizable=True, size=(755, 1070), finalize=True)
+   keep_on_top=False, resizable=True, size=(755, 1130), finalize=True) #(755, 1070)
 
 # Prevent horizontal window resizing
 #window.set_resizable(False, True) # Not available until PySimpleGUI v5
@@ -337,8 +343,8 @@ window = sg.Window('IP MAP Calculator', layout, font=windowfont,
 window['-BMR_STRING_DSPLY-'].Widget.config(readonlybackground='white smoke',
    borderwidth=3, relief='ridge')
 
-multiline: sg.Multiline = window['MLINE_BIN_EDIT']
-widget = multiline.Widget
+multiline1: sg.Multiline = window['MLINE_BIN_1']
+widget = multiline1.Widget
 # Optional string formats
 #-------------------------------------#
 widget.tag_config('white', foreground='black', background='#FFFFFF')
@@ -354,6 +360,8 @@ widget.tag_config('lt_purple', foreground='black', background='#D7C1D5')
 widget.tag_config('lt_blue1', foreground='black', background='#B3C3D1') # lt blue grey
 widget.tag_config('lt_blue2', foreground='black', background='#CCD7E0') # ltr blue grey
 widget.tag_config('lt_blue', foreground='black', background='#B2CAFA') # lt blue
+
+multiline2 = window['MLINE_BIN_2']
 
 '''
 ██████  ██    ██ ██      ███████      ██████  █████  ██       ██████ 
@@ -417,7 +425,7 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    # Binary display strings
    #-------------------------------------------------------------------------#
 
-   # BMR PD, User PD, and EA Bits strings data
+   # Sec 1, BMR PD, User PD, and EA Bits strings data
    #--------------------------------------------------#
    v6p_hex_exp = ip.IPv6Address(param_ls[1]).exploded # 0000:0000:...
    v6p_hex_seglst = v6p_hex_exp.split(':')[:4] # ['0000', '0000', ...]
@@ -433,7 +441,7 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    ea_bin_idxr = V6Indices(upd_len)
    ea_bin_fmt = upd_bin_fmt[ea_bin_idxl : ea_bin_idxr]
 
-   # User PD (upd) strings data
+   # Sec 1, User PD (upd) strings data
    #--------------------------------------------------#
    v4hostbin_len = 32 - param_ls[4]
    psid_idxl = param_ls[2] + v4hostbin_len
@@ -453,7 +461,7 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    port_int = str(int(port_bin, 2))
    pidx_bin = psid_ofst_bin + portrpad_bin # Port index number binary string
 
-   # IPv4 string data
+   # Sec 1, IPv4 string data
    #--------------------------------------------------#
    v4ip_str = param_ls[3]
    v4_seglst = v4ip_str.split('.')
@@ -471,8 +479,8 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
       elif len(seg) == 1:
          v4_seglst[i] = f' {seg} '
 
-   # Modify Port string if Port Index (portidx) has been changed
-   #--------------------------------------------------------------#
+   # Sec 1, Modify Port string if Port Index (portidx) has been changed
+   #--------------------------------------------------------------------#
    if portidx:
       if portidx == 0:
          pass
@@ -501,6 +509,7 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
                     portrpad_bin
          port_int = int(port_bin, 2) # for d_dic
 
+   # Binary Section 1
    # BMR PD, User PD, and EA Bits dictionary entries
    #--------------------------------------------------#
    bin_str_dic = {}
@@ -535,15 +544,41 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
                            f'{psid_ofst_bin}-{psid}-{portrpad_bin}' \
                            f' = Port {port_int}'
 
+   # Sec 2, User source IPv6 string data
+   #--------------------------------------------------#
+   pad1 = ' ' * 6
+   pad2 = '0' * 16
+   v6hex_pad = f'{pad1}0000{pad1}'
+   v4bin_segls = [v4_bin[i:i+16] for i in range(0, 32, 16)]
+   v4hex_segls = [int(str(x),2) for x in v4bin_segls]
+   v4hex_segls = [hex(x)[2:].zfill(4) for x in v4hex_segls]
+   v4hex_segs = f'{pad1}{v4hex_segls[0]}{pad1}:{pad1}{v4hex_segls[1]}{pad1}'
+   psid_hex = int(psid,2)
+   psid_hex = pad1 + hex(psid_hex)[2:].zfill(4)
+   v6sip_hex_pfx = bin_str_dic['upd_hexstr'][10:78]
+   v4sip_bin = f'{v4bin_segls[0]}:{v4bin_segls[1]}'
+   psid_bin = psid.zfill(16)
+   v6sip_bin = upd_bin_fmt[:68] 
+
+   # Binary Section 2
+   # Source IPv6 address dictionary entry
+   #--------------------------------------------------#
+   bin_ipstr_dic = {}
+   bin_ipstr_dic['label_1'] = ' User Source IPv6 Address:'
+#   bin_ipstr_dic['blank_line'] = ''
+   bin_ipstr_dic['v6sip_hex_str'] = f'{v6sip_hex_pfx}{v6hex_pad}:{v4hex_segs}:{psid_hex}'
+   bin_ipstr_dic['v6sip_binstr'] = f'{v6sip_bin}{pad2}:{v4sip_bin}:{psid_bin}'
+
    #-------------------------------------------------------------------------#
    # Binary display highlight indices
    #-------------------------------------------------------------------------#
    # highlight index data
    #----------------------------------#
+   # return index of first character after " BMR PD: "
    bmr_binstr_l = next(i for (i, e) in enumerate(bin_str_dic["bmr_binstr"])
       if e not in "BMR PD: ")
    bmr_binstr_r = bmr_binstr_l + V6Indices(param_ls[2])
-   upd_binstr_l = bmr_binstr_l + V6Indices(param_ls[2])
+   upd_binstr_l = bmr_binstr_r
    upd_binstr_r = bmr_binstr_l + V6Indices(upd_len)
    upd_binstr_sbnt_l = upd_binstr_r
    upd_binstr_sbnt_r = bin_str_dic['upd_binstr'].index('::')
@@ -597,6 +632,7 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    d_dic['port_int'] = port_int
    d_dic['pidx_bin'] = pidx_bin
    d_dic['bin_str_dic'] = bin_str_dic
+   d_dic['bin_ipstr_dic'] = bin_ipstr_dic
    d_dic['hl_dic'] = hl_dic
    d_dic['num_excl_ports'] = 2 ** (16 - param_ls[6])
 
@@ -642,9 +678,15 @@ def displays_update(dic, pd_obj):
    # Output binary strings to binary string editor
    for num, bstr in enumerate(dic['bin_str_dic']):
       if num == 0:   # No append on line 0 causes initial "clear field"
-         multiline.update(''.join((dic['bin_str_dic'][bstr], '\n')))
+         multiline1.update(''.join((dic['bin_str_dic'][bstr], '\n')))
       else:
-         multiline.update(''.join((dic['bin_str_dic'][bstr], '\n')), append=True)
+         multiline1.update(''.join((dic['bin_str_dic'][bstr], '\n')), append=True)
+
+   for num, bstr in enumerate(dic['bin_ipstr_dic']):
+      if num == 0:
+         multiline2.update(''.join((dic['bin_ipstr_dic'][bstr], '\n')))
+      else:
+         multiline2.update(''.join((dic['bin_ipstr_dic'][bstr], '\n')), append=True)
 
    # Output values to binary editor sliders and input fields
    window['-V6PFX_LEN_SLDR-'].update(dic['paramlist'][2])
@@ -926,7 +968,7 @@ pframe_ls = ['-RULENAME-', '-R6PRE-', '-R6LEN-', '-R4PRE-', '-R4LEN-',
 #stringin = ['-STRING_IN-']  # Rule String field
 #bframe_ls = ['-USER_PD-', '-USER_IP4-', '-V6PFX_LEN_SLDR-', '-EA_LEN_SLDR-',
 #   '-V4PFX_LEN_SLDR-', '-PSID_OFST_SLDR-', '-V4HOST_SLIDER-',
-#   '-PORT_INDEX-', 'MLINE_BIN_EDIT']       # Binary Editor fields
+#   '-PORT_INDEX-', 'MLINE_BIN_1']       # Binary Editor fields
 #sframe_ls = ['MLINE_SAVED']                # Don't clear Save frame
 
 # Event Loop Variables
@@ -985,7 +1027,8 @@ while True:
    if event == '-CLEAR-':
       for i in [*dframe_ls, *pframe_ls]: #, *sframe_ls]:
          window[i].update('')
-      window['MLINE_BIN_EDIT'].update('')
+      window['MLINE_BIN_1'].update('')
+      window['MLINE_BIN_2'].update('')
       window['-V4HOST_SLIDER-'].update(value=0)
       window['-USER_PD-'].update('')
       window['-USER_IP4-'].update('')
