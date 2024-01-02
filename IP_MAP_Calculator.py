@@ -6,7 +6,7 @@ import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.8.1 - 11/29/2023 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.9.1 - 12/29/2023 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -78,7 +78,7 @@ display_layout = [
    [sg.Text('BMR', font=('Arial', 14, 'bold')),
     sg.Input('', font=('Courier', 15, 'bold'),
    # use_readonly... with disabled creates display field that can be
-   # selected and copied with cursor but not edited
+   # selected and copied with cursor, but not edited
     justification='centered', size=(60, 1), use_readonly_for_disable=True,
     disabled=True, pad=((0, 8), (0, 0)),
     key='-BMR_STRING_DSPLY-'),
@@ -183,8 +183,13 @@ bin_display_col1 = [
     font=('Courier', 14, 'bold'), background_color='#e3dbcf',
 #   enable_events=True,
     expand_x=True, disabled=True, # horizontal_scroll = True,
-    no_scrollbar=True, key='MLINE_BIN_EDIT')],
-   ]
+    no_scrollbar=True, key='MLINE_BIN_1')],
+   [sg.Multiline(size=(83, 4), auto_size_text=True,
+    font=('Courier', 14, 'bold'), background_color='#e3dbcf',
+#   enable_events=True,
+    expand_x=True, disabled=True, horizontal_scroll = True,
+    no_scrollbar=True, key='MLINE_BIN_2')],
+]
 
 bin_display_col2 = [
    [sg.Text('IPv6\nPrefix Length:', font=('Helvetica', 14, 'bold'),
@@ -288,7 +293,8 @@ saved_section_layout = [
 #      [sg.Text('Saved Rule Strings:')],
 #      [sg.Push(),
       [sg.Sizer(h_pixels=3, v_pixels=0),
-       sg.Multiline(default_text='Saved rule strings:', size=(81, 8), font=('Courier', 14, 'bold'),
+#       sg.Multiline(default_text='Saved rule strings:', size=(81, 8), font=('Courier', 14, 'bold'),
+       sg.Multiline(size=(81, 8), font=('Courier', 14, 'bold'),
        disabled=True, autoscroll=True, expand_x=True, expand_y=True,
        pad=(0,0), horizontal_scroll=True, sbar_background_color='#D6CFBE',
        sbar_arrow_color='#B6AF9E', key=MLINE_SAVED),
@@ -306,8 +312,8 @@ sections_layout = [
     relief='ridge')],
    [sg.Frame('', button_layout, expand_x=True, border_width=6, 
     relief='ridge')],
-   [sg.Frame('', saved_section_layout, expand_x=True, border_width=6, 
-    relief='ridge')]
+   [sg.Frame('Saved Rule Strings', saved_section_layout, expand_x=True, border_width=6, 
+    relief='ridge', font=(None, 14, 'italic'))]
 ]
 
 # Final Layout
@@ -327,33 +333,15 @@ layout = [
 window = sg.Window('IP MAP Calculator', layout, font=windowfont,
    enable_close_attempted_event=True,
    location=sg.user_settings_get_entry('-location-', (None, None)),
-   keep_on_top=False, resizable=True, size=(755, 1070), finalize=True)
+   keep_on_top=False, resizable=True, size=(755, 1130), finalize=True) #(755, 1070)
 
 # Prevent horizontal window resizing
 #window.set_resizable(False, True) # Not available until PySimpleGUI v5
 
-# Display formatting for strings - applied immediately
-#------------------------------------------------------#
+# Formatting for Rule String field - applied immediately
+#--------------------------------------------------------#
 window['-BMR_STRING_DSPLY-'].Widget.config(readonlybackground='white smoke',
    borderwidth=3, relief='ridge')
-
-multiline: sg.Multiline = window['MLINE_BIN_EDIT']
-widget = multiline.Widget
-# Optional string formats
-#-------------------------------------#
-widget.tag_config('white', foreground='black', background='#FFFFFF')
-widget.tag_config('yellow', foreground='black', background='#FFFF00')
-widget.tag_config('burley', foreground='black', background='#FFD39B') # burlywood
-widget.tag_config('burley3', foreground='black', background='#CDAA7D') # burlywood3
-widget.tag_config('grey49', foreground='black', background='#7D7D7D')
-widget.tag_config('sage', foreground='black', background='#C2C9A6')
-widget.tag_config('peri', foreground='black', background='#B2CAFA') # periwinkle
-widget.tag_config('pink', foreground='black', background='#EDABBF') # cherry blossom pink
-widget.tag_config('teal', foreground='black', background='#96cdd9') # moonstone
-widget.tag_config('lt_purple', foreground='black', background='#D7C1D5')
-widget.tag_config('lt_blue1', foreground='black', background='#B3C3D1') # lt blue grey
-widget.tag_config('lt_blue2', foreground='black', background='#CCD7E0') # ltr blue grey
-widget.tag_config('lt_blue', foreground='black', background='#B2CAFA') # lt blue
 
 '''
 ██████  ██    ██ ██      ███████      ██████  █████  ██       ██████ 
@@ -416,8 +404,7 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    #-------------------------------------------------------------------------#
    # Binary display strings
    #-------------------------------------------------------------------------#
-
-   # BMR PD, User PD, and EA Bits strings data
+   # Sec 1, BMR PD, User PD, and EA Bits data
    #--------------------------------------------------#
    v6p_hex_exp = ip.IPv6Address(param_ls[1]).exploded # 0000:0000:...
    v6p_hex_seglst = v6p_hex_exp.split(':')[:4] # ['0000', '0000', ...]
@@ -429,12 +416,12 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    upd_bin = f'{ip.IPv6Address(upd_obj.network_address):b}'[:64]
    upd_bin_seglst = [upd_bin[i:i+16] for i in range(0, 64, 16)]
    upd_bin_fmt = ':'.join(upd_bin_seglst) + f'::/{upd_len}'
-   ea_bin_idxl = V6Indices(param_ls[2]) # V6Indices adds # of separators
+   ea_bin_idxl = V6Indices(param_ls[2]) # V6Indices adds # of ":"separators
    ea_bin_idxr = V6Indices(upd_len)
    ea_bin_fmt = upd_bin_fmt[ea_bin_idxl : ea_bin_idxr]
 
-   # User PD (upd) strings data
-   #--------------------------------------------------#
+   # Sec 1, User PD (upd) string data
+   #-----------------------------------#
    v4hostbin_len = 32 - param_ls[4]
    psid_idxl = param_ls[2] + v4hostbin_len
    psid_idxr = param_ls[2] + param_ls[5]
@@ -453,8 +440,8 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    port_int = str(int(port_bin, 2))
    pidx_bin = psid_ofst_bin + portrpad_bin # Port index number binary string
 
-   # IPv4 string data
-   #--------------------------------------------------#
+   # Sec 1, IPv4 string data
+   #-----------------------------------#
    v4ip_str = param_ls[3]
    v4_seglst = v4ip_str.split('.')
    v4mask = param_ls[4]
@@ -471,8 +458,8 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
       elif len(seg) == 1:
          v4_seglst[i] = f' {seg} '
 
-   # Modify Port string if Port Index (portidx) has been changed
-   #--------------------------------------------------------------#
+   # Sec 1, Modify Port string if Port Index (portidx) has been changed
+   #--------------------------------------------------------------------#
    if portidx:
       if portidx == 0:
          pass
@@ -501,6 +488,7 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
                     portrpad_bin
          port_int = int(port_bin, 2) # for d_dic
 
+   # Binary Section 1
    # BMR PD, User PD, and EA Bits dictionary entries
    #--------------------------------------------------#
    bin_str_dic = {}
@@ -535,15 +523,44 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
                            f'{psid_ofst_bin}-{psid}-{portrpad_bin}' \
                            f' = Port {port_int}'
 
+   # Sec 2, User source IPv6 string data
+   #--------------------------------------------------#
+   pad1 = ' ' * 6
+   pad2 = '0' * 16
+   v6hex_pad = f'{pad1}0000{pad1}'
+   v4bin_segls = [v4_bin[i:i+16] for i in range(0, 32, 16)]
+   v4hex_segls = [int(str(x),2) for x in v4bin_segls]
+   v4hex_segls = [hex(x)[2:].zfill(4) for x in v4hex_segls]
+   v4hex_segs = f'{pad1}{v4hex_segls[0]}{pad1}:{pad1}{v4hex_segls[1]}{pad1}'
+   if psid != '':
+      psid_hex = int(psid,2)
+   else:
+      psid_hex = 0
+   psid_hex = pad1 + hex(psid_hex)[2:].zfill(4)
+   v6sip_hex_pfx = bin_str_dic['upd_hexstr'][10:78]
+   v4sip_bin = f'{v4bin_segls[0]}:{v4bin_segls[1]}'
+   psid_bin = psid.zfill(16)
+   v6sip_bin = upd_bin_fmt[:68] 
+
+   # Binary Section 2
+   # Source IPv6 address dictionary entry
+   #--------------------------------------------------#
+   bin_ipstr_dic = {}
+   bin_ipstr_dic['label_1'] = ' User Source IPv6 Address:'
+#   bin_ipstr_dic['blank_line'] = ''
+   bin_ipstr_dic['v6sip_hex_str'] = f'{v6sip_hex_pfx}{v6hex_pad}:{v4hex_segs}:{psid_hex}'
+   bin_ipstr_dic['v6sip_binstr'] = f'{v6sip_bin}{pad2}:{v4sip_bin}:{psid_bin}'
+
    #-------------------------------------------------------------------------#
    # Binary display highlight indices
    #-------------------------------------------------------------------------#
-   # highlight index data
-   #----------------------------------#
+   # Binary display 1 highlight index data
+   #---------------------------------------------#
+   # return index of first character after " BMR PD: "
    bmr_binstr_l = next(i for (i, e) in enumerate(bin_str_dic["bmr_binstr"])
       if e not in "BMR PD: ")
    bmr_binstr_r = bmr_binstr_l + V6Indices(param_ls[2])
-   upd_binstr_l = bmr_binstr_l + V6Indices(param_ls[2])
+   upd_binstr_l = bmr_binstr_r
    upd_binstr_r = bmr_binstr_l + V6Indices(upd_len)
    upd_binstr_sbnt_l = upd_binstr_r
    upd_binstr_sbnt_r = bin_str_dic['upd_binstr'].index('::')
@@ -565,22 +582,38 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    v4ip_hl_l = 13 + V4Indices(param_ls[4])
    v4ip_hl_r = 13 + V4Indices(32)
 
-   # highlight index dictionary
-   #----------------------------------#
+   # Binary display 1 highlight index dictionary
+   #---------------------------------------------#
    # Prepend line number for each highlight index
-   hl_dic = {}
-   hl_dic['bmr_hl'] = ['5.' + str(bmr_binstr_l), '5.' + str(bmr_binstr_r)]
-   hl_dic['upd_hl'] = ['6.' + str(upd_binstr_l), '6.' + str(upd_binstr_r)]
-   hl_dic['sbnt_hl'] = ['6.' + str(upd_binstr_sbnt_l), '6.' + str(upd_binstr_sbnt_r)]
-   hl_dic['ea_v4_hl'] = ['7.' + str(ea_binstr_l), '7.' + str(ea_binstr_div)]
-   hl_dic['ea_psid_hl'] = ['7.' + str(ea_binstr_div), '7.' + str(ea_binstr_r)]
-   hl_dic['v4ip_hl'] = ['9.' + str(v4ip_hl_l), '9.' + str(v4ip_hl_r)]
-   hl_dic['v4ipbin_hl'] = ['10.' + str(v4ip_hl_l), '10.' + str(v4ip_hl_r)]
-   hl_dic['prtidx_ofst_hl'] = ['12.' + str(prtidx_ofst_l), '12.' + str(prtidx_ofst_r)]
-   hl_dic['prtidx_pad_hl'] = ['12.' + str(prtidx_pad_l), '12.' + str(prtidx_pad_r)]
-   hl_dic['portbin_ofst_hl'] = ['13.' + str(portbin_ofst_hl_l), '13.' + str(portbin_ofst_hl_r)]
-   hl_dic['portbin_psid_hl'] = ['13.' + str(portbin_psid_hl_l), '13.' + str(portbin_psid_hl_r)]
-   hl_dic['portbin_pad_hl'] = ['13.' + str(portbin_pad_hl_l), '13.' + str(portbin_pad_hl_r)]
+   hl_dic1 = {}
+#   hl_dic1['bmr_hl'] = ['5.' + str(bmr_binstr_l), '5.' + str(bmr_binstr_r)]
+   hl_dic1['bmr_hl'] = [f'5.{str(bmr_binstr_l)}', f'5.{str(bmr_binstr_r)}']
+   hl_dic1['upd_hl'] = ['6.' + str(upd_binstr_l), '6.' + str(upd_binstr_r)]
+   hl_dic1['sbnt_hl'] = ['6.' + str(upd_binstr_sbnt_l), '6.' + str(upd_binstr_sbnt_r)]
+   hl_dic1['ea_v4_hl'] = ['7.' + str(ea_binstr_l), '7.' + str(ea_binstr_div)]
+   hl_dic1['ea_psid_hl'] = ['7.' + str(ea_binstr_div), '7.' + str(ea_binstr_r)]
+   hl_dic1['v4ip_hl'] = ['9.' + str(v4ip_hl_l), '9.' + str(v4ip_hl_r)]
+   hl_dic1['v4ipbin_hl'] = ['10.' + str(v4ip_hl_l), '10.' + str(v4ip_hl_r)]
+   hl_dic1['prtidx_ofst_hl'] = ['12.' + str(prtidx_ofst_l), '12.' + str(prtidx_ofst_r)]
+   hl_dic1['prtidx_pad_hl'] = ['12.' + str(prtidx_pad_l), '12.' + str(prtidx_pad_r)]
+   hl_dic1['portbin_ofst_hl'] = ['13.' + str(portbin_ofst_hl_l), '13.' + str(portbin_ofst_hl_r)]
+   hl_dic1['portbin_psid_hl'] = ['13.' + str(portbin_psid_hl_l), '13.' + str(portbin_psid_hl_r)]
+   hl_dic1['portbin_pad_hl'] = ['13.' + str(portbin_pad_hl_l), '13.' + str(portbin_pad_hl_r)]
+
+   # Binary display 2 highlight index data
+   #---------------------------------------------#
+   v4if_l = (5 * 16) + param_ls[4]
+   v4if_l = V6Indices(v4if_l)
+   v4if_r = (5 * 16) + 32
+   v4if_r = V6Indices(v4if_r)
+   psid_l = 119 + (16 - psidlen)
+   psid_r = 135
+
+   # Binary display 2 highlight index dictionary
+   #---------------------------------------------#
+   hl_dic2 = {}
+   hl_dic2['v4if_hl'] = [f'3.{v4if_l}', f'3.{v4if_r}']
+   hl_dic2['psid_hl'] = [f'3.{psid_l}', f'3.{psid_r}']
 
    #-------------------------------------------------------------------------#
    # Results = Display values dictionary
@@ -597,7 +630,9 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    d_dic['port_int'] = port_int
    d_dic['pidx_bin'] = pidx_bin
    d_dic['bin_str_dic'] = bin_str_dic
-   d_dic['hl_dic'] = hl_dic
+   d_dic['bin_ipstr_dic'] = bin_ipstr_dic
+   d_dic['hl_dic1'] = hl_dic1
+   d_dic['hl_dic2'] = hl_dic2
    d_dic['num_excl_ports'] = 2 ** (16 - param_ls[6])
 
    displays_update(d_dic, upd_obj)
@@ -639,12 +674,26 @@ def displays_update(dic, pd_obj):
    window['-SP_INT-'].update(dic['port_int'])
    window['-SP_INDEX-'].update(dic['pidx_bin'])
 
+   # Binary displays update values and highlights
+   multiline1: sg.Multiline = window['MLINE_BIN_1']
+   multiline2: sg.Multiline = window['MLINE_BIN_2']
+
    # Output binary strings to binary string editor
    for num, bstr in enumerate(dic['bin_str_dic']):
       if num == 0:   # No append on line 0 causes initial "clear field"
-         multiline.update(''.join((dic['bin_str_dic'][bstr], '\n')))
+         multiline1.update(''.join((dic['bin_str_dic'][bstr], '\n')))
       else:
-         multiline.update(''.join((dic['bin_str_dic'][bstr], '\n')), append=True)
+         multiline1.update(''.join((dic['bin_str_dic'][bstr], '\n')), append=True)
+
+   for num, bstr in enumerate(dic['bin_ipstr_dic']):
+      if num == 0:
+         multiline2.update(''.join((dic['bin_ipstr_dic'][bstr], '\n')))
+      else:
+         multiline2.update(''.join((dic['bin_ipstr_dic'][bstr], '\n')), append=True)
+
+   # Apply highlighting
+   highlights(multiline1, dic)
+   highlights(multiline2, dic)
 
    # Output values to binary editor sliders and input fields
    window['-V6PFX_LEN_SLDR-'].update(dic['paramlist'][2])
@@ -655,25 +704,16 @@ def displays_update(dic, pd_obj):
 #   window['-PORT_SLIDER-'].update(range=(0, (dic['ppusr'] - 1) ))
 #   window['-PORT_INDEX-'].update('0') #### <<<<------ UPDATE WITH ACTUAL VALUE !!! !!!
 
+   # # # Binary display references for adding highlights
+   # # #------------------------------------------------------#
+   # multiline1: sg.Multiline = window['MLINE_BIN_1']
+   # # widget = multiline1.Widget
+   
+   # multiline2: sg.Multiline = window['MLINE_BIN_2']
+   # # widget = multiline2.Widget
+   
    # Apply binary string highlights
    #----------------------------------#
-   widget.tag_add('white', *dic['hl_dic']['bmr_hl'])
-   widget.tag_add('white', *dic['hl_dic']['upd_hl'])
-   widget.tag_add('grey49', *dic['hl_dic']['sbnt_hl'])
-   widget.tag_add('pink', *dic['hl_dic']['ea_v4_hl'])
-   widget.tag_add('teal', *dic['hl_dic']['ea_psid_hl'])
-
-   widget.tag_add('burley', *dic['hl_dic']['prtidx_ofst_hl'])
-   widget.tag_add('yellow', *dic['hl_dic']['prtidx_pad_hl'])
-
-   widget.tag_add('burley', *dic['hl_dic']['portbin_ofst_hl'])
-
-   widget.tag_add('teal', *dic['hl_dic']['portbin_psid_hl'])
-
-   widget.tag_add('yellow', *dic['hl_dic']['portbin_pad_hl'])
-
-   widget.tag_add('pink', *dic['hl_dic']['v4ip_hl'])
-   widget.tag_add('pink', *dic['hl_dic']['v4ipbin_hl'])
 
    return
 
@@ -696,6 +736,44 @@ def displays_update(dic, pd_obj):
 #----------------------------------------------------------------------------#
 #    Classes & Functions 
 #----------------------------------------------------------------------------#
+
+def highlights(display, dic):
+   """ Highlighting for binary displays. Called from displays_update() """
+   widget = display.Widget
+   
+   # Highlight color definitions
+   #-------------------------------------#
+   widget.tag_config('white', foreground='black', background='#FFFFFF')
+   widget.tag_config('yellow', foreground='black', background='#FFFF00')
+   widget.tag_config('burley', foreground='black', background='#FFD39B') # burlywood
+   widget.tag_config('burley3', foreground='black', background='#CDAA7D') # burlywood3
+   widget.tag_config('grey49', foreground='black', background='#7D7D7D')
+   widget.tag_config('sage', foreground='black', background='#C2C9A6')
+   widget.tag_config('peri', foreground='black', background='#B2CAFA') # periwinkle
+   widget.tag_config('pink', foreground='black', background='#EDABBF') # cherry blossom pink
+   widget.tag_config('teal', foreground='black', background='#96cdd9') # moonstone
+   widget.tag_config('lt_purple', foreground='black', background='#D7C1D5')
+   widget.tag_config('lt_blue1', foreground='black', background='#B3C3D1') # lt blue grey
+   widget.tag_config('lt_blue2', foreground='black', background='#CCD7E0') # ltr blue grey
+   widget.tag_config('lt_blue', foreground='black', background='#B2CAFA') # lt blue
+
+   if display.Key == 'MLINE_BIN_1':
+      widget.tag_add('white', *dic['hl_dic1']['bmr_hl'])
+      widget.tag_add('white', *dic['hl_dic1']['upd_hl'])
+      widget.tag_add('grey49', *dic['hl_dic1']['sbnt_hl'])
+      widget.tag_add('pink', *dic['hl_dic1']['ea_v4_hl'])
+      widget.tag_add('teal', *dic['hl_dic1']['ea_psid_hl'])
+      widget.tag_add('burley', *dic['hl_dic1']['prtidx_ofst_hl'])
+      widget.tag_add('yellow', *dic['hl_dic1']['prtidx_pad_hl'])
+      widget.tag_add('burley', *dic['hl_dic1']['portbin_ofst_hl'])
+      widget.tag_add('teal', *dic['hl_dic1']['portbin_psid_hl'])
+      widget.tag_add('yellow', *dic['hl_dic1']['portbin_pad_hl'])
+      widget.tag_add('pink', *dic['hl_dic1']['v4ip_hl'])
+      widget.tag_add('pink', *dic['hl_dic1']['v4ipbin_hl'])
+   elif display.Key == 'MLINE_BIN_2':
+      widget.tag_add('pink', *dic['hl_dic2']['v4if_hl'])
+      widget.tag_add('teal', *dic['hl_dic2']['psid_hl'])
+   return
 
 # Example BMR prefix lists and parameters
 #-----------------------------------------#
@@ -776,7 +854,15 @@ def V6Indices(bin_right):
    For a given string length, it returns that length increased
    by the number of separators ":" that will be inserted.
    '''
-   if bin_right > 48:
+   if bin_right > 112:
+      bin_right += 7
+   elif bin_right > 96:
+      bin_right += 6
+   elif bin_right > 80:
+      bin_right += 5
+   elif bin_right > 64:
+      bin_right += 4
+   elif bin_right > 48:
       bin_right += 3
    elif bin_right > 32:
       bin_right += 2
@@ -890,7 +976,6 @@ def validate(param_ls):
          window['-PD_MESSAGES-'].update('PSID Offset + PSID length > 16 bits')
    return validflag
 
-
 # Path to additional data files
 #-------------------------------#
 def resource_path(relative_path):
@@ -926,7 +1011,7 @@ pframe_ls = ['-RULENAME-', '-R6PRE-', '-R6LEN-', '-R4PRE-', '-R4LEN-',
 #stringin = ['-STRING_IN-']  # Rule String field
 #bframe_ls = ['-USER_PD-', '-USER_IP4-', '-V6PFX_LEN_SLDR-', '-EA_LEN_SLDR-',
 #   '-V4PFX_LEN_SLDR-', '-PSID_OFST_SLDR-', '-V4HOST_SLIDER-',
-#   '-PORT_INDEX-', 'MLINE_BIN_EDIT']       # Binary Editor fields
+#   '-PORT_INDEX-', 'MLINE_BIN_1']       # Binary Editor fields
 #sframe_ls = ['MLINE_SAVED']                # Don't clear Save frame
 
 # Event Loop Variables
@@ -968,14 +1053,6 @@ while True:
       about = sg.popup_scrolled(abouttxt, title='About', 
          size=(70, 33), font=('Arial', 14))
 
-## This prints all available element keys:
-#   print('\n ---- VALUES KEYS ----')
-#   for x in values.keys():
-#      print(x)
-
-#   This prints all variables:
-#   print(dir())
-
    # Clear message fields on next event
    window['-PARAM_MESSAGES-'].update('')
    window['-PD_MESSAGES-'].update('')
@@ -985,7 +1062,8 @@ while True:
    if event == '-CLEAR-':
       for i in [*dframe_ls, *pframe_ls]: #, *sframe_ls]:
          window[i].update('')
-      window['MLINE_BIN_EDIT'].update('')
+      window['MLINE_BIN_1'].update('')
+      window['MLINE_BIN_2'].update('')
       window['-V4HOST_SLIDER-'].update(value=0)
       window['-USER_PD-'].update('')
       window['-USER_IP4-'].update('')
@@ -1185,8 +1263,6 @@ while True:
    #   print(f'>>> IDX Change - last_userpd_obj is {last_userpd_obj}')
       rule_calc(last_params, last_userpd_obj, v4hostint, portidx = idx)
 
-   print(f'#------- End Event {cntr - 1} -------#')
-
    # Save Current BMR in bottom Multiline field for user to copy
    # Only BMR parameter list section needs to be entered
    #-------------------------------------------------------------#
@@ -1199,7 +1275,23 @@ while True:
       if savctr == True:
          window[MLINE_SAVED].update(savstr, append=True)
       else:
-         window[MLINE_SAVED].update(f'\n{savstr}', append=True)
+         window[MLINE_SAVED].update(savstr)
          savctr = True
+
+   print(f'#------- End Event {cntr - 1} -------#')
+
+   # Utilities
+   #-------------------------------------------------------------#
+   # This prints all available element keys:
+   #-----------------------------------------#
+#   print('\n ---- VALUES KEYS ----')
+#   for x in values.keys():
+#      print(x)
+
+   # This prints all variables:
+   #-----------------------------------------#
+#   print(dir())
+
+
 
 window.close()
