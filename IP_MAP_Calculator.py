@@ -532,7 +532,10 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    v4hex_segls = [int(str(x),2) for x in v4bin_segls]
    v4hex_segls = [hex(x)[2:].zfill(4) for x in v4hex_segls]
    v4hex_segs = f'{pad1}{v4hex_segls[0]}{pad1}:{pad1}{v4hex_segls[1]}{pad1}'
-   psid_hex = int(psid,2)
+   if psid != '':
+      psid_hex = int(psid,2)
+   else:
+      psid_hex = 0
    psid_hex = pad1 + hex(psid_hex)[2:].zfill(4)
    v6sip_hex_pfx = bin_str_dic['upd_hexstr'][10:78]
    v4sip_bin = f'{v4bin_segls[0]}:{v4bin_segls[1]}'
@@ -604,14 +607,12 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    v4if_r = (5 * 16) + 32
    v4if_r = V6Indices(v4if_r)
    psid_l = 119 + (16 - psidlen)
-   print(f'>>> psid_l is {psid_l}')
    psid_r = 135
 
    # Binary display 2 highlight index dictionary
    #---------------------------------------------#
    hl_dic2 = {}
    hl_dic2['v4if_hl'] = [f'3.{v4if_l}', f'3.{v4if_r}']
-   print(f'>>> hl_dic2 is {hl_dic2}')
    hl_dic2['psid_hl'] = [f'3.{psid_l}', f'3.{psid_r}']
 
    #-------------------------------------------------------------------------#
@@ -1262,8 +1263,6 @@ while True:
    #   print(f'>>> IDX Change - last_userpd_obj is {last_userpd_obj}')
       rule_calc(last_params, last_userpd_obj, v4hostint, portidx = idx)
 
-   print(f'#------- End Event {cntr - 1} -------#')
-
    # Save Current BMR in bottom Multiline field for user to copy
    # Only BMR parameter list section needs to be entered
    #-------------------------------------------------------------#
@@ -1276,8 +1275,10 @@ while True:
       if savctr == True:
          window[MLINE_SAVED].update(savstr, append=True)
       else:
-         window[MLINE_SAVED].update(f'\n{savstr}', append=True)
+         window[MLINE_SAVED].update(savstr)
          savctr = True
+
+   print(f'#------- End Event {cntr - 1} -------#')
 
    # Utilities
    #-------------------------------------------------------------#
