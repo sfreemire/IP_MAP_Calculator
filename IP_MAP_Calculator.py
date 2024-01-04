@@ -6,7 +6,7 @@ import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.9.1 - 12/29/2023 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.10.1 - 01/03/2024 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -42,39 +42,50 @@ eabits = [n for n in range(33)]     # for edit rule Combo
 # Main Display (top frame) - Calculated Values
 #----------------------------------------------#
 display_col1 = [
-   [sg.Text('Users', font=('Arial', 14, 'bold'))],
-   [sg.Text('', font=('Arial', 16, 'bold'), justification='centered',
-    size=(7, 1), background_color='white smoke', border_width=4,
-    relief='ridge', key='-USERS_DSPLY-')]
-]
-display_col2 = [
-   [sg.Text('Ports/User', font=('Arial', 14, 'bold'))],
-   [sg.Text('', font=('Arial', 16, 'bold'), justification='centered',
-    size=(7, 1), background_color='white smoke', border_width=4,
-    relief='ridge', key='-PORTS_DSPLY-')]
-]
-display_col3 = [
    [sg.Text('Uniq v4 IPs', font=('Arial', 14, 'bold'))],
    [sg.Text('', font=('Arial', 16, 'bold'), justification='centered',
     size=(7, 1), background_color='white smoke', border_width=4,
     relief='ridge', key='-IPS_DSPLY-')]
 ]
-display_col4 = [
+
+display_col2 = [
    [sg.Text('Sharing', font=('Arial', 14, 'bold'))],
    [sg.Text('', font=('Arial', 16, 'bold'), justification='centered',
     size=(7, 1), background_color='white smoke', border_width=4,
     relief='ridge', key='-RATIO_DSPLY-')]
 ]
 
+display_col3 = [
+   [sg.Text('Users', font=('Arial', 14, 'bold'))],
+   [sg.Text('', font=('Arial', 16, 'bold'), justification='centered',
+    size=(7, 1), background_color='white smoke', border_width=4,
+    relief='ridge', key='-USERS_DSPLY-')]
+]
+
+display_col4 = [
+   [sg.Text('Ports/User', font=('Arial', 14, 'bold'))],
+   [sg.Text('', font=('Arial', 16, 'bold'), justification='centered',
+    size=(7, 1), background_color='white smoke', border_width=4,
+    relief='ridge', key='-PORTS_DSPLY-')]
+]
+
+display_col5 = [
+   [sg.Text('Excluded Ports', font=('Arial', 14, 'bold'))],
+   [sg.Text('', font=('Arial', 16, 'bold'), justification='centered',
+    size=(7, 1), background_color='white smoke', border_width=4,
+    relief='ridge', key='-EXCL_PORTS_DSPLY-')]
+]
+
 # Top frame with results fields
 display_layout = [
-   [sg.Column(display_col3, element_justification='centered'),
+   [sg.Column(display_col1, element_justification='centered'),
     sg.Text('x', pad=((0, 0), (20, 0))),
-    sg.Column(display_col4, element_justification='centered'),
+    sg.Column(display_col2, element_justification='centered'),
     sg.Text('=', pad=((0, 0), (20, 0))),
-    sg.Column(display_col1, element_justification='centered'),
+    sg.Column(display_col3, element_justification='centered'),
     sg.Text(':', font=('Arial', 16, 'bold'), pad=((0, 0), (20, 0))),
-    sg.Column(display_col2, element_justification='centered')],
+    sg.Column(display_col4, element_justification='centered'),
+    sg.Column(display_col5, element_justification='centered')],
    [sg.Text('BMR', font=('Arial', 14, 'bold')),
     sg.Input('', font=('Courier', 15, 'bold'),
    # use_readonly... with disabled creates display field that can be
@@ -624,6 +635,7 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    d_dic['sratio'] = 2 ** psidlen # num of unique psids/v4-host
    d_dic['users'] = d_dic['v4ips'] * d_dic['sratio']
    d_dic['ppusr'] = ppusr
+   d_dic['excl_ports'] = 65536 - (d_dic['sratio'] * d_dic['ppusr'])
    d_dic['bmr_str'] = '|'.join([str(x) for x in param_ls])
    d_dic['upd_str'] = upd_obj.compressed  # upd = User Delegated Prefix (PD)
    d_dic['ce_ip'] = v4str
@@ -660,6 +672,7 @@ def displays_update(dic, pd_obj):
    window['-RATIO_DSPLY-'].update(dic['sratio'])
    window['-USERS_DSPLY-'].update(dic['users'])
    window['-PORTS_DSPLY-'].update(dic['ppusr'])
+   window['-EXCL_PORTS_DSPLY-'].update(dic['excl_ports'])
    window['-BMR_STRING_DSPLY-'].update(dic['bmr_str'])
 
    # Output values to Edit String and Values fields
@@ -683,13 +696,15 @@ def displays_update(dic, pd_obj):
       if num == 0:   # No append on line 0 causes initial "clear field"
          multiline1.update(''.join((dic['bin_str_dic'][bstr], '\n')))
       else:
-         multiline1.update(''.join((dic['bin_str_dic'][bstr], '\n')), append=True)
+         multiline1.update(''.join((dic['bin_str_dic'][bstr], '\n')),
+         append=True)
 
    for num, bstr in enumerate(dic['bin_ipstr_dic']):
       if num == 0:
          multiline2.update(''.join((dic['bin_ipstr_dic'][bstr], '\n')))
       else:
-         multiline2.update(''.join((dic['bin_ipstr_dic'][bstr], '\n')), append=True)
+         multiline2.update(''.join((dic['bin_ipstr_dic'][bstr], '\n')),
+         append=True)
 
    # Apply highlighting
    highlights(multiline1, dic)
@@ -703,17 +718,6 @@ def displays_update(dic, pd_obj):
    window['-V4HOST_SLIDER-'].update(range=(0, dic['v4ips'] - 1))
 #   window['-PORT_SLIDER-'].update(range=(0, (dic['ppusr'] - 1) ))
 #   window['-PORT_INDEX-'].update('0') #### <<<<------ UPDATE WITH ACTUAL VALUE !!! !!!
-
-   # # # Binary display references for adding highlights
-   # # #------------------------------------------------------#
-   # multiline1: sg.Multiline = window['MLINE_BIN_1']
-   # # widget = multiline1.Widget
-   
-   # multiline2: sg.Multiline = window['MLINE_BIN_2']
-   # # widget = multiline2.Widget
-   
-   # Apply binary string highlights
-   #----------------------------------#
 
    return
 
@@ -773,6 +777,7 @@ def highlights(display, dic):
    elif display.Key == 'MLINE_BIN_2':
       widget.tag_add('pink', *dic['hl_dic2']['v4if_hl'])
       widget.tag_add('teal', *dic['hl_dic2']['psid_hl'])
+
    return
 
 # Example BMR prefix lists and parameters
