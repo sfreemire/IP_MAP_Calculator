@@ -104,30 +104,20 @@ display_layout = [
 # Parameter Editing Display (2nd frame)
 #---------------------------------------#
 param_edit_col1 = [
-#   [sg.Text('Enter or Edit BMR Parameters',
-#      font=('Helvetica', 14, 'underline', 'bold')),
-#      sg.Push(),
-#    sg.Text('', text_color='red', key='-PARAM_MESSAGES-'),
-#    sg.Text('', text_color='red', key='-MESSAGES-'),
-#    sg.Push()],
    [sg.Text('Name:', font=('Arial', 14, 'bold')),
     sg.Input('', font=('Arial', 14, 'bold'), size=(20, 1),
     enable_events=True, tooltip=name_tooltip, border_width=2,
     pad=((89, 5), (5, 5)), background_color='#fdfdfc', key='-RULENAME-'),
     sg.Push(),
-    # sg.Text('Enter or Edit BMR Parameters',
-    #   font=('Helvetica', 14, 'underline', 'bold')),
+    sg.Text('', text_color='red', font='None 14 bold', key='-PARAM_MESSAGES-'),
     sg.Push()],
-    [sg.Text('IPv6 Prefix/Length:', font=('Arial', 14, 'bold')),
+   [sg.Text('IPv6 Prefix/Length:', font=('Arial', 14, 'bold')),
     sg.Input('', font=('Arial', 14, 'bold'), size=(20, 1), enable_events=True,
     tooltip=v6_tooltip, border_width=2, background_color='#fdfdfc',
     key='-R6PRE-'),
     sg.Text('/'),
     sg.Combo(v6mask, readonly=True, font=('Helvetica', 14, 'bold'),
-    enable_events=True, background_color='#fdfdfc', key='-R6LEN-'),
-    sg.Push(), # reduce test
-    sg.Text('', text_color='red', key='-PARAM_MESSAGES-'),
-    sg.Push()], # reduce test
+    enable_events=True, background_color='#fdfdfc', key='-R6LEN-')],
    [sg.Text('IPv4 Prefix/Length:', font=('Arial', 14, 'bold')),
     sg.Input('', font=('Arial', 14, 'bold'), size=(20, 1), enable_events=True,
     tooltip=v4_tooltip,  border_width=2, background_color='#fdfdfc',
@@ -270,7 +260,8 @@ bin_display_col2 = [
 bin_display_col3 = [
    [sg.Push(),
     # Error messages
-    sg.Text('', text_color='red', pad=((5, 5), (0, 0)), key='-PD_MESSAGES-'),
+    sg.Text('', text_color='red', font='None 14 bold',
+            pad=((5, 5), (0, 0)), key='-PD_MESSAGES-'),
     sg.Push()]
 ]
 
@@ -288,7 +279,7 @@ button_col1 = [
    [sg.Button('Example', font='Helvetica 11', key='-EXAMPLE-'),
     sg.Button('Next User PD', font='Helvetica 11', key='-NXT_USER_PD-'),
     sg.Button('Clear', font='Helvetica 11', key='-CLEAR-'),
-    sg.Text('', text_color='red', key='-BTN_MESSAGES-'),
+    sg.Text('', text_color='red', font='None 14 bold', key='-BTN_MESSAGES-'),
     sg.Push(),
 #    sg.Button('Save', font='Helvetica 11', key=('-SAVE_MAIN-')),
     sg.Button('About', font=('Helvetica', 12)),
@@ -889,15 +880,6 @@ def V4Indices(bin_right):
    For a given string length, it returns that length increased
    by the number of separators "." that will be inserted.
    '''
-#   if bin_right > 32:
-#      bin_right += 3
-#   elif bin_right > 24:
-#      bin_right += 3
-#   elif bin_right > 16:
-#      bin_right += 2
-#   elif bin_right > 8:
-#      bin_right += 1
-#   return bin_right
 
    if bin_right >= 24:
       bin_right += 3
@@ -1053,7 +1035,7 @@ cntr = 1  # debugging
 while True:
    event, values = window.read()    # type: (str, dict)
    print(f'\n#--------- Event {str(cntr)} ----------#')
-   # print(event, values)
+#   print(event, values)
    print(event)
    cntr += 1
    if event in (' Exit ', sg.WINDOW_CLOSE_ATTEMPTED_EVENT):
@@ -1092,13 +1074,8 @@ while True:
       example_obj = None # delete NewParams class object
       last_params = None
 
-#   if event == '-SAVE_MAIN-':
-
    # Load example values in main display and editors
    #-------------------------------------------------#
-   # if event == '-EXAMPLE-' and last_params:
-   #    window['-BTN_MESSAGES-'].update('"Clear" or "Next User PD" for new example')
-   # elif event == '-EXAMPLE-':
    if event == '-EXAMPLE-':
       portidxadd = 0      # reset port index setting
       if example_obj:
@@ -1119,13 +1096,13 @@ while True:
 
    # BMR parameter entry - validate input as it is typed
    #-----------------------------------------------------#
-   if event == '-RULENAME-' and values[event] and \
-   values[event][-1] not in chars:
-      window[event].update(values[event][:-1])
-      window['-PARAM_MESSAGES-'].update('Invalid character')
-   elif event == '-RULENAME-' and len(str(values['-RULENAME-'])) > 20:
+   if event == '-RULENAME-' and values[event]:
+      if values[event][-1] not in chars:
          window[event].update(values[event][:-1])
-         window['-PARAM_MESSAGES-'].update('Too long')
+         window['-PARAM_MESSAGES-'].update('Invalid character')
+      elif len(str(values['-RULENAME-'])) > 20:
+         window[event].update(values[event][:-1])
+         window['-PARAM_MESSAGES-'].update('Max Name length')
    if event == '-STRING_IN-' and values['-STRING_IN-']:
       if len(str(values['-STRING_IN-'])) > 59:
          window[event].update(values[event][:-1])
@@ -1147,14 +1124,13 @@ while True:
       for p in pframe_ls:
          if p == '-OFFSET-' and values[p] == 0:
             allow = 'yes'
-         else:
-            if not values[p]:
+         elif not values[p]:
                window['-PARAM_MESSAGES-'].update(f'Missing Parameter: {p}')
                advance(p)
                allow = 'no'
                break
-            else:
-               allow = 'yes'
+         else:
+            allow = 'yes'
       if allow == 'yes':
          param_ls = [values[p] for p in pframe_ls]
          for i, element in enumerate(param_ls):
@@ -1302,7 +1278,6 @@ while True:
          else:
             window['-MLINE_SAVED-'].update(savstr)
             savctr = True
-
 
    print(f'#------- End Event {cntr - 1} -------#')
 
