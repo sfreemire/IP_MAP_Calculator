@@ -301,13 +301,13 @@ button_layout = [
 
 # Saved rule string frame (5th frame)
 #-------------------------------------#
-MLINE_SAVED = '-MLINE_SAVED-'+sg.WRITE_ONLY_KEY
+#MLINE_SAVED = '-MLINE_SAVED-'+sg.WRITE_ONLY_KEY
 saved_section_layout = [
       [sg.Sizer(h_pixels=3, v_pixels=0),
        sg.Multiline(default_text='', size=(81, 8),
        font=('Courier', 14, 'bold'), disabled=True, autoscroll=True,
        expand_x=True, expand_y=True, pad=(0,0), horizontal_scroll=True,
-       background_color='#fdfdfc', key=MLINE_SAVED),
+       background_color='#fdfdfc', key='-MLINE_SAVED-'),
        sg.Push()]
 ]
 
@@ -814,7 +814,7 @@ class ExampleParams:
    def new_params(self):
       if self.last_plist:
          plist = self.last_plist
-         plist[0] = 'example_' + str(next(self.ex_cnt))
+         plist[0] = 'example_' + str(next(self.ex_cnt) + 1)
          plist[1] = next(self.rv6pfxs_obj).network_address.compressed
          plist[3] = next(self.rv4pfxs_obj).network_address.compressed
          return(plist)
@@ -824,7 +824,7 @@ class ExampleParams:
             new_prefix = self.rv6plen)
          self.rv4pfxs_obj = ip.ip_network(self.rv4blk).subnets(
             new_prefix = self.rv4plen)
-         plist = ['example_' + str(next(self.ex_cnt)),
+         plist = ['example_' + str(next(self.ex_cnt) + 1),
                   next(self.rv6pfxs_obj).network_address.compressed,
                   self.rv6plen,
                   next(self.rv4pfxs_obj).network_address.compressed,
@@ -1053,7 +1053,8 @@ cntr = 1  # debugging
 while True:
    event, values = window.read()    # type: (str, dict)
    print(f'\n#--------- Event {str(cntr)} ----------#')
-   print(event, values)
+   # print(event, values)
+   print(event)
    cntr += 1
    if event in (' Exit ', sg.WINDOW_CLOSE_ATTEMPTED_EVENT):
       # Save screen location when closing window
@@ -1095,9 +1096,10 @@ while True:
 
    # Load example values in main display and editors
    #-------------------------------------------------#
-   if event == '-EXAMPLE-' and last_params:
-      window['-BTN_MESSAGES-'].update('"Clear" or "Next User PD" for new example')
-   elif event == '-EXAMPLE-':
+   # if event == '-EXAMPLE-' and last_params:
+   #    window['-BTN_MESSAGES-'].update('"Clear" or "Next User PD" for new example')
+   # elif event == '-EXAMPLE-':
+   if event == '-EXAMPLE-':
       portidxadd = 0      # reset port index setting
       if example_obj:
          param_ls = example_obj.new_params()
@@ -1281,16 +1283,26 @@ while True:
    # Only BMR parameter list section needs to be entered
    #-------------------------------------------------------------#
    if event == '-SAVE-':
-      savstr = f'{values["-BMR_STRING_DSPLY-"]} ' \
-               f'(IPs-{window["-IPS_DSPLY-"].get()}, ' \
-               f'S-{window["-RATIO_DSPLY-"].get()}, ' \
-               f'U-{window["-USERS_DSPLY-"].get()}, ' \
-               f'P-{window["-PORTS_DSPLY-"].get()})\n'
-      if savctr == True:
-         window[MLINE_SAVED].update(savstr, append=True)
+      rule = values["-BMR_STRING_DSPLY-"]
+      name = rule.split('|')
+      name = name[0]
+      if name in values["-MLINE_SAVED-"]:
+         window['-PARAM_MESSAGES-'].update('Duplicate Name - Rename Rule')
+      elif rule[rule.index('|'):] in values["-MLINE_SAVED-"]:
+         window['-PARAM_MESSAGES-'].update('Duplicate Rule - Edit Rule')
       else:
-         window[MLINE_SAVED].update(savstr)
-         savctr = True
+         savstr = f'{values["-BMR_STRING_DSPLY-"]} ' \
+                  f'(IPs-{window["-IPS_DSPLY-"].get()}, ' \
+                  f'SHR-{window["-RATIO_DSPLY-"].get()}, ' \
+                  f'USRS-{window["-USERS_DSPLY-"].get()}, ' \
+                  f'PTS-{window["-PORTS_DSPLY-"].get()}, ' \
+                  f'XPTS-{window["-EXCL_PORTS_DSPLY-"].get()})\n'
+         if savctr == True:
+            window['-MLINE_SAVED-'].update(savstr, append=True)
+         else:
+            window['-MLINE_SAVED-'].update(savstr)
+            savctr = True
+
 
    print(f'#------- End Event {cntr - 1} -------#')
 
