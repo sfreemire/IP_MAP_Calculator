@@ -687,19 +687,17 @@ def displays_update(dic, pd_obj):
    multiline2: sg.Multiline = window['MLINE_BIN_2']
 
    # Output binary strings to binary string editor
+   multiline1.update('') # Clear field
    for num, bstr in enumerate(dic['bin_str_dic']):
-      if num == 0:   # No append on line 0 causes initial "clear field"
-         multiline1.update(''.join((dic['bin_str_dic'][bstr], '\n')))
-      else:
-         multiline1.update(''.join((dic['bin_str_dic'][bstr], '\n')),
-         append=True)
+      # Don't append \n after last line
+      multiline1.update(dic['bin_str_dic'][bstr]
+       + ('\n' if num < len(dic['bin_str_dic']) -1 else ''), append=True)
 
+   multiline2.update('') # Clear field
    for num, bstr in enumerate(dic['bin_ipstr_dic']):
-      if num == 0:
-         multiline2.update(''.join((dic['bin_ipstr_dic'][bstr], '\n')))
-      else:
-         multiline2.update(''.join((dic['bin_ipstr_dic'][bstr], '\n')),
-         append=True)
+      # Don't append \n after last line
+      multiline2.update(dic['bin_ipstr_dic'][bstr]
+       + ('\n' if num < len(dic['bin_ipstr_dic']) -1 else ''), append=True)
 
    # Apply highlighting
    highlights(multiline1, dic)
