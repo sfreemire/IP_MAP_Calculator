@@ -6,7 +6,7 @@ import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.10.2 - 01/09/2024 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.10.3 - 01/10/2024 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -1101,10 +1101,10 @@ while True:
       elif len(str(values['-RULENAME-'])) > 20:
          window[event].update(values[event][:-1])
          window['-PARAM_MESSAGES-'].update('Max Name length')
-   if event == '-STRING_IN-' and values['-STRING_IN-']:
-      if len(str(values['-STRING_IN-'])) > 59:
-         window[event].update(values[event][:-1])
-         # Find a place to send error message ------------<<<<<<<<<<<< REVIEW
+   # if event == '-STRING_IN-' and values['-STRING_IN-']:
+   #    if len(str(values['-STRING_IN-'])) > 69:
+   #       window[event].update(values[event][:-1])
+   #       # Find a place to send error message ------------<<<<<<<<<<<< REVIEW
    if event == '-R6PRE-' and values['-R6PRE-']:
       if values['-R6PRE-'][-1] not in v6chars \
          or len(values['-R6PRE-']) > 21:
@@ -1157,7 +1157,13 @@ while True:
          window['-STRING_IN-'].update('Enter rule string')
          window['-PARAM_MESSAGES-'].update('Missing String')
          advance('-STRING_IN-')
-      elif len(values['-STRING_IN-']) > 69: # ----------------->> NEEDED???
+      elif ' ' in values['-STRING_IN-']:
+         # Remove space and everything following
+         space_idx = values['-STRING_IN-'].index(' ')
+         values['-STRING_IN-'] = values['-STRING_IN-'][:space_idx]
+         window['-STRING_IN-'].update(values['-STRING_IN-'])
+         window['-ENTER_STRING-'].click() # "Re-click" String Enter button
+      elif len(values['-STRING_IN-']) > 69:
          window['-STRING_IN-'].update('Rule string too long')
       else:
          input_str = values['-STRING_IN-']
