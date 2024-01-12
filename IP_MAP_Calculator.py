@@ -156,6 +156,20 @@ editor_layout = [
    [sg.Column(param_edit_col1, expand_x=True)],
 ]
 
+multiline1_layout = [
+   [sg.Multiline(size=(83, 13), auto_size_text=True,
+    font=('Courier', 14, 'bold'), background_color='#fdfdfc',
+    expand_x=True, disabled=True, # horizontal_scroll = True,
+    no_scrollbar=True, key='MLINE_BIN_1')]
+]
+
+multiline2_layout = [
+   [sg.Multiline(size=(83, 4), auto_size_text=True,
+    font=('Courier', 14, 'bold'), background_color='#fdfdfc',
+    expand_x=True, disabled=True, horizontal_scroll = True,
+    no_scrollbar=True, key='MLINE_BIN_2')]
+]
+
 # Binary Display (3rd frame)
 #-------------------------------------#
 # '#faf9f2' is a nice white, similar to default background '#fdfdfc'
@@ -182,16 +196,14 @@ bin_display_col1 = [
     disabled_readonly_background_color='#fdfdfc'),
     sg.Push()],
    [sg.Sizer(h_pixels=0, v_pixels=8)],
-   [sg.Multiline(size=(83, 13), auto_size_text=True,
-    font=('Courier', 14, 'bold'), background_color='#fdfdfc',
-#   enable_events=True,
-    expand_x=True, disabled=True, # horizontal_scroll = True,
-    no_scrollbar=True, key='MLINE_BIN_1')],
-   [sg.Multiline(size=(83, 4), auto_size_text=True,
-    font=('Courier', 14, 'bold'), background_color='#fdfdfc',
-#   enable_events=True,
-    expand_x=True, disabled=True, horizontal_scroll = True,
-    no_scrollbar=True, key='MLINE_BIN_2')],
+
+   [sg.Frame(
+    'BMR Prefix, User Prefix, & IPv4 Prefix - IPv4 Host & Port Calculation',
+    multiline1_layout, expand_x=True, border_width=1, relief='ridge',
+    font='None 13 bold', title_location=sg.TITLE_LOCATION_TOP,)],
+   [sg.Frame('User IPv6 Source Address',
+    multiline2_layout, expand_x=True, border_width=1, relief='ridge',
+    font='None 13 bold', title_location=sg.TITLE_LOCATION_TOP,)]
 ]
 
 bin_display_col2 = [
@@ -495,9 +507,9 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    # BMR PD, User PD, and EA Bits dictionary entries
    #--------------------------------------------------#
    bin_str_dic = {}
-   bin_str_dic['params_str'] = f'          --- BMR PD Len /{param_ls[2]},' \
-                              f' with User PD Len /{upd_len}' \
-                              f' = EA Bits Len {param_ls[5]} ---'
+   # bin_str_dic['params_str'] = f'          --- BMR PD Len /{param_ls[2]},' \
+   #                            f' with User PD Len /{upd_len}' \
+   #                            f' = EA Bits Len {param_ls[5]} ---'
    bin_str_dic['blank1'] = ''
    bin_str_dic['v6p_hexstr'] = f" BMR PD:{' ' * 8}" \
                               f"{'      :      '.join(v6p_hex_seglst)}" \
@@ -549,7 +561,7 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    # Source IPv6 address dictionary entry
    #--------------------------------------------------#
    bin_ipstr_dic = {}
-   bin_ipstr_dic['label_1'] = (' ' * 23) + '--- User IPv6 Source Address: ---'
+#   bin_ipstr_dic['label_1'] = (' ' * 23) + '--- User IPv6 Source Address: ---'
    bin_ipstr_dic['blank_line'] = ''
    bin_ipstr_dic['v6sip_hex_str'] = f'{v6sip_hex_pfx}{v6hex_pad}:{v4hex_segs}:{psid_hex}'
    bin_ipstr_dic['v6sip_binstr'] = f'{v6sip_bin}{pad2}:{v4sip_bin}:{psid_bin}'
@@ -589,20 +601,32 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    #---------------------------------------------#
    # Prepend line number for each highlight index
    hl_dic1 = {}
-#   hl_dic1['title_hl'] = ['1.13', '1.68']
-   hl_dic1['bmr_hl'] = ['5.' + str(bmr_binstr_l), '5.' + str(bmr_binstr_r)]
+   # hl_dic1['title_hl'] = ['1.13', '1.68']
+   hl_dic1['bmr_hl'] = ['4.' + str(bmr_binstr_l), '4.' + str(bmr_binstr_r)]
+   # hl_dic1['bmr_hl'] = ['5.' + str(bmr_binstr_l), '5.' + str(bmr_binstr_r)]
 #   hl_dic1['bmr_hl'] = [f'5.{str(bmr_binstr_l)}', f'5.{str(bmr_binstr_r)}'] # using f-strings
-   hl_dic1['upd_hl'] = ['6.' + str(upd_binstr_l), '6.' + str(upd_binstr_r)]
-   hl_dic1['sbnt_hl'] = ['6.' + str(upd_binstr_sbnt_l), '6.' + str(upd_binstr_sbnt_r)]
-   hl_dic1['ea_v4_hl'] = ['7.' + str(ea_binstr_l), '7.' + str(ea_binstr_div)]
-   hl_dic1['ea_psid_hl'] = ['7.' + str(ea_binstr_div), '7.' + str(ea_binstr_r)]
-   hl_dic1['v4ip_hl'] = ['9.' + str(v4ip_hl_l), '9.' + str(v4ip_hl_r)]
-   hl_dic1['v4ipbin_hl'] = ['10.' + str(v4ip_hl_l), '10.' + str(v4ip_hl_r)]
-   hl_dic1['prtidx_ofst_hl'] = ['12.' + str(prtidx_ofst_l), '12.' + str(prtidx_ofst_r)]
-   hl_dic1['prtidx_pad_hl'] = ['12.' + str(prtidx_pad_l), '12.' + str(prtidx_pad_r)]
-   hl_dic1['portbin_ofst_hl'] = ['13.' + str(portbin_ofst_hl_l), '13.' + str(portbin_ofst_hl_r)]
-   hl_dic1['portbin_psid_hl'] = ['13.' + str(portbin_psid_hl_l), '13.' + str(portbin_psid_hl_r)]
-   hl_dic1['portbin_pad_hl'] = ['13.' + str(portbin_pad_hl_l), '13.' + str(portbin_pad_hl_r)]
+   # hl_dic1['upd_hl'] = ['6.' + str(upd_binstr_l), '6.' + str(upd_binstr_r)]
+   # hl_dic1['sbnt_hl'] = ['6.' + str(upd_binstr_sbnt_l), '6.' + str(upd_binstr_sbnt_r)]
+   # hl_dic1['ea_v4_hl'] = ['7.' + str(ea_binstr_l), '7.' + str(ea_binstr_div)]
+   # hl_dic1['ea_psid_hl'] = ['7.' + str(ea_binstr_div), '7.' + str(ea_binstr_r)]
+   # hl_dic1['v4ip_hl'] = ['9.' + str(v4ip_hl_l), '9.' + str(v4ip_hl_r)]
+   # hl_dic1['v4ipbin_hl'] = ['10.' + str(v4ip_hl_l), '10.' + str(v4ip_hl_r)]
+   # hl_dic1['prtidx_ofst_hl'] = ['12.' + str(prtidx_ofst_l), '12.' + str(prtidx_ofst_r)]
+   # hl_dic1['prtidx_pad_hl'] = ['12.' + str(prtidx_pad_l), '12.' + str(prtidx_pad_r)]
+   # hl_dic1['portbin_ofst_hl'] = ['13.' + str(portbin_ofst_hl_l), '13.' + str(portbin_ofst_hl_r)]
+   # hl_dic1['portbin_psid_hl'] = ['13.' + str(portbin_psid_hl_l), '13.' + str(portbin_psid_hl_r)]
+   # hl_dic1['portbin_pad_hl'] = ['13.' + str(portbin_pad_hl_l), '13.' + str(portbin_pad_hl_r)]
+   hl_dic1['upd_hl'] = ['5.' + str(upd_binstr_l), '5.' + str(upd_binstr_r)]
+   hl_dic1['sbnt_hl'] = ['5.' + str(upd_binstr_sbnt_l), '5.' + str(upd_binstr_sbnt_r)]
+   hl_dic1['ea_v4_hl'] = ['6.' + str(ea_binstr_l), '6.' + str(ea_binstr_div)]
+   hl_dic1['ea_psid_hl'] = ['6.' + str(ea_binstr_div), '6.' + str(ea_binstr_r)]
+   hl_dic1['v4ip_hl'] = ['8.' + str(v4ip_hl_l), '8.' + str(v4ip_hl_r)]
+   hl_dic1['v4ipbin_hl'] = ['9.' + str(v4ip_hl_l), '9.' + str(v4ip_hl_r)]
+   hl_dic1['prtidx_ofst_hl'] = ['11.' + str(prtidx_ofst_l), '11.' + str(prtidx_ofst_r)]
+   hl_dic1['prtidx_pad_hl'] = ['11.' + str(prtidx_pad_l), '11.' + str(prtidx_pad_r)]
+   hl_dic1['portbin_ofst_hl'] = ['12.' + str(portbin_ofst_hl_l), '12.' + str(portbin_ofst_hl_r)]
+   hl_dic1['portbin_psid_hl'] = ['12.' + str(portbin_psid_hl_l), '12.' + str(portbin_psid_hl_r)]
+   hl_dic1['portbin_pad_hl'] = ['12.' + str(portbin_pad_hl_l), '12.' + str(portbin_pad_hl_r)]
 
    # Binary display 2 highlight index data
    #---------------------------------------------#
@@ -618,8 +642,10 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    # Prepend line number for each highlight index
    hl_dic2 = {}
 #   hl_dic2['heading_hl'] = ['1.26', '1.54']
-   hl_dic2['v4if_hl'] = [f'4.{v4if_l}', f'4.{v4if_r}']
-   hl_dic2['psid_hl'] = [f'4.{psid_l}', f'4.{psid_r}']
+   # hl_dic2['v4if_hl'] = [f'4.{v4if_l}', f'4.{v4if_r}']
+   # hl_dic2['psid_hl'] = [f'4.{psid_l}', f'4.{psid_r}']
+   hl_dic2['v4if_hl'] = [f'3.{v4if_l}', f'3.{v4if_r}']
+   hl_dic2['psid_hl'] = [f'3.{psid_l}', f'3.{psid_r}']
 
    #-------------------------------------------------------------------------#
    # Results = Display values dictionary
@@ -738,7 +764,7 @@ def highlights(display, dic):
    """ Highlighting for binary displays. Called from displays_update() """
    widget = display.Widget
  
-   # Highlight color definitions
+   # Highlight color option definitions
    #-------------------------------------#
    widget.tag_config('white', foreground='black', background='#FFFFFF')
    widget.tag_config('yellow', foreground='black', background='#FFFF00')
@@ -756,9 +782,12 @@ def highlights(display, dic):
    widget.tag_config('tan', foreground='black', background='tan')
    widget.tag_config('lt_tan', foreground='black', background='#dbcdbd')
    widget.tag_config('lt_orange', foreground='black', background='#ffcc99')
+   widget.tag_config('new_lt_green', foreground='black', background='#c2ebc2')
 
    if display.Key == 'MLINE_BIN_1':
 #      widget.tag_add('lt_orange', *dic['hl_dic1']['title_hl'])
+      widget.tag_add('new_lt_green', *dic['hl_dic1']['bmr_hl'])
+      widget.tag_add('new_lt_green', *dic['hl_dic1']['upd_hl'])
       widget.tag_add('white', *dic['hl_dic1']['bmr_hl'])
       widget.tag_add('white', *dic['hl_dic1']['upd_hl'])
       widget.tag_add('grey49', *dic['hl_dic1']['sbnt_hl'])
