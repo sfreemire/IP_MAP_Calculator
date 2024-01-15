@@ -147,7 +147,7 @@ param_edit_col1 = [
     sg.Button('Enter', font='Helvetica 11', pad=((5, 5), (5, 0)),
     key='-ENTER_STRING-')],
    [sg.Push(),
-    sg.Text('Enter or paste saved string and Enter '
+    sg.Text('Type or paste saved string and Enter '
             '(don\'t include parenthesis section)',
     font=('Helvetica', 13, 'italic'), justification='centered',
     pad=((5, 5), (0, 5))),
