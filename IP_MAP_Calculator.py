@@ -19,7 +19,8 @@ v4_tooltip = 'Format similar to 192.168.2.0/24'
 v4m_tooltip = 'Enter IPv4 mask bits'
 ea_tooltip = 'Max 2 digits'
 #psid_tooltip = 'Max 1 digit'
-saved_tooltip = 'Similar to example below'
+rulestring_tooltip = ('Name|IPv6 Prefix|IPv6 Pfx Len|IPv4 Prefix|'
+                      'IPv4 Pfx Len|EA Len|PSID Offset')
 v4mask = [n for n in range(16, 33)] # for edit rule Combo
 v6mask = [n for n in range(32, 65)] # for edit rule Combo
 psidoff = [n for n in range(17)]    # for edit rule Combo
@@ -142,11 +143,12 @@ param_edit_col1 = [
     pad=((5, 5), (5, 0))),
     sg.Input('', font=('Courier', 14, 'bold'), size=(60, 1),
     justification='centered', pad=((5, 5), (5, 0)), enable_events=True,
-    background_color='#fdfdfc', tooltip=saved_tooltip, key='-STRING_IN-'),
+    background_color='#fdfdfc', tooltip=rulestring_tooltip, key='-STRING_IN-'),
     sg.Button('Enter', font='Helvetica 11', pad=((5, 5), (5, 0)),
     key='-ENTER_STRING-')],
    [sg.Push(),
-    sg.Text('Edit or paste saved string and Enter (don\'t include parenthesis section)',
+    sg.Text('Enter or paste saved string and Enter '
+            '(don\'t include parenthesis section)',
     font=('Helvetica', 13, 'italic'), justification='centered',
     pad=((5, 5), (0, 5))),
     sg.Push()]
@@ -156,6 +158,8 @@ editor_layout = [
    [sg.Column(param_edit_col1, expand_x=True)],
 ]
 
+# Binary Display (3rd frame)
+#-------------------------------------#
 multiline1_layout = [
    [sg.Multiline(size=(83, 13), auto_size_text=True,
     font=('Courier', 14, 'bold'), background_color='#fdfdfc',
@@ -166,13 +170,10 @@ multiline1_layout = [
 multiline2_layout = [
    [sg.Multiline(size=(83, 4), auto_size_text=True,
     font=('Courier', 14, 'bold'), background_color='#fdfdfc',
-    expand_x=True, disabled=True, horizontal_scroll = True,
+    expand_x=True, horizontal_scroll = True,
     no_scrollbar=True, key='MLINE_BIN_2')]
 ]
 
-# Binary Display (3rd frame)
-#-------------------------------------#
-# '#faf9f2' is a nice white, similar to default background '#fdfdfc'
 bin_display_col1 = [
 #   [sg.HorizontalSeparator()],
    [sg.Sizer(h_pixels=0, v_pixels=8)],
@@ -196,7 +197,6 @@ bin_display_col1 = [
     disabled_readonly_background_color='#fdfdfc'),
     sg.Push()],
    [sg.Sizer(h_pixels=0, v_pixels=8)],
-
    [sg.Frame(
     'BMR Prefix, User Prefix, & IPv4 Prefix - IPv4 Host & Port Calculation',
     multiline1_layout, expand_x=True, border_width=1, relief='ridge',
@@ -572,18 +572,20 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    # Binary display 1 highlight index data
    #---------------------------------------------#
    # return index of first character after " BMR PD: "
-   bmr_binstr_l = next(i for (i, e) in enumerate(bin_str_dic["bmr_binstr"])
+   bmr_pfx_l = next(i for (i, e) in enumerate(bin_str_dic["bmr_binstr"])
       if e not in "BMR PD: ")
-   bmr_binstr_r = bmr_binstr_l + V6Indices(param_ls[2])
-   upd_binstr_l = bmr_binstr_r
-   upd_binstr_r = bmr_binstr_l + V6Indices(upd_len)
-   upd_binstr_sbnt_l = upd_binstr_r
+   bmr_pfx_r = bmr_pfx_l + V6Indices(param_ls[2])
+   v6_pfxlen_l = 79
+   v6_pfxlen_r = 82
+   upd_pfx_l = bmr_pfx_r
+   upd_pfx_r = bmr_pfx_l + V6Indices(upd_len)
+   upd_binstr_sbnt_l = upd_pfx_r
    upd_binstr_sbnt_r = bin_str_dic['upd_binstr'].index('::')
    ea_binstr_l = next(i for (i, e) in enumerate(bin_str_dic["ea_binstr"])
       if e not in "EA Bits:.")
    ea_binstr_r = ea_binstr_l + len(ea_bin_fmt)
    # ea_binstr_div is v4host_r and psid_l
-   ea_binstr_div = bmr_binstr_l + V6Indices(param_ls[2] + v4hostbin_len)
+   ea_binstr_div = bmr_pfx_l + V6Indices(param_ls[2] + v4hostbin_len)
    prtidx_ofst_l = 48
    prtidx_ofst_r = prtidx_ofst_l + param_ls[6]
    prtidx_pad_l = prtidx_ofst_r + 1
@@ -601,22 +603,11 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    #---------------------------------------------#
    # Prepend line number for each highlight index
    hl_dic1 = {}
-   # hl_dic1['title_hl'] = ['1.13', '1.68']
-   hl_dic1['bmr_hl'] = ['4.' + str(bmr_binstr_l), '4.' + str(bmr_binstr_r)]
-   # hl_dic1['bmr_hl'] = ['5.' + str(bmr_binstr_l), '5.' + str(bmr_binstr_r)]
-#   hl_dic1['bmr_hl'] = [f'5.{str(bmr_binstr_l)}', f'5.{str(bmr_binstr_r)}'] # using f-strings
-   # hl_dic1['upd_hl'] = ['6.' + str(upd_binstr_l), '6.' + str(upd_binstr_r)]
-   # hl_dic1['sbnt_hl'] = ['6.' + str(upd_binstr_sbnt_l), '6.' + str(upd_binstr_sbnt_r)]
-   # hl_dic1['ea_v4_hl'] = ['7.' + str(ea_binstr_l), '7.' + str(ea_binstr_div)]
-   # hl_dic1['ea_psid_hl'] = ['7.' + str(ea_binstr_div), '7.' + str(ea_binstr_r)]
-   # hl_dic1['v4ip_hl'] = ['9.' + str(v4ip_hl_l), '9.' + str(v4ip_hl_r)]
-   # hl_dic1['v4ipbin_hl'] = ['10.' + str(v4ip_hl_l), '10.' + str(v4ip_hl_r)]
-   # hl_dic1['prtidx_ofst_hl'] = ['12.' + str(prtidx_ofst_l), '12.' + str(prtidx_ofst_r)]
-   # hl_dic1['prtidx_pad_hl'] = ['12.' + str(prtidx_pad_l), '12.' + str(prtidx_pad_r)]
-   # hl_dic1['portbin_ofst_hl'] = ['13.' + str(portbin_ofst_hl_l), '13.' + str(portbin_ofst_hl_r)]
-   # hl_dic1['portbin_psid_hl'] = ['13.' + str(portbin_psid_hl_l), '13.' + str(portbin_psid_hl_r)]
-   # hl_dic1['portbin_pad_hl'] = ['13.' + str(portbin_pad_hl_l), '13.' + str(portbin_pad_hl_r)]
-   hl_dic1['upd_hl'] = ['5.' + str(upd_binstr_l), '5.' + str(upd_binstr_r)]
+   hl_dic1['bmr_hl'] = ['4.' + str(bmr_pfx_l), '4.' + str(bmr_pfx_r)]
+#   hl_dic1['bmr_hl'] = [f'5.{str(bmr_pfx_l)}', f'5.{str(bmr_pfx_r)}'] # using f-strings
+   hl_dic1['bmr_len_hl'] = ['4.' + str(v6_pfxlen_l), '4.' + str(v6_pfxlen_r)]
+   hl_dic1['upd_hl'] = ['5.' + str(upd_pfx_l), '5.' + str(upd_pfx_r)]
+   hl_dic1['upd_len_hl'] = ['5.' + str(v6_pfxlen_l), '5.' + str(v6_pfxlen_r)]
    hl_dic1['sbnt_hl'] = ['5.' + str(upd_binstr_sbnt_l), '5.' + str(upd_binstr_sbnt_r)]
    hl_dic1['ea_v4_hl'] = ['6.' + str(ea_binstr_l), '6.' + str(ea_binstr_div)]
    hl_dic1['ea_psid_hl'] = ['6.' + str(ea_binstr_div), '6.' + str(ea_binstr_r)]
@@ -641,9 +632,6 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    #---------------------------------------------#
    # Prepend line number for each highlight index
    hl_dic2 = {}
-#   hl_dic2['heading_hl'] = ['1.26', '1.54']
-   # hl_dic2['v4if_hl'] = [f'4.{v4if_l}', f'4.{v4if_r}']
-   # hl_dic2['psid_hl'] = [f'4.{psid_l}', f'4.{psid_r}']
    hl_dic2['v4if_hl'] = [f'3.{v4if_l}', f'3.{v4if_r}']
    hl_dic2['psid_hl'] = [f'3.{psid_l}', f'3.{psid_r}']
 
@@ -787,9 +775,9 @@ def highlights(display, dic):
    if display.Key == 'MLINE_BIN_1':
 #      widget.tag_add('lt_orange', *dic['hl_dic1']['title_hl'])
       widget.tag_add('new_lt_green', *dic['hl_dic1']['bmr_hl'])
+      widget.tag_add('new_lt_green', *dic['hl_dic1']['bmr_len_hl'])
       widget.tag_add('new_lt_green', *dic['hl_dic1']['upd_hl'])
-      widget.tag_add('white', *dic['hl_dic1']['bmr_hl'])
-      widget.tag_add('white', *dic['hl_dic1']['upd_hl'])
+      widget.tag_add('new_lt_green', *dic['hl_dic1']['upd_len_hl'])
       widget.tag_add('grey49', *dic['hl_dic1']['sbnt_hl'])
       widget.tag_add('pink', *dic['hl_dic1']['ea_v4_hl'])
       widget.tag_add('teal', *dic['hl_dic1']['ea_psid_hl'])
@@ -1119,6 +1107,8 @@ while True:
          userpd_obj = userpd_cls_obj.new_pd()
          last_userpd_obj = userpd_obj
       rule_calc(param_ls, userpd_obj)
+      window['MLINE_BIN_2'].Widget.xview_moveto('0.0')
+
  
 
    # BMR parameter entry - validate input as it is typed
@@ -1234,7 +1224,21 @@ while True:
          new_userpd_obj = userpd_cls_obj.new_pd()
          last_userpd_obj = new_userpd_obj
          rule_calc(param_ls, new_userpd_obj)
-      # Need "else:" statement??
+      # Need "else:" statement here??
+#         window['MLINE_BIN_2'].set_focus()
+         window['MLINE_BIN_2'].Widget.xview_moveto('0.9')
+
+# pysimplegui insert
+# Method mark_set of the Text widget to set the position of insert cursor.
+# and/or
+# m1.Widget.delete("insert-2c", "insert")
+
+# tkinter insert
+#  def onclick(event):
+#    #print(event)
+#    event.widget.mark_set(INSERT, '1.0')
+
+
 
    # Display next User Delegated Prefix (PD)
    #-----------------------------------------#
