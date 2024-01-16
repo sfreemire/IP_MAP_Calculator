@@ -1227,18 +1227,6 @@ while True:
          window['MLINE_BIN_2'].Widget.xview_moveto('0.9')
       # Need "else:" statement here??
 
-# pysimplegui insert
-# Method mark_set of the Text widget to set the position of insert cursor.
-# and/or
-# m1.Widget.delete("insert-2c", "insert")
-
-# tkinter insert
-#  def onclick(event):
-#    #print(event)
-#    event.widget.mark_set(INSERT, '1.0')
-
-
-
    # Display next User Delegated Prefix (PD)
    #-----------------------------------------#
    if event == '-NXT_USER_PD-' and last_params:
@@ -1285,10 +1273,7 @@ while True:
       portidxadd = idx
       if portidxadd > 100000: # preventing infinite growth
          portidxadd = 100000  # -------------------------- do this better!!!
-
       v4hostint = int(values['-V4HOST_SLIDER-'])
-   #   userpd_curr = ip.ip_network(values['-USER_PD-'])
-   #   print(f'>>> IDX Change - last_userpd_obj is {last_userpd_obj}')
       rule_calc(last_params, last_userpd_obj, v4hostint, portidx = idx)
 
    # Save Current BMR in bottom Multiline field for user to copy
