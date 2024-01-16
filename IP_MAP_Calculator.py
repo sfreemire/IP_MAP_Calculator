@@ -170,7 +170,7 @@ multiline1_layout = [
 multiline2_layout = [
    [sg.Multiline(size=(83, 4), auto_size_text=True,
     font=('Courier', 14, 'bold'), background_color='#fdfdfc',
-    expand_x=True, horizontal_scroll = True,
+    expand_x=True, horizontal_scroll = True, disabled=True,
     no_scrollbar=True, key='MLINE_BIN_2')]
 ]
 
@@ -1224,9 +1224,8 @@ while True:
          new_userpd_obj = userpd_cls_obj.new_pd()
          last_userpd_obj = new_userpd_obj
          rule_calc(param_ls, new_userpd_obj)
-      # Need "else:" statement here??
-#         window['MLINE_BIN_2'].set_focus()
          window['MLINE_BIN_2'].Widget.xview_moveto('0.9')
+      # Need "else:" statement here??
 
 # pysimplegui insert
 # Method mark_set of the Text widget to set the position of insert cursor.
