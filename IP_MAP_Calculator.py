@@ -762,7 +762,7 @@ def highlights(display, dic):
    widget.tag_config('sage', foreground='black', background='#C2C9A6')
    widget.tag_config('peri', foreground='black', background='#B2CAFA') # periwinkle
    widget.tag_config('pink', foreground='black', background='#EDABBF') # cherry blossom pink
-   widget.tag_config('teal', foreground='black', background='#96cdd9') # moonstone
+   widget.tag_config('new_teal', foreground='black', background='#7cdff3') # moonstone
    widget.tag_config('lt_purple', foreground='black', background='#D7C1D5')
    widget.tag_config('lt_blue1', foreground='black', background='#B3C3D1') # lt blue grey
    widget.tag_config('lt_blue2', foreground='black', background='#CCD7E0') # ltr blue grey
@@ -780,18 +780,18 @@ def highlights(display, dic):
       widget.tag_add('new_lt_green', *dic['hl_dic1']['upd_len_hl'])
       widget.tag_add('grey49', *dic['hl_dic1']['sbnt_hl'])
       widget.tag_add('pink', *dic['hl_dic1']['ea_v4_hl'])
-      widget.tag_add('teal', *dic['hl_dic1']['ea_psid_hl'])
+      widget.tag_add('new_teal', *dic['hl_dic1']['ea_psid_hl'])
       widget.tag_add('burley', *dic['hl_dic1']['prtidx_ofst_hl'])
       widget.tag_add('yellow', *dic['hl_dic1']['prtidx_pad_hl'])
       widget.tag_add('burley', *dic['hl_dic1']['portbin_ofst_hl'])
-      widget.tag_add('teal', *dic['hl_dic1']['portbin_psid_hl'])
+      widget.tag_add('new_teal', *dic['hl_dic1']['portbin_psid_hl'])
       widget.tag_add('yellow', *dic['hl_dic1']['portbin_pad_hl'])
       widget.tag_add('pink', *dic['hl_dic1']['v4ip_hl'])
       widget.tag_add('pink', *dic['hl_dic1']['v4ipbin_hl'])
    elif display.Key == 'MLINE_BIN_2':
 #      widget.tag_add('lt_orange', *dic['hl_dic2']['heading_hl'])
       widget.tag_add('pink', *dic['hl_dic2']['v4if_hl'])
-      widget.tag_add('teal', *dic['hl_dic2']['psid_hl'])
+      widget.tag_add('new_teal', *dic['hl_dic2']['psid_hl'])
 
    return
 
