@@ -573,11 +573,11 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    bin_ipstr_dic = {}
 #   bin_ipstr_dic['label_1'] = (' ' * 23) + '--- User IPv6 Source Address: ---'
    bin_ipstr_dic['blank_line1'] = ''
-   bin_ipstr_dic['v6sip_hex_str1'] = f' {v6sip_hex_pfx}'
-   bin_ipstr_dic['v6sip_binstr1'] = f' {v6sip_bin}'
+   bin_ipstr_dic['v6sip_hex_str1'] = f'   {v6sip_hex_pfx}'
+   bin_ipstr_dic['v6sip_binstr1'] = f'   {v6sip_bin}'
    bin_ipstr_dic['blank_line2'] = ''
-   bin_ipstr_dic['v6sip_hex_str2'] = f' {v6hex_pad}:{v4hex_segs}:{psid_hex}       : {port_int}'
-   bin_ipstr_dic['v6sip_binstr2'] = f' {pad2}:{v4sip_bin}:{psid_bin} : {port_int}'
+   bin_ipstr_dic['v6sip_hex_str2'] = f'   {v6hex_pad}:{v4hex_segs}:{psid_hex}       : {port_int}'
+   bin_ipstr_dic['v6sip_binstr2'] = f'   {pad2}:{v4sip_bin}:{psid_bin} : {port_int}'
 
 
 
@@ -636,12 +636,12 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
 
    # Binary display 2 highlight index data
    #---------------------------------------------#
-   v4if_l = (1 * 16) + param_ls[4]
+   v4if_l = (19) + param_ls[4]
    v4if_l = V6Indices(v4if_l)
-   v4if_r = (1 * 16) + 32
+   v4if_r = (18) + 32
    v4if_r = V6Indices(v4if_r)
-   psid_l = 51 + (16 - psidlen)
-   psid_r = 67
+   psid_l = 54 + (16 - psidlen)
+   psid_r = 70
 
    # Binary display 2 highlight index dictionary
    #---------------------------------------------#
