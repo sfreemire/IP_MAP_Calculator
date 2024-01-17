@@ -168,9 +168,9 @@ multiline1_layout = [
 ]
 
 multiline2_layout = [
-   [sg.Multiline(size=(83, 4), auto_size_text=True,
+   [sg.Multiline(size=(83, 7), auto_size_text=True,
     font=('Courier', 14, 'bold'), background_color='#fdfdfc',
-    expand_x=True, horizontal_scroll = True, disabled=True,
+    expand_x=True, horizontal_scroll = False, disabled=True,
     no_scrollbar=True, key='MLINE_BIN_2')]
 ]
 
@@ -196,24 +196,24 @@ bin_display_col1 = [
     disabled=True, key='-USER_PORT-',
     disabled_readonly_background_color='#fdfdfc'),
     sg.Push()],
-   [sg.Sizer(h_pixels=0, v_pixels=8)],
+   [sg.Sizer(h_pixels=0, v_pixels=6)],
    [sg.Frame(
     'BMR Prefix, User Prefix, & IPv4 Prefix - IPv4 Host & Port Calculation',
     multiline1_layout, expand_x=True, border_width=1, relief='ridge',
     font='None 13 bold', title_location=sg.TITLE_LOCATION_TOP,)],
-   [sg.Frame('User IPv6 Source Address',
-    multiline2_layout, expand_x=True, border_width=1, relief='ridge',
-    font='None 13 bold', title_location=sg.TITLE_LOCATION_TOP,)]
 ]
 
 bin_display_col2 = [
-   [sg.Text('IPv6\nPrefix Length:', font=('Helvetica', 14, 'bold'),
+   [sg.Push(),
+    sg.Text('IPv6\nPrefix Length:', font=('Helvetica', 14, 'bold'),
     pad=((5, 1), (5, 0))),
     sg.Slider(range=(32, 64), default_value=32, orientation='h',
     disable_number_display=False, enable_events=True,
     size=(16, 8), trough_color='white', font=('Helvetica', 14, 'bold'),
     text_color=None, key='-V6PFX_LEN_SLDR-'),
+    sg.Push(),
     sg.VerticalSeparator(),
+    sg.Push(),
     sg.Text('EA Length:', font=('Helvetica', 14, 'bold'),
       pad=((5, 0), (5, 0))),
     sg.Sizer(h_pixels=5, v_pixels=0),
@@ -222,15 +222,16 @@ bin_display_col2 = [
     size=(16, 8), trough_color='white', font=('Helvetica', 14, 'bold'),
     text_color=None, key='-EA_LEN_SLDR-'),
     sg.Push(),],
-   [sg.Text('IPv4\nPrefix Length:', font=('Helvetica', 14, 'bold'),
+   [sg.Push(),
+    sg.Text('IPv4\nPrefix Length:', font=('Helvetica', 14, 'bold'),
       pad=((5, 0), (5, 0))),
     sg.Slider(range=(16, 32), default_value=16, orientation='h',
     disable_number_display=False, enable_events=True,
     size=(16, 8), trough_color='white', font=('Helvetica', 14, 'bold'),
     pad=((5, 4), (0, 0)), text_color=None, key='-V4PFX_LEN_SLDR-'),
-    sg.Sizer(h_pixels=1),
+    sg.Push(),
     sg.VerticalSeparator(),
-    sg.Sizer(h_pixels=2),
+    sg.Push(),
     sg.Text('PSID\nOffset:', font=('Helvetica', 14, 'bold'),
     pad=((0, 5), (0, 5))),
     sg.Slider(range=(0, 16), default_value=0, orientation='h',
@@ -238,7 +239,8 @@ bin_display_col2 = [
     size=(19, 8), trough_color='white', font=('Helvetica', 14, 'bold'),
     pad=((5, 5), (0, 10)), key='-PSID_OFST_SLDR-'),
     sg.Push()],
-   [sg.Text('IPv4 Host:', font=('Helvetica', 14, 'bold')),
+   [sg.Push(),
+    sg.Text('IPv4 Host:', font=('Helvetica', 14, 'bold')),
     sg.Sizer(h_pixels=20),
     sg.Slider(range=(0, 0), default_value=0, orientation='h',
     disable_number_display=False, enable_events=True,
@@ -249,7 +251,8 @@ bin_display_col2 = [
 #   [sg.Sizer(h_pixels=0, v_pixels=8)],  
 #   [sg.HorizontalSeparator()],
    [sg.Sizer(h_pixels=0, v_pixels=3)],
-   [sg.Text('Source Port Index:', font=('Helvetica', 14, 'bold')),
+   [sg.Push(),
+    sg.Text('Source Port Index:', font=('Helvetica', 14, 'bold')),
     sg.Text('', font=('Arial', 14, 'bold'), justification='centered',
     size=(16, 1), background_color='#fdfdfc', border_width=4,
     relief='ridge', key='-SP_INDEX-'),
@@ -266,15 +269,22 @@ bin_display_col2 = [
     relief='ridge', key='-SP_INT-'),
 #    sg.Input('', size=(7, 1), justification='centered',
 #    use_readonly_for_disable=True, disabled=True, key='-SP_INT-'),
-    sg.Push()]
+    sg.Push()],
+#   [sg.HorizontalSeparator()],
+   [sg.Sizer(h_pixels=0, v_pixels=9)],
+   [sg.Frame('User IPv6 Source Address and Port',
+    multiline2_layout, expand_x=True, border_width=1, relief='ridge',
+    font='None 13 bold', pad=((0, 0), (0, 0)),
+    title_location=sg.TITLE_LOCATION_TOP,)]
 ]
 
+# Error messages
 bin_display_col3 = [
    [sg.Push(),
-    # Error messages
     sg.Text('', text_color='red', font='None 14 bold',
             pad=((5, 5), (0, 0)), key='-PD_MESSAGES-'),
-    sg.Push()]
+    sg.Push()],
+   [sg.Sizer(h_pixels=0, v_pixels=1)]
 ]
 
 bin_display_layout = [
@@ -348,7 +358,7 @@ layout = [
 window = sg.Window('IP MAP Calculator', layout, font=windowfont,
    enable_close_attempted_event=True,
    location=sg.user_settings_get_entry('-location-', (None, None)),
-   keep_on_top=False, resizable=True, size=(755, 1130), finalize=True) #(755, 1070)
+   keep_on_top=False, resizable=True, size=(755, 1150), finalize=True) #(755, 1070)
 
 # Prevent horizontal window resizing
 #window.set_resizable(False, True) # Not available until PySimpleGUI v5
@@ -562,9 +572,14 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    #--------------------------------------------------#
    bin_ipstr_dic = {}
 #   bin_ipstr_dic['label_1'] = (' ' * 23) + '--- User IPv6 Source Address: ---'
-   bin_ipstr_dic['blank_line'] = ''
-   bin_ipstr_dic['v6sip_hex_str'] = f'{v6sip_hex_pfx}{v6hex_pad}:{v4hex_segs}:{psid_hex}'
-   bin_ipstr_dic['v6sip_binstr'] = f'{v6sip_bin}{pad2}:{v4sip_bin}:{psid_bin}'
+   bin_ipstr_dic['blank_line1'] = ''
+   bin_ipstr_dic['v6sip_hex_str1'] = f' {v6sip_hex_pfx}'
+   bin_ipstr_dic['v6sip_binstr1'] = f' {v6sip_bin}'
+   bin_ipstr_dic['blank_line2'] = ''
+   bin_ipstr_dic['v6sip_hex_str2'] = f' {v6hex_pad}:{v4hex_segs}:{psid_hex}       : {port_int}'
+   bin_ipstr_dic['v6sip_binstr2'] = f' {pad2}:{v4sip_bin}:{psid_bin} : {port_int}'
+
+
 
    #-------------------------------------------------------------------------#
    # Binary display highlight indices
@@ -621,19 +636,24 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
 
    # Binary display 2 highlight index data
    #---------------------------------------------#
-   v4if_l = (5 * 16) + param_ls[4]
+   v4if_l = (1 * 16) + param_ls[4]
    v4if_l = V6Indices(v4if_l)
-   v4if_r = (5 * 16) + 32
+   v4if_r = (1 * 16) + 32
    v4if_r = V6Indices(v4if_r)
-   psid_l = 119 + (16 - psidlen)
-   psid_r = 135
+   psid_l = 51 + (16 - psidlen)
+   psid_r = 67
 
    # Binary display 2 highlight index dictionary
    #---------------------------------------------#
    # Prepend line number for each highlight index
+   # hl_dic2 = {}
+   # hl_dic2['v4if_hl'] = [f'3.{v4if_l}', f'3.{v4if_r}']
+   # hl_dic2['psid_hl'] = [f'3.{psid_l}', f'3.{psid_r}']
+
    hl_dic2 = {}
-   hl_dic2['v4if_hl'] = [f'3.{v4if_l}', f'3.{v4if_r}']
-   hl_dic2['psid_hl'] = [f'3.{psid_l}', f'3.{psid_r}']
+   hl_dic2['v4if_hl'] = [f'6.{v4if_l}', f'6.{v4if_r}']
+   hl_dic2['psid_hl'] = [f'6.{psid_l}', f'6.{psid_r}']
+
 
    #-------------------------------------------------------------------------#
    # Results = Display values dictionary
@@ -756,6 +776,7 @@ def highlights(display, dic):
    #-------------------------------------#
    widget.tag_config('white', foreground='black', background='#FFFFFF')
    widget.tag_config('yellow', foreground='black', background='#FFFF00')
+   widget.tag_config('new_yellow', foreground='black', background='#F8FF00')
    widget.tag_config('burley', foreground='black', background='#FFD39B') # burlywood
    widget.tag_config('burley3', foreground='black', background='#CDAA7D') # burlywood3
    widget.tag_config('grey49', foreground='black', background='#7D7D7D')
@@ -978,13 +999,14 @@ def validate(param_ls):
       elif psofst_len > 15:   # PSID offset > 15 = no available ports
          validflag = 'fail'
          window['-PARAM_MESSAGES-'].update('PSID Offset must not exceed 15')
+         window['-PD_MESSAGES-'].update('PSID Offset must not exceed 15')
 ##         advance('-OFFSET-')
 ##### >>>> CHECK TO SEE IF OFFSET > 15 IS ACTUALLY POSSIBLE <<<< ##### <----- REVIEW
       elif psofst_len + psid_len > 16:
          # psid length + psid offset > 16 bit port length not valid
          validflag = 'fail'
-         window['-PARAM_MESSAGES-'].update('PSID Offset + PSID length > 16 bits')
-         window['-PD_MESSAGES-'].update('PSID Offset + PSID length > 16 bits')
+         window['-PARAM_MESSAGES-'].update('PSID Offset + PSID Length > 16 bits')
+         window['-PD_MESSAGES-'].update('PSID Offset + PSID Length > 16 bits')
    return validflag
 
 # Path to additional data files
