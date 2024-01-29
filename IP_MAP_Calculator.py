@@ -422,9 +422,10 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
       v4addbin = v4pfxbin + v4hostbin
       newv4int = int(v4addbin, 2)
       newv4add = ip.IPv4Address(newv4int)
-      param_ls[3] = newv4add.compressed
+      v4str = newv4add.compressed
    else:
       window['-V4HOST_SLIDER-'].update(value=0)
+      v4str = param_ls[3]
 
    #-------------------------------------------------------------------------#
    # Binary display strings
@@ -450,7 +451,7 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    v4hostbin_len = 32 - param_ls[4]
    psid_idxl = param_ls[2] + v4hostbin_len
    psid_idxr = param_ls[2] + param_ls[5]
-   v4str = param_ls[3]
+#   v4str = param_ls[3]
    psid = upd_bin[psid_idxl : psid_idxr]
    # Generate 16 bit string for Port number
    # is PSID > 0?
@@ -467,7 +468,7 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
 
    # Sec 1, IPv4 string data
    #-----------------------------------#
-   v4ip_str = param_ls[3]
+   v4ip_str = v4str #param_ls[3]
    v4_seglst = v4ip_str.split('.')
    v4mask = param_ls[4]
    v4_obj = ip.ip_network(v4ip_str + '/' + str(v4mask), strict=False)
@@ -636,12 +637,16 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
 
    # Binary display 2 highlight index data
    #---------------------------------------------#
-   v4if_l = (19) + param_ls[4]
-   v4if_l = V6Indices(v4if_l)
-   v4if_r = (18) + 32
-   v4if_r = V6Indices(v4if_r)
-   psid_l = 54 + (16 - psidlen)
-   psid_r = 70
+   v4if1_l = 3 + (V6Indices(bmrpd_len))
+   v4if1_r = 3 + (V6Indices(bmrpd_len + v4hostbin_len))
+   psid1_l = v4if1_r
+   psid1_r = 3 + (V6Indices(bmrpd_len + v4hostbin_len + psidlen))
+   v4if2_l = (19) + param_ls[4]
+   v4if2_l = V6Indices(v4if2_l)
+   v4if2_r = (18) + 32
+   v4if2_r = V6Indices(v4if2_r)
+   psid2_l = 54 + (16 - psidlen)
+   psid2_r = 70
 
    # Binary display 2 highlight index dictionary
    #---------------------------------------------#
@@ -651,8 +656,10 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    # hl_dic2['psid_hl'] = [f'3.{psid_l}', f'3.{psid_r}']
 
    hl_dic2 = {}
-   hl_dic2['v4if_hl'] = [f'6.{v4if_l}', f'6.{v4if_r}']
-   hl_dic2['psid_hl'] = [f'6.{psid_l}', f'6.{psid_r}']
+   hl_dic2['v4if_hl1'] = [f'3.{v4if1_l}', f'3.{v4if1_r}']
+   hl_dic2['psid_hl1'] = [f'3.{psid1_l}', f'3.{psid1_r}']
+   hl_dic2['v4if_hl2'] = [f'6.{v4if2_l}', f'6.{v4if2_r}']
+   hl_dic2['psid_hl2'] = [f'6.{psid2_l}', f'6.{psid2_r}']
 
 
    #-------------------------------------------------------------------------#
@@ -660,7 +667,7 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    #-------------------------------------------------------------------------#
    d_dic = {}
    d_dic['paramlist'] = param_ls
-   d_dic['v4ips'] = 2 ** (32 - param_ls[4]) # 2^host_bits
+   d_dic['v4ips'] = 2 ** v4hostbin_len # 2^host_bits
    d_dic['sratio'] = 2 ** psidlen # num of unique psids/v4-host
    d_dic['users'] = d_dic['v4ips'] * d_dic['sratio']
    d_dic['ppusr'] = ppusr
@@ -811,8 +818,10 @@ def highlights(display, dic):
       widget.tag_add('pink', *dic['hl_dic1']['v4ipbin_hl'])
    elif display.Key == 'MLINE_BIN_2':
 #      widget.tag_add('lt_orange', *dic['hl_dic2']['heading_hl'])
-      widget.tag_add('pink', *dic['hl_dic2']['v4if_hl'])
-      widget.tag_add('new_teal', *dic['hl_dic2']['psid_hl'])
+      widget.tag_add('pink', *dic['hl_dic2']['v4if_hl1'])
+      widget.tag_add('new_teal', *dic['hl_dic2']['psid_hl1'])
+      widget.tag_add('pink', *dic['hl_dic2']['v4if_hl2'])
+      widget.tag_add('new_teal', *dic['hl_dic2']['psid_hl2'])
 
    return
 
