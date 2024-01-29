@@ -6,7 +6,7 @@ import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.10.3 - 01/10/2024 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.10.4 - 01/29/2024 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -90,11 +90,10 @@ display_layout = [
    [sg.Text('BMR', font=('Arial', 14, 'bold')),
     sg.Input('', font=('Courier', 15, 'bold'),
    # use_readonly... with disabled creates display field that can be
-   # selected and copied with cursor, but not edited
+   # selected and copied with cursor, but not edited (review this)
     justification='centered', size=(60, 1), use_readonly_for_disable=True,
     disabled=True, pad=((0, 8), (0, 0)), background_color='#fdfdfc',
     key='-BMR_STRING_DSPLY-'),
-#    sg.Push(),
     sg.Button('Save', font=('Helvetica', 11), key='-SAVE-')],
    [sg.Push(),
     sg.Text('Select and copy, or click Save', font=('Helvetica', 13, 'italic'),
@@ -239,7 +238,7 @@ bin_display_col2 = [
     size=(19, 8), trough_color='white', font=('Helvetica', 14, 'bold'),
     pad=((5, 5), (0, 10)), key='-PSID_OFST_SLDR-'),
     sg.Push()],
-   [sg.Push(),
+   [sg.Sizer(h_pixels=28, v_pixels=0),
     sg.Text('IPv4 Host:', font=('Helvetica', 14, 'bold')),
     sg.Sizer(h_pixels=20),
     sg.Slider(range=(0, 0), default_value=0, orientation='h',
@@ -248,7 +247,6 @@ bin_display_col2 = [
     pad=((5, 10), (0, 10)), key='-V4HOST_SLIDER-'),
     sg.Button(' + 1', font='Helvetica 11', key='-NEXT_HOST-'),
     sg.Push()],
-#   [sg.Sizer(h_pixels=0, v_pixels=8)],  
 #   [sg.HorizontalSeparator()],
    [sg.Sizer(h_pixels=0, v_pixels=3)],
    [sg.Push(),
@@ -270,7 +268,6 @@ bin_display_col2 = [
 #    sg.Input('', size=(7, 1), justification='centered',
 #    use_readonly_for_disable=True, disabled=True, key='-SP_INT-'),
     sg.Push()],
-#   [sg.HorizontalSeparator()],
    [sg.Sizer(h_pixels=0, v_pixels=9)],
    [sg.Frame('User IPv6 Source Address and Port',
     multiline2_layout, expand_x=True, border_width=1, relief='ridge',
@@ -451,7 +448,6 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    v4hostbin_len = 32 - param_ls[4]
    psid_idxl = param_ls[2] + v4hostbin_len
    psid_idxr = param_ls[2] + param_ls[5]
-#   v4str = param_ls[3]
    psid = upd_bin[psid_idxl : psid_idxr]
    # Generate 16 bit string for Port number
    # is PSID > 0?
@@ -580,8 +576,6 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    bin_ipstr_dic['v6sip_hex_str2'] = f'   {v6hex_pad}:{v4hex_segs}:{psid_hex}       : {port_int}'
    bin_ipstr_dic['v6sip_binstr2'] = f'   {pad2}:{v4sip_bin}:{psid_bin} : {port_int}'
 
-
-
    #-------------------------------------------------------------------------#
    # Binary display highlight indices
    #-------------------------------------------------------------------------#
@@ -651,16 +645,11 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    # Binary display 2 highlight index dictionary
    #---------------------------------------------#
    # Prepend line number for each highlight index
-   # hl_dic2 = {}
-   # hl_dic2['v4if_hl'] = [f'3.{v4if_l}', f'3.{v4if_r}']
-   # hl_dic2['psid_hl'] = [f'3.{psid_l}', f'3.{psid_r}']
-
    hl_dic2 = {}
    hl_dic2['v4if_hl1'] = [f'3.{v4if1_l}', f'3.{v4if1_r}']
    hl_dic2['psid_hl1'] = [f'3.{psid1_l}', f'3.{psid1_r}']
    hl_dic2['v4if_hl2'] = [f'6.{v4if2_l}', f'6.{v4if2_r}']
    hl_dic2['psid_hl2'] = [f'6.{psid2_l}', f'6.{psid2_r}']
-
 
    #-------------------------------------------------------------------------#
    # Results = Display values dictionary
@@ -685,7 +674,7 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
 
    displays_update(d_dic, upd_obj)
 
-   return d_dic
+   return
 
 '''
 ██████  ██ ███████ ██████  ██       █████  ██    ██ ███████ 
