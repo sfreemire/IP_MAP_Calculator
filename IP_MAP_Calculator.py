@@ -90,7 +90,7 @@ display_layout = [
    [sg.Text('BMR', font=('Arial', 14, 'bold')),
     sg.Input('', font=('Courier', 15, 'bold'),
    # use_readonly... with disabled creates display field that can be
-   # selected and copied with cursor, but not edited (review this)
+   # selected and copied with cursor, but not edited (review need for this)
     justification='centered', size=(60, 1), use_readonly_for_disable=True,
     disabled=True, pad=((0, 8), (0, 0)), background_color='#fdfdfc',
     key='-BMR_STRING_DSPLY-'),
@@ -364,6 +364,8 @@ window = sg.Window('IP MAP Calculator', layout, font=windowfont,
 #--------------------------------------------------------#
 window['-BMR_STRING_DSPLY-'].Widget.config(readonlybackground='#fdfdfc',
    borderwidth=3, relief='ridge')
+# Enable "Return" key to trigger Enter event in Rule String field
+window['-STRING_IN-'].bind('<Return>', '_Enter')
 
 '''
 ██████  ██    ██ ██      ███████      ██████  █████  ██       ██████ 
@@ -1129,8 +1131,6 @@ while True:
       rule_calc(param_ls, userpd_obj)
       window['MLINE_BIN_2'].Widget.xview_moveto('0.0')
 
- 
-
    # BMR parameter entry - validate input as it is typed
    #-----------------------------------------------------#
    if event == '-RULENAME-' and values[event]:
@@ -1189,7 +1189,8 @@ while True:
    # Validate Enter/Edit String
    # Values in allowable ranges. But not tested that they work in BMR!
    #-------------------------------------------------------------------#
-   if event == '-ENTER_STRING-':
+   # Rule String Enter button pressed or Return key pressed in Rule String Field
+   if event == '-ENTER_STRING-' or event == '-STRING_IN-' + '_Enter':
       portidxadd = 0      # reset port index setting
       valid = 'not set'
       if not values['-STRING_IN-']:
