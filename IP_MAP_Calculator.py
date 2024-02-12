@@ -339,9 +339,10 @@ sections_layout = [
 ]
 
 # Final Layout
-#-------------------------------------#
+# Width 735 allows multiline widths of 83
+#-----------------------------------------#
 layout = [
-   [sg.Column(sections_layout, size=(710, None), expand_y=True,
+   [sg.Column(sections_layout, size=(735, None), expand_y=True,
     scrollable=True, vertical_scroll_only = True,
     sbar_background_color='#D6CFBF', sbar_arrow_color='#09348A',
     sbar_relief='solid')]
@@ -352,10 +353,11 @@ layout = [
 #-------------------------------------------------------------------------#
 # Window uses last screen location for next start
 # Location is set upon Exit or WINDOW_CLOSE... event
+# Width 780 allows Final Layout width of 735
 window = sg.Window('IP MAP Calculator', layout, font=windowfont,
    enable_close_attempted_event=True,
    location=sg.user_settings_get_entry('-location-', (None, None)),
-   keep_on_top=False, resizable=True, size=(755, 1150), finalize=True) #(755, 1070)
+   keep_on_top=False, resizable=True, size=(780, 1150), finalize=True) #(755, 1070)
 
 # Prevent horizontal window resizing
 #window.set_resizable(False, True) # Not available until PySimpleGUI v5
