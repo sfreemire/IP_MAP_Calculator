@@ -1291,8 +1291,8 @@ while True:
             idx = 100000
       idx = idx + portidxadd
       portidxadd = idx
-      if portidxadd > 100000: # preventing infinite growth
-         portidxadd = 100000  # -------------------------- do this better!!!
+      if portidxadd > 100000: # Preventing infinite growth
+         portidxadd = 100000  # Figure out actual max required and DO THIS BETTER!!!
       v4hostint = int(values['-V4HOST_SLIDER-'])
       rule_calc(last_params, last_userpd_obj, v4hostint, portidx = idx)
 
