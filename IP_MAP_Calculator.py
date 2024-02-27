@@ -6,7 +6,7 @@ import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.10.5 - 02/08/2024 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.10.6 - 02/27/2024 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -357,7 +357,8 @@ layout = [
 window = sg.Window('IP MAP Calculator', layout, font=windowfont,
    enable_close_attempted_event=True,
    location=sg.user_settings_get_entry('-location-', (None, None)),
-   keep_on_top=False, resizable=True, size=(780, 1150), finalize=True) #(755, 1070)
+   # keep_on_top=False, resizable=True, size=(780, 1150), finalize=True) #(755, 1070)
+   keep_on_top=False, resizable=True, size=(780, 1250), finalize=True) #(755, 1070)
 
 # Prevent horizontal window resizing
 #window.set_resizable(False, True) # Not available until PySimpleGUI v5
@@ -487,31 +488,26 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    # Sec 1, Modify Port string if Port Index (portidx) has been changed
    #--------------------------------------------------------------------#
    if portidx:
+      # Initial value of port index
+      pidx_bin_base = int(pidx_bin, 2)
       if portidx == 0:
          pass
-      elif portidx < 1000:
+      # Increment val can't exceed max value of idx binary - index initial value
+      elif portidx < (2 ** len(pidx_bin)) - pidx_bin_base:
          pidx_int = int(pidx_bin, 2)
-         if pidx_int + portidx <= 2 ** (16 - psidlen) - 1:
-            pidx_int = pidx_int + portidx
-         else:
-            pidx_int = 2 ** (16 - psidlen) - 1
-            window['-PD_MESSAGES-'].update('Port index maximum reached')
+         pidx_int = pidx_int + portidx
          pidx_bin = bin(pidx_int)[2:].zfill(len(pidx_bin)) # for d_dic
          psid_ofst_bin = pidx_bin[: len(psid_ofst_bin)]
          portrpad_bin = pidx_bin[len(psid_ofst_bin) :]
-         port_bin = psid_ofst_bin + \
-                    psid + \
-                    portrpad_bin
+         port_bin = psid_ofst_bin + psid + portrpad_bin
          port_int = int(port_bin, 2) # for d_dic
       else:
          window['-PD_MESSAGES-'].update('Port index maximum reached')
-         pidx_int = 2 ** (16 - psidlen) - 1
-         pidx_bin = bin(pidx_int)[2:] # for d_dic
+         pidx_bin = "1" * len(pidx_bin)
+         pidx_int = int(pidx_bin, 2)
          psid_ofst_bin = pidx_bin[: len(psid_ofst_bin)]
          portrpad_bin = pidx_bin[len(psid_ofst_bin) :]
-         port_bin = psid_ofst_bin + \
-                    psid + \
-                    portrpad_bin
+         port_bin = psid_ofst_bin + psid + portrpad_bin
          port_int = int(port_bin, 2) # for d_dic
 
    # Binary Section 1
@@ -1112,6 +1108,7 @@ while True:
 #      last_params = None
       example_obj = None # delete NewParams class object
       last_params = None
+      portidx = 0
 
    # Load example values in main display and editors
    #-------------------------------------------------#
