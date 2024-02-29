@@ -6,7 +6,7 @@ import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.10.6 - 02/27/2024 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.10.7 - 02/29/2024 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -411,7 +411,7 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    # If call is from the host slider, update the upd with host bits
    # and update v4pfx value in param_ls
    if v4host != None:
-      pdbin = f'{ip.IPv6Address(upd_obj.network_address):b}'
+      pdbin = f'{upd_obj.network_address:b}'
       pdbin_l = pdbin[:param_ls[2]]
       pdbin_r = pdbin[param_ls[2] + (32 - last_params[4]) : ]
       v4hostbin = bin(v4host)[2:].zfill(32 - param_ls[4])
@@ -421,13 +421,20 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
          ip.IPv6Address(newpdint).compressed + '/' + str(upd_obj.prefixlen)
       upd_obj = ip.IPv6Network(new_upd_add_str)
       v4pfxbin = f'{ip.IPv4Address(param_ls[3]):b}'[: int(param_ls[4])]
-      v4addbin = v4pfxbin + v4hostbin
-      newv4int = int(v4addbin, 2)
+      newv4bin = v4pfxbin + v4hostbin
+      newv4int = int(newv4bin, 2)
       newv4add = ip.IPv4Address(newv4int)
       v4str = newv4add.compressed
    else:
-      window['-V4HOST_SLIDER-'].update(value=0)
-      v4str = param_ls[3]
+      v4pfxbin = f'{ip.IPv4Address(param_ls[3]):b}'
+      v4hostbin = f'{upd_obj.network_address:b}]'[bmrpd_len : bmrpd_len + (32 - param_ls[4])]
+      v4hostint = int(v4hostbin, 2)
+      newv4bin = v4pfxbin[:param_ls[4]] + v4hostbin
+#      window['-V4HOST_SLIDER-'].update(value=0)
+      newv4add = ip.IPv4Address(int(newv4bin, 2))
+      v4str = newv4add.compressed
+      window['-V4HOST_SLIDER-'].update(v4hostint)
+
 
    #-------------------------------------------------------------------------#
    # Binary display strings
@@ -469,13 +476,13 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
 
    # Sec 1, IPv4 string data
    #-----------------------------------#
-   v4ip_str = v4str #param_ls[3]
-   v4_seglst = v4ip_str.split('.')
+#   v4ip_str = v4str #param_ls[3]
+   v4_seglst = v4str.split('.')
    v4mask = param_ls[4]
-   v4_obj = ip.ip_network(v4ip_str + '/' + str(v4mask), strict=False)
-   v4_bin = f'{ip.IPv4Address(v4ip_str):b}'
+#   v4_obj = ip.ip_network(v4str + '/' + str(v4mask), strict=False)
+#   v4_bin = f'{ip.IPv4Address(v4ip_str):b}'
    # make segments equal length for display
-   v4_bin_seglst = [v4_bin[i:i+8] for i in range(0, 32, 8)]
+   v4_bin_seglst = [newv4bin[i:i+8] for i in range(0, 32, 8)]
    v4_bin_fmt = '.'.join(v4_bin_seglst) + f'/{v4mask}'
    for i, seg in enumerate(v4_seglst):
       if len(seg) == 3:
@@ -550,7 +557,7 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    pad1 = ' ' * 6
    pad2 = '0' * 16
    v6hex_pad = f'{pad1}0000{pad1}'
-   v4bin_segls = [v4_bin[i:i+16] for i in range(0, 32, 16)]
+   v4bin_segls = [newv4bin[i:i+16] for i in range(0, 32, 16)]
    v4hex_segls = [int(str(x),2) for x in v4bin_segls]
    v4hex_segls = [hex(x)[2:].zfill(4) for x in v4hex_segls]
    v4hex_segs = f'{pad1}{v4hex_segls[0]}{pad1}:{pad1}{v4hex_segls[1]}{pad1}'
@@ -1105,7 +1112,6 @@ while True:
       window['-SP_INDEX-'].update('')
       window['-SP_INT-'].update('')
       userpd_cls_obj = None # delete UserPd class object
-#      last_params = None
       example_obj = None # delete NewParams class object
       last_params = None
       portidx = 0
@@ -1253,10 +1259,8 @@ while True:
       portidxadd = 0
       new_userpd_obj = userpd_cls_obj.new_pd()
       last_userpd_obj = new_userpd_obj
-      next_pd_bin = f'{ip.IPv6Address(new_userpd_obj.network_address):b}'
-      next_pd_bin_type = type(f'{ip.IPv6Address(new_userpd_obj.network_address):b}')
-#      v4hostint = int(values['-V4HOST_SLIDER-']) # slider values are floats
-      rule_calc(last_params, new_userpd_obj, portidx = 0)
+      v4hostint = int(values['-V4HOST_SLIDER-']) # slider values are floats
+      rule_calc(last_params, new_userpd_obj, v4hostint)
 
    # Increment IPv4 host address
    #-----------------------------------------#
@@ -1320,6 +1324,7 @@ while True:
             window['-MLINE_SAVED-'].update(savstr)
             savctr = True
 
+
    print(f'#------- End Event {cntr - 1} -------#')
 
    # Utilities
@@ -1333,7 +1338,5 @@ while True:
    # This prints all variables:
    #-----------------------------------------#
 #   print(dir())
-
-
 
 window.close()
