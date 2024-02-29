@@ -6,7 +6,7 @@ import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.10.7 - 02/29/2024 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.10.8 - 02/29/2024 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -146,8 +146,7 @@ param_edit_col1 = [
     sg.Button('Enter', font='Helvetica 11', pad=((5, 5), (5, 0)),
     key='-ENTER_STRING-')],
    [sg.Push(),
-    sg.Text('Type or paste saved string and Enter '
-            '(don\'t include parenthesis section)',
+    sg.Text('Type or paste saved string and click Enter',
     font=('Helvetica', 13, 'italic'), justification='centered',
     pad=((5, 5), (0, 5))),
     sg.Push()]
@@ -209,7 +208,7 @@ bin_display_col2 = [
     sg.Slider(range=(32, 64), default_value=32, orientation='h',
     disable_number_display=False, enable_events=True,
     size=(16, 8), trough_color='white', font=('Helvetica', 14, 'bold'),
-    text_color=None, key='-V6PFX_LEN_SLDR-'),
+    text_color=None, disabled=True, key='-V6PFX_LEN_SLDR-'),
     sg.Push(),
     sg.VerticalSeparator(),
     sg.Push(),
@@ -219,7 +218,7 @@ bin_display_col2 = [
     sg.Slider(range=(0, 32), default_value=0, orientation='h',
     disable_number_display=False, enable_events=True,
     size=(16, 8), trough_color='white', font=('Helvetica', 14, 'bold'),
-    text_color=None, key='-EA_LEN_SLDR-'),
+    text_color=None, disabled=True, key='-EA_LEN_SLDR-'),
     sg.Push(),],
    [sg.Push(),
     sg.Text('IPv4\nPrefix Length:', font=('Helvetica', 14, 'bold'),
@@ -227,7 +226,8 @@ bin_display_col2 = [
     sg.Slider(range=(16, 32), default_value=16, orientation='h',
     disable_number_display=False, enable_events=True,
     size=(16, 8), trough_color='white', font=('Helvetica', 14, 'bold'),
-    pad=((5, 4), (0, 0)), text_color=None, key='-V4PFX_LEN_SLDR-'),
+    pad=((5, 4), (0, 0)), disabled=True, text_color=None,
+    key='-V4PFX_LEN_SLDR-'),
     sg.Push(),
     sg.VerticalSeparator(),
     sg.Push(),
@@ -236,7 +236,7 @@ bin_display_col2 = [
     sg.Slider(range=(0, 16), default_value=0, orientation='h',
     disable_number_display=False, enable_events=True,
     size=(19, 8), trough_color='white', font=('Helvetica', 14, 'bold'),
-    pad=((5, 5), (0, 10)), key='-PSID_OFST_SLDR-'),
+    pad=((5, 5), (0, 10)), disabled=True, key='-PSID_OFST_SLDR-'),
     sg.Push()],
    [sg.Sizer(h_pixels=28, v_pixels=0),
     sg.Text('IPv4 Host:', font=('Helvetica', 14, 'bold')),
@@ -741,6 +741,10 @@ def displays_update(dic, pd_obj):
    highlights(multiline2, dic)
 
    # Output values to binary editor sliders and input fields
+   window['-V6PFX_LEN_SLDR-'].update(disabled=False)
+   window['-EA_LEN_SLDR-'].update(disabled=False)
+   window['-V4PFX_LEN_SLDR-'].update(disabled=False)
+   window['-PSID_OFST_SLDR-'].update(disabled=False)
    window['-V6PFX_LEN_SLDR-'].update(dic['paramlist'][2])
    window['-EA_LEN_SLDR-'].update(dic['paramlist'][5])
    window['-V4PFX_LEN_SLDR-'].update(dic['paramlist'][4])
@@ -1104,10 +1108,14 @@ while True:
       window['MLINE_BIN_1'].update('')
       window['MLINE_BIN_2'].update('')
       window['-V4HOST_SLIDER-'].update(value=0)
+      window['-V4HOST_SLIDER-'].update(range=(0, 0))
+      window['-V6PFX_LEN_SLDR-'].update(disabled=True)
+      window['-EA_LEN_SLDR-'].update(disabled=True)
+      window['-V4PFX_LEN_SLDR-'].update(disabled=True)
+      window['-PSID_OFST_SLDR-'].update(disabled=True)
       window['-USER_PD-'].update('')
       window['-USER_IP4-'].update('')
       window['-USER_PORT-'].update('')
-      window['-V4HOST_SLIDER-'].update(range=(0, 0))
       window['-STRING_IN-'].update('')
       window['-SP_INDEX-'].update('')
       window['-SP_INT-'].update('')
@@ -1167,8 +1175,8 @@ while True:
          if p == '-OFFSET-' and values[p] == 0:
             allow = 'yes'
          elif not values[p]:
-               window['-PARAM_MESSAGES-'].update(f'Missing Parameter: {p}')
-               advance(p)
+               window['-PARAM_MESSAGES-'].update(f'Missing Parameter')
+#               advance(p)
                allow = 'no'
                break
          else:
