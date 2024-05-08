@@ -638,16 +638,16 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
 
    # Binary display 2 highlight index data
    #---------------------------------------------#
-   v4if1_l = 3 + (V6Indices(bmrpd_len))
-   v4if1_r = 3 + (V6Indices(bmrpd_len + v4hostbin_len))
+   v4if1_l = 5 + (V6Indices(bmrpd_len))
+   v4if1_r = 5 + (V6Indices(bmrpd_len + v4hostbin_len))
    psid1_l = v4if1_r
-   psid1_r = 3 + (V6Indices(bmrpd_len + v4hostbin_len + psidlen))
-   v4if2_l = (19) + param_ls[4]
+   psid1_r = 5 + (V6Indices(bmrpd_len + v4hostbin_len + psidlen))
+   v4if2_l = 21 + param_ls[4]
    v4if2_l = V6Indices(v4if2_l)
-   v4if2_r = (18) + 32
+   v4if2_r = 20 + 32
    v4if2_r = V6Indices(v4if2_r)
-   psid2_l = 54 + (16 - psidlen)
-   psid2_r = 70
+   psid2_l = 56 + (16 - psidlen)
+   psid2_r = 72
 
    # Binary display 2 highlight index dictionary
    #---------------------------------------------#
@@ -1128,6 +1128,7 @@ while True:
    #-------------------------------------------------#
    if event == '-EXAMPLE-':
       portidxadd = 0      # reset port index setting
+      v4hostint = 0       # reset v4 host
       if example_obj:
          param_ls = example_obj.new_params()
       else:
@@ -1141,7 +1142,7 @@ while True:
          userpd_cls_obj = UserPd(param_ls)
          userpd_obj = userpd_cls_obj.new_pd()
          last_userpd_obj = userpd_obj
-      rule_calc(param_ls, userpd_obj)
+      rule_calc(param_ls, userpd_obj, v4hostint)
       window['MLINE_BIN_2'].Widget.xview_moveto('0.0')
 
    # BMR parameter entry - validate input as it is typed
