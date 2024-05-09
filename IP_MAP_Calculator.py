@@ -11,7 +11,7 @@ import sys
 # Window theme and frame variables
 #-------------------------------------#
 sg.theme('TanBlue') # Tan is #E5DECF, Blue is #09348A
-windowfont=('Helvetica', 14)
+windowfont=('Helvetica', 13)
 name_tooltip = 'Enter unique rule name'
 v6_tooltip = 'Format similar to 2008:8cd:0::/xx'
 v6m_tooltip = 'Enter IPv6 mask bits'
@@ -125,13 +125,13 @@ param_edit_col1 = [
     sg.Text('/'),
     sg.Combo(v4mask, readonly=True, font=('Helvetica', 14, 'bold'),
     enable_events=True, key='-R4LEN-',)],
-   [sg.Text('EA Bits Length', font=('Arial', 14, 'bold')),
-    sg.Sizer(h_pixels=25, v_pixels=0),
+   [sg.Text('EA Bits Length', font=('Helvetica', 13, 'bold')),
+    sg.Sizer(h_pixels=32, v_pixels=0),
     sg.Combo(eabits, readonly=True, font=('Helvetica', 14, 'bold'),
     background_color='#fdfdfc', enable_events=True, key='-EABITS-',),
-    sg.Sizer(h_pixels=20, v_pixels=0),
-    sg.Text('PSID Offset Bits', font=('Arial', 14, 'bold')),
-    sg.Combo(psidoff, readonly=True, font=('Helvetica', 14, 'bold'),
+    sg.Sizer(h_pixels=23, v_pixels=0),
+    sg.Text('PSID Offset Bits', font=('Helvetica', 13, 'bold')),
+    sg.Combo(psidoff, readonly=True, font=('Helvetica', 13, 'bold'),
     background_color='#fdfdfc', enable_events=True, key='-OFFSET-'),
     sg.Sizer(h_pixels=202, v_pixels=0),
     sg.Button('Enter', font=('Helvetica', 11), key='-ENTER_PARAMS-')],
@@ -173,84 +173,62 @@ multiline2_layout = [
 ]
 
 bin_display_col1 = [
-#   [sg.HorizontalSeparator()],
-   [sg.Sizer(h_pixels=0, v_pixels=8)],
-   [sg.Push(),
-    sg.Text('User PD', font=('Arial', 14, 'bold'), pad=((5, 0), (5, 5))),
-    sg.Input('', size=(24, 1), pad=((4, 5), (5, 5)),
-    font=('Arial', 14, 'bold'), justification='centered',
-    use_readonly_for_disable=True, disabled=True, key='-USER_PD-',
-    disabled_readonly_background_color='#fdfdfc'),
-    sg.Push(),
-    sg.Text('CE IP', font=('Arial', 14, 'bold'), pad=((0, 0), (5, 5))),
-    sg.Input('', size=(16, 1), font=('Arial', 14, 'bold'),
-    pad=((5, 0), (5, 5)), justification='centered',
-    use_readonly_for_disable=True, disabled=True, key='-USER_IP4-',
-    disabled_readonly_background_color='#fdfdfc'),
-    sg.Push(),
-    sg.Text('Port', font=('Arial', 14, 'bold'), pad=((4, 0), (5, 5))),
-    sg.Input('', size=((9), 1), font=('Arial', 14, 'bold'),
-    justification='centered', use_readonly_for_disable=True,
-    disabled=True, key='-USER_PORT-',
-    disabled_readonly_background_color='#fdfdfc'),
-    sg.Push()],
    [sg.Sizer(h_pixels=0, v_pixels=6)],
    [sg.Frame(
     'BMR Prefix, User Prefix, & IPv4 Prefix - IPv4 Host & Port Calculation',
     multiline1_layout, expand_x=True, border_width=1, relief='ridge',
-    font='None 13 bold', title_location=sg.TITLE_LOCATION_TOP,)],
+    font=('Helvetica', 13, 'bold'), title_location=sg.TITLE_LOCATION_TOP,)],
 ]
 
 bin_display_col2 = [
-   [sg.Push(),
-    sg.Text('IPv6\nPrefix Length:', font=('Helvetica', 14, 'bold'),
-    pad=((5, 1), (5, 0))),
+   [
+    sg.Sizer(37, 0),
+    sg.Text('IPv6 Prefix Length:', font=('Helvetica', 13, 'bold'),
+    pad=((0, 1), (5, 0))),
     sg.Slider(range=(32, 64), default_value=32, orientation='h',
     disable_number_display=False, enable_events=True,
-    size=(16, 8), trough_color='white', font=('Helvetica', 14, 'bold'),
+    size=(16, 8), trough_color='white', font=('Helvetica', 13, 'bold'),
     text_color=None, disabled=True, key='-V6PFX_LEN_SLDR-'),
-    sg.Push(),
+#    sg.Push(),
+    sg.Sizer(8, 0),
     sg.VerticalSeparator(),
-    sg.Push(),
-    sg.Text('EA Length:', font=('Helvetica', 14, 'bold'),
-      pad=((5, 0), (5, 0))),
-    sg.Sizer(h_pixels=5, v_pixels=0),
-    sg.Slider(range=(0, 32), default_value=0, orientation='h',
+    sg.Sizer(8, 0),
+#    sg.Push(),
+    sg.Text('EA Length:', font=('Helvetica', 13, 'bold'),
+      pad=((0, 14), (5, 0))),
+#    sg.Sizer(h_pixels=5, v_pixels=0),
+    sg.Slider(range=(0, 32), default_value=32, orientation='h',
     disable_number_display=False, enable_events=True,
-    size=(16, 8), trough_color='white', font=('Helvetica', 14, 'bold'),
+    size=(19, 8), trough_color='white', font=('Helvetica', 13, 'bold'),
     text_color=None, disabled=True, key='-EA_LEN_SLDR-'),
-    sg.Push(),],
-   [sg.Push(),
-    sg.Text('IPv4\nPrefix Length:', font=('Helvetica', 14, 'bold'),
-      pad=((5, 0), (5, 0))),
+#    sg.Sizer(40, 0),
+    ],
+   [
+    sg.Sizer(37, 0),
+    sg.Text('IPv4 Prefix Length:', font=('Helvetica', 13, 'bold'),
+      pad=((0, 1), (5, 0))),
     sg.Slider(range=(16, 32), default_value=16, orientation='h',
     disable_number_display=False, enable_events=True,
-    size=(16, 8), trough_color='white', font=('Helvetica', 14, 'bold'),
-    pad=((5, 4), (0, 0)), disabled=True, text_color=None,
+    size=(16, 8), trough_color='white', font=('Helvetica', 13, 'bold'),
+    disabled=True, text_color=None,
     key='-V4PFX_LEN_SLDR-'),
-    sg.Push(),
+#    sg.Push(),
+    sg.Sizer(8, 0),
     sg.VerticalSeparator(),
-    sg.Push(),
-    sg.Text('PSID\nOffset:', font=('Helvetica', 14, 'bold'),
+    sg.Sizer(8, 0),
+#    sg.Push(),
+    sg.Text('PSID Offset:', font=('Helvetica', 13, 'bold'),
     pad=((0, 5), (0, 5))),
     sg.Slider(range=(0, 16), default_value=0, orientation='h',
     disable_number_display=False, enable_events=True,
-    size=(19, 8), trough_color='white', font=('Helvetica', 14, 'bold'),
+    size=(19, 8), trough_color='white', font=('Helvetica', 13, 'bold'),
     pad=((5, 5), (0, 10)), disabled=True, key='-PSID_OFST_SLDR-'),
-    sg.Push()],
-   [sg.Sizer(h_pixels=28, v_pixels=0),
-    sg.Text('IPv4 Host:', font=('Helvetica', 14, 'bold')),
-    sg.Sizer(h_pixels=20),
-    sg.Slider(range=(0, 0), default_value=0, orientation='h',
-    disable_number_display=False, enable_events=True,
-    size=(42, 8), trough_color='white', font=('Helvetica', 14, 'bold'),
-    pad=((5, 10), (0, 10)), key='-V4HOST_SLIDER-'),
-    sg.Button(' + 1', font='Helvetica 11', key='-NEXT_HOST-'),
-    sg.Push()],
-#   [sg.HorizontalSeparator()],
-   [sg.Sizer(h_pixels=0, v_pixels=3)],
+#    sg.Push()
+    ],
+
+   [sg.Sizer(h_pixels=0, v_pixels=9)],
    [sg.Push(),
-    sg.Text('Source Port Index:', font=('Helvetica', 14, 'bold')),
+    sg.Text('Source Port Index:', font=('Helvetica', 13, 'bold')),
     sg.Text('', font=('Arial', 14, 'bold'), justification='centered',
     size=(16, 1), background_color='#fdfdfc', border_width=4,
     relief='ridge', key='-SP_INDEX-'),
@@ -268,11 +246,52 @@ bin_display_col2 = [
 #    sg.Input('', size=(7, 1), justification='centered',
 #    use_readonly_for_disable=True, disabled=True, key='-SP_INT-'),
     sg.Push()],
-   [sg.Sizer(h_pixels=0, v_pixels=9)],
+
+   [sg.Sizer(0, 9)],
+   [sg.HorizontalSeparator()],
+   [sg.Sizer(h_pixels=0, v_pixels=3)],
+
+   [sg.Sizer(10, 0),
+    sg.Text('End-user IPv6 prefix (User PD):',
+            pad=0, font=('Helvetica', 13, 'bold'))],
+   [sg.Sizer(h_pixels=0, v_pixels=8)],
+   [sg.Push(),
+    sg.Text('User PD', font=('Helvetica', 13, 'bold'), pad=((5, 0), (5, 5))),
+    sg.Input('', size=(24, 1), pad=((4, 5), (5, 5)),
+    font=('Helvetica', 13, 'bold'), justification='centered',
+    use_readonly_for_disable=True, disabled=True, key='-USER_PD-',
+    disabled_readonly_background_color='#fdfdfc'),
+    sg.Push(),
+    sg.Text('CE IP', font='Helvetica 13 bold', pad=((0, 0), (5, 5))),
+    sg.Input('', size=(16, 1), font=('Helvetica', 13, 'bold'),
+    pad=((5, 0), (5, 5)), justification='centered',
+    use_readonly_for_disable=True, disabled=True, key='-USER_IP4-',
+    disabled_readonly_background_color='#fdfdfc'),
+    sg.Push(),
+    sg.Text('Port', font=('Helvetica', 13, 'bold'), pad=((4, 0), (5, 5))),
+    sg.Input('', size=((9), 1), font=('Helvetica', 13, 'bold'),
+    justification='centered', use_readonly_for_disable=True,
+    disabled=True, key='-USER_PORT-',
+    disabled_readonly_background_color='#fdfdfc'),
+    sg.Push()],
+
+   [sg.Sizer(0, 5)],
    [sg.Frame('User IPv6 Source Address and Port',
     multiline2_layout, expand_x=True, border_width=1, relief='ridge',
-    font='None 13 bold', pad=((0, 0), (0, 0)),
-    title_location=sg.TITLE_LOCATION_TOP,)]
+    font=('Helvetica', 13, 'bold'), pad=((0, 0), (0, 0)),
+    title_location=sg.TITLE_LOCATION_TOP,)],
+   [sg.Sizer(0, 7)],
+
+   [sg.Sizer(h_pixels=2, v_pixels=0),
+    sg.Button('Next User PD', font='Helvetica 11', key='-NXT_USER_PD-'),
+    sg.Push(),
+    sg.Text('IPv4 Host:', font=('Helvetica', 13, 'bold')),
+    sg.Slider(range=(0, 0), default_value=0, orientation='h',
+    disable_number_display=False, enable_events=True,
+    size=(42, 8), trough_color='white', font=('Helvetica', 14, 'bold'),
+    pad=((5, 10), (0, 10)), key='-V4HOST_SLIDER-'),
+    sg.Button(' + 1', font='Helvetica 11', key='-NEXT_HOST-'),
+   ],
 ]
 
 # Error messages
@@ -287,7 +306,7 @@ bin_display_col3 = [
 bin_display_layout = [
    [sg.Column(bin_display_col1, element_justification='centered',
     expand_x=True)],
-   [sg.Column(bin_display_col2, element_justification='centered',
+   [sg.Column(bin_display_col2,
     expand_x=True)],
    [sg.Column(bin_display_col3, expand_x=True)],
 ]
@@ -296,7 +315,6 @@ bin_display_layout = [
 #-------------------------------------#
 button_col1 = [
    [sg.Button('Example', font='Helvetica 11', key='-EXAMPLE-'),
-    sg.Button('Next User PD', font='Helvetica 11', key='-NXT_USER_PD-'),
     sg.Button('Clear', font='Helvetica 11', key='-CLEAR-'),
     sg.Text('', text_color='red', font='None 14 bold', key='-BTN_MESSAGES-'),
     sg.Push(),
@@ -327,14 +345,14 @@ sections_layout = [
    [sg.Frame('', display_layout, expand_x=True, border_width=6,
       relief='ridge', element_justification='centered')],
    [sg.Frame('Enter or Edit BMR Parameters', editor_layout,
-    font='None 13 bold', title_location=sg.TITLE_LOCATION_TOP,
+    font=('Helvetica', 13, 'bold'), title_location=sg.TITLE_LOCATION_TOP,
     expand_x=True, border_width=6, relief='ridge')],
    [sg.Frame('', bin_display_layout, expand_x=True, border_width=6,
     relief='ridge')],
    [sg.Frame('', button_layout, expand_x=True, border_width=6,
     relief='ridge')],
    [sg.Frame('Saved Rule Strings', saved_section_layout, expand_x=True,
-    font='None 13 bold', title_location=sg.TITLE_LOCATION_TOP,
+    font=('Helvetica', 13, 'bold'), title_location=sg.TITLE_LOCATION_TOP,
     border_width=6, relief='ridge')]
 ]
 
@@ -358,7 +376,7 @@ window = sg.Window('IP MAP Calculator', layout, font=windowfont,
    enable_close_attempted_event=True,
    location=sg.user_settings_get_entry('-location-', (None, None)),
    # keep_on_top=False, resizable=True, size=(780, 1150), finalize=True) #(755, 1070)
-   keep_on_top=False, resizable=True, size=(780, 1250), finalize=True) #(755, 1070)
+   keep_on_top=False, resizable=True, size=(780, 1260), finalize=True) #(755, 1070)
 
 # Prevent horizontal window resizing
 #window.set_resizable(False, True) # Not available until PySimpleGUI v5
@@ -638,16 +656,16 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
 
    # Binary display 2 highlight index data
    #---------------------------------------------#
-   v4if1_l = 3 + (V6Indices(bmrpd_len))
-   v4if1_r = 3 + (V6Indices(bmrpd_len + v4hostbin_len))
+   v4if1_l = 5 + (V6Indices(bmrpd_len))
+   v4if1_r = 5 + (V6Indices(bmrpd_len + v4hostbin_len))
    psid1_l = v4if1_r
-   psid1_r = 3 + (V6Indices(bmrpd_len + v4hostbin_len + psidlen))
-   v4if2_l = (19) + param_ls[4]
+   psid1_r = 5 + (V6Indices(bmrpd_len + v4hostbin_len + psidlen))
+   v4if2_l = 21 + param_ls[4]
    v4if2_l = V6Indices(v4if2_l)
-   v4if2_r = (18) + 32
+   v4if2_r = 20 + 32
    v4if2_r = V6Indices(v4if2_r)
-   psid2_l = 54 + (16 - psidlen)
-   psid2_r = 70
+   psid2_l = 56 + (16 - psidlen)
+   psid2_r = 72
 
    # Binary display 2 highlight index dictionary
    #---------------------------------------------#
@@ -1128,20 +1146,18 @@ while True:
    #-------------------------------------------------#
    if event == '-EXAMPLE-':
       portidxadd = 0      # reset port index setting
+      v4hostint = 0       # reset v4 host
       if example_obj:
          param_ls = example_obj.new_params()
       else:
          example_obj = ExampleParams()
          param_ls = example_obj.new_params()
       last_params = param_ls
- 
-      if userpd_cls_obj:
-         userpd_obj = userpd_cls_obj.new_pd()
-      else:
-         userpd_cls_obj = UserPd(param_ls)
-         userpd_obj = userpd_cls_obj.new_pd()
-         last_userpd_obj = userpd_obj
-      rule_calc(param_ls, userpd_obj)
+
+      userpd_cls_obj = UserPd(param_ls)
+      userpd_obj = userpd_cls_obj.new_pd()
+      last_userpd_obj = userpd_obj
+      rule_calc(param_ls, userpd_obj, v4hostint)
       window['MLINE_BIN_2'].Widget.xview_moveto('0.0')
 
    # BMR parameter entry - validate input as it is typed
@@ -1267,7 +1283,7 @@ while True:
       portidxadd = 0
       new_userpd_obj = userpd_cls_obj.new_pd()
       last_userpd_obj = new_userpd_obj
-      v4hostint = int(values['-V4HOST_SLIDER-']) # slider values are floats
+#     v4hostint = int(values['-V4HOST_SLIDER-']) # slider values are floats
       rule_calc(last_params, new_userpd_obj, v4hostint)
 
    # Increment IPv4 host address
@@ -1278,11 +1294,13 @@ while True:
    if event == '-V4HOST_SLIDER-': # ---- May be able to use ip.addr + v4host_slider ----
       portidxadd = 0
       v4hostint = int(values['-V4HOST_SLIDER-']) # slider values are floats
+      # last_v4hostint = v4hostint
       rule_calc(last_params, last_userpd_obj, v4hostint)
    elif event == '-NEXT_HOST-': # button
       # If last_params=None (initial state or Clear was used) disable button
       if last_params:
          v4hostint = int(values['-V4HOST_SLIDER-']) + 1 # slider values are floats
+         # last_v4hostint = v4hostint
          window['-V4HOST_SLIDER-'].update(value=v4hostint)
          rule_calc(last_params, last_userpd_obj, v4hostint)
 
