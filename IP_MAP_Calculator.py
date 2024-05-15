@@ -538,37 +538,38 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    # Binary Section 1
    # BMR PD, User PD, and EA Bits dictionary entries
    #--------------------------------------------------#
-   bin_str_dic = {}
-   # bin_str_dic['params_str'] = f'          --- BMR PD Len /{param_ls[2]},' \
-   #                            f' with User PD Len /{upd_len}' \
-   #                            f' = EA Bits Len {param_ls[5]} ---'
-   bin_str_dic['blank1'] = ''
-   bin_str_dic['v6p_hexstr'] = f" BMR PD:{' ' * 8}" \
-                              f"{'      :      '.join(v6p_hex_seglst)}" \
-                              f"      ::/{bmrpd_len}"
-   bin_str_dic['upd_hexstr'] = f" User PD:{' ' * 7}" \
-                              f"{'      :      '.join(upd_hex_seglst)}" \
-                              f"      ::/{upd_len}"
-   bin_str_dic['bmr_binstr'] = ' BMR PD:  ' + v6p_bin_fmt
-   bin_str_dic['upd_binstr'] = ' User PD: ' + upd_bin_fmt
-   bin_str_dic['ea_binstr'] = ' EA Bits: ' + '.' * V6Indices(param_ls[2]) + ea_bin_fmt
+   bin_str_dic = {
+      # 'params_str': (f'          --- BMR PD Len /{param_ls[2]},'
+      #                f' with User PD Len /{upd_len}'
+      #                f' = EA Bits Len {param_ls[5]} ---')
+      'blank1': '',
+      'v6p_hexstr': (f" BMR PD:{' ' * 8}"
+                     f"{'      :      '.join(v6p_hex_seglst)}"
+                     f"      ::/{bmrpd_len}"),
+      'upd_hexstr': (f" User PD:{' ' * 7}"
+                     f"{'      :      '.join(upd_hex_seglst)}"
+                     f"      ::/{upd_len}"),
+      'bmr_binstr': f' BMR PD:  {v6p_bin_fmt}',
+      'upd_binstr': f' User PD: {upd_bin_fmt}',
+      'ea_binstr': f' EA Bits: {"." * V6Indices(param_ls[2])}{ea_bin_fmt}',
 
-   # IPv4 dictionary entries
-   #--------------------------------------------------#
-   bin_str_dic['blank2'] = ''
-   bin_str_dic['v4_intstr'] = f" IPv4 Addr:     " \
-                            f"{'  .   '.join(v4_seglst)}" \
-                            f"  /{v4mask}"
-   bin_str_dic['v4_binstr'] = f" IPv4 Addr:  {v4_bin_fmt}"
+      # IPv4 dictionary entries
+      #--------------------------------------------------#
+      'blank2': '',
+      'v4_intstr': (f" IPv4 Addr:     "
+                    f"{'  .   '.join(v4_seglst)}"
+                    f"  /{v4mask}"),
+      'v4_binstr': f" IPv4 Addr:  {v4_bin_fmt}",
 
-   # Port and Port Index dictionary entries
-   #--------------------------------------------------#
-   bin_str_dic['blank3'] = ''
-   bin_str_dic['portidx'] = f' The "PORT INDEX" is PSID-Offset/Right-Padding:' \
-                            f' {psid_ofst_bin}-{portrpad_bin}'
-   bin_str_dic['port_bin'] = f' The PORT is PSID-Offset/PSID/Right-Padding: ' \
-                           f'{psid_ofst_bin}-{psid}-{portrpad_bin}' \
-                           f' = Port {port_int}'
+      # Port and Port Index dictionary entries
+      #--------------------------------------------------#
+      'blank3': '',
+      'portidx': (f' The "PORT INDEX" is PSID-Offset/Right-Padding:'
+                  f' {psid_ofst_bin}-{portrpad_bin}'),
+      'port_bin': (f' The PORT is PSID-Offset/PSID/Right-Padding: '
+                   f'{psid_ofst_bin}-{psid}-{portrpad_bin}'
+                   f' = Port {port_int}')
+   }
 
    # Sec 2, User source IPv6 string data
    #--------------------------------------------------#
@@ -592,14 +593,15 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    # Binary Section 2
    # Source IPv6 address dictionary entry
    #--------------------------------------------------#
-   bin_ipstr_dic = {}
-#   bin_ipstr_dic['label_1'] = (' ' * 23) + '--- User IPv6 Source Address: ---'
-   bin_ipstr_dic['blank_line1'] = ''
-   bin_ipstr_dic['v6sip_hex_str1'] = f'   [ {v6sip_hex_pfx}'
-   bin_ipstr_dic['v6sip_binstr1'] = f'   [ {v6sip_bin}'
-   bin_ipstr_dic['blank_line2'] = ''
-   bin_ipstr_dic['v6sip_hex_str2'] = f'     {v6hex_pad}:{v4hex_segs}:{psid_hex}       ]:{port_int}'
-   bin_ipstr_dic['v6sip_binstr2'] = f'     {pad2}:{v4sip_bin}:{psid_bin} ]:{port_int}'
+   bin_ipstr_dic = {
+      # 'label_1': (' ' * 23) + '--- User IPv6 Source Address: ---'
+      'blank_line1': '',
+      'v6sip_hex_str1': f'   [ {v6sip_hex_pfx}',
+      'v6sip_binstr1': f'   [ {v6sip_bin}',
+      'blank_line2': '',
+      'v6sip_hex_str2': f'     {v6hex_pad}:{v4hex_segs}:{psid_hex}       ]:{port_int}',
+      'v6sip_binstr2': f'     {pad2}:{v4sip_bin}:{psid_bin} ]:{port_int}'
+   }
 
    #-------------------------------------------------------------------------#
    # Binary display highlight indices
@@ -637,22 +639,22 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    # Binary display 1 highlight index dictionary
    #---------------------------------------------#
    # Prepend line number for each highlight index
-   hl_dic1 = {}
-   hl_dic1['bmr_hl'] = ['4.' + str(bmr_pfx_l), '4.' + str(bmr_pfx_r)]
-#   hl_dic1['bmr_hl'] = [f'5.{str(bmr_pfx_l)}', f'5.{str(bmr_pfx_r)}'] # using f-strings
-   hl_dic1['bmr_len_hl'] = ['4.' + str(v6_pfxlen_l), '4.' + str(v6_pfxlen_r)]
-   hl_dic1['upd_hl'] = ['5.' + str(upd_pfx_l), '5.' + str(upd_pfx_r)]
-   hl_dic1['upd_len_hl'] = ['5.' + str(v6_pfxlen_l), '5.' + str(v6_pfxlen_r)]
-   hl_dic1['sbnt_hl'] = ['5.' + str(upd_binstr_sbnt_l), '5.' + str(upd_binstr_sbnt_r)]
-   hl_dic1['ea_v4_hl'] = ['6.' + str(ea_binstr_l), '6.' + str(ea_binstr_div)]
-   hl_dic1['ea_psid_hl'] = ['6.' + str(ea_binstr_div), '6.' + str(ea_binstr_r)]
-   hl_dic1['v4ip_hl'] = ['8.' + str(v4ip_hl_l), '8.' + str(v4ip_hl_r)]
-   hl_dic1['v4ipbin_hl'] = ['9.' + str(v4ip_hl_l), '9.' + str(v4ip_hl_r)]
-   hl_dic1['prtidx_ofst_hl'] = ['11.' + str(prtidx_ofst_l), '11.' + str(prtidx_ofst_r)]
-   hl_dic1['prtidx_pad_hl'] = ['11.' + str(prtidx_pad_l), '11.' + str(prtidx_pad_r)]
-   hl_dic1['portbin_ofst_hl'] = ['12.' + str(portbin_ofst_hl_l), '12.' + str(portbin_ofst_hl_r)]
-   hl_dic1['portbin_psid_hl'] = ['12.' + str(portbin_psid_hl_l), '12.' + str(portbin_psid_hl_r)]
-   hl_dic1['portbin_pad_hl'] = ['12.' + str(portbin_pad_hl_l), '12.' + str(portbin_pad_hl_r)]
+   hl_dic1 = {
+      'bmr_hl': [f'4.{bmr_pfx_l}', f'4.{bmr_pfx_r}'],
+      'bmr_len_hl': [f'4.{v6_pfxlen_l}', f'4.{v6_pfxlen_r}'],
+      'upd_hl': [f'5.{upd_pfx_l}', f'5.{upd_pfx_r}'],
+      'upd_len_hl': [f'5.{v6_pfxlen_l}', f'5.{v6_pfxlen_r}'],
+      'sbnt_hl': [f'5.{upd_binstr_sbnt_l}', f'5.{upd_binstr_sbnt_r}'],
+      'ea_v4_hl': [f'6.{ea_binstr_l}', f'6.{ea_binstr_div}'],
+      'ea_psid_hl': [f'6.{ea_binstr_div}', f'6.{ea_binstr_r}'],
+      'v4ip_hl': [f'8.{v4ip_hl_l}', f'8.{v4ip_hl_r}'],
+      'v4ipbin_hl': [f'9.{v4ip_hl_l}', f'9.{v4ip_hl_r}'],
+      'prtidx_ofst_hl': [f'11.{prtidx_ofst_l}', f'11.{prtidx_ofst_r}'],
+      'prtidx_pad_hl': [f'11.{prtidx_pad_l}', f'11.{prtidx_pad_r}'],
+      'portbin_ofst_hl': [f'12.{portbin_ofst_hl_l}', f'12.{portbin_ofst_hl_r}'],
+      'portbin_psid_hl': [f'12.{portbin_psid_hl_l}', f'12.{portbin_psid_hl_r}'],
+      'portbin_pad_hl': [f'12.{portbin_pad_hl_l}', f'12.{portbin_pad_hl_r}']
+   }
 
    # Binary display 2 highlight index data
    #---------------------------------------------#
@@ -670,32 +672,34 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    # Binary display 2 highlight index dictionary
    #---------------------------------------------#
    # Prepend line number for each highlight index
-   hl_dic2 = {}
-   hl_dic2['v4if_hl1'] = [f'3.{v4if1_l}', f'3.{v4if1_r}']
-   hl_dic2['psid_hl1'] = [f'3.{psid1_l}', f'3.{psid1_r}']
-   hl_dic2['v4if_hl2'] = [f'6.{v4if2_l}', f'6.{v4if2_r}']
-   hl_dic2['psid_hl2'] = [f'6.{psid2_l}', f'6.{psid2_r}']
+   hl_dic2 = {
+      'v4if_hl1': [f'3.{v4if1_l}', f'3.{v4if1_r}'],
+      'psid_hl1': [f'3.{psid1_l}', f'3.{psid1_r}'],
+      'v4if_hl2': [f'6.{v4if2_l}', f'6.{v4if2_r}'],
+      'psid_hl2': [f'6.{psid2_l}', f'6.{psid2_r}']
+   }
 
    #-------------------------------------------------------------------------#
    # Results = Display values dictionary
    #-------------------------------------------------------------------------#
-   d_dic = {}
-   d_dic['paramlist'] = param_ls
-   d_dic['v4ips'] = 2 ** v4hostbin_len # 2^host_bits
-   d_dic['sratio'] = 2 ** psidlen # num of unique psids/v4-host
-   d_dic['users'] = d_dic['v4ips'] * d_dic['sratio']
-   d_dic['ppusr'] = ppusr
-   d_dic['excl_ports'] = 65536 - (d_dic['sratio'] * d_dic['ppusr'])
-   d_dic['bmr_str'] = '|'.join([str(x) for x in param_ls])
-   d_dic['upd_str'] = upd_obj.compressed  # upd = User Delegated Prefix (PD)
-   d_dic['ce_ip'] = v4str
-   d_dic['port_int'] = port_int
-   d_dic['pidx_bin'] = pidx_bin
-   d_dic['bin_str_dic'] = bin_str_dic
-   d_dic['bin_ipstr_dic'] = bin_ipstr_dic
-   d_dic['hl_dic1'] = hl_dic1
-   d_dic['hl_dic2'] = hl_dic2
-   d_dic['num_excl_ports'] = 2 ** (16 - param_ls[6])
+   d_dic = {
+      'paramlist': param_ls,
+      'v4ips': 2 ** v4hostbin_len, # 2^host_bits
+      'sratio': 2 ** psidlen, # num of unique psids/v4-host
+      'users': (2 ** v4hostbin_len) * (2 ** psidlen),
+      'ppusr': ppusr,
+      'excl_ports': 65536 - ((2 ** psidlen) * (ppusr)),
+      'bmr_str': '|'.join([str(x) for x in param_ls]),
+      'upd_str': upd_obj.compressed, # upd = User Delegated Prefix (PD)
+      'ce_ip': v4str,
+      'port_int': port_int,
+      'pidx_bin': pidx_bin,
+      'bin_str_dic': bin_str_dic,
+      'bin_ipstr_dic': bin_ipstr_dic,
+      'hl_dic1': hl_dic1,
+      'hl_dic2': hl_dic2,
+      'num_excl_ports': 2 ** (16 - param_ls[6])
+   }
 
    displays_update(d_dic, upd_obj)
 
