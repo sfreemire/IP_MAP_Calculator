@@ -6,7 +6,7 @@ import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.10.9 - 04/15/2024 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.11.1 - 05/15/2024 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -415,7 +415,7 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    # initial values
    #----------------------------------#
    psidlen = (param_ls[5] - (32 - param_ls[4])) # ea_len - host_len
-   bmrpd_len = param_ls[2]
+   bmrpfx_len = param_ls[2]
    upd_len = upd_obj.prefixlen
 
    # ppusr = 2^(16 - k) - 2^m (per rfc7597) (2^m is # of excluded ports)
@@ -445,7 +445,7 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
       v4str = newv4add.compressed
    else:
       v4pfxbin = f'{ip.IPv4Address(param_ls[3]):b}'
-      v4hostbin = f'{upd_obj.network_address:b}]'[bmrpd_len : bmrpd_len + (32 - param_ls[4])]
+      v4hostbin = f'{upd_obj.network_address:b}]'[bmrpfx_len : bmrpfx_len + (32 - param_ls[4])]
       v4hostint = int(v4hostbin, 2)
       newv4bin = v4pfxbin[:param_ls[4]] + v4hostbin
 #      window['-V4HOST_SLIDER-'].update(value=0)
@@ -465,7 +465,7 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    upd_hex_seglst = upd_hex_exp.split(':')[:4] # ['0000', '0000', ...]
    v6p_bin = f'{ip.IPv6Address(param_ls[1]):b}'[:64] # first 64 bits of pfx
    v6p_bin_seglst = [v6p_bin[i:i+16] for i in range(0, 64, 16)]
-   v6p_bin_fmt = ':'.join(v6p_bin_seglst) + f'::/{bmrpd_len}'
+   v6p_bin_fmt = ':'.join(v6p_bin_seglst) + f'::/{bmrpfx_len}'
    upd_bin = f'{ip.IPv6Address(upd_obj.network_address):b}'[:64]
    upd_bin_seglst = [upd_bin[i:i+16] for i in range(0, 64, 16)]
    upd_bin_fmt = ':'.join(upd_bin_seglst) + f'::/{upd_len}'
@@ -545,7 +545,7 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
       'blank1': '',
       'v6p_hexstr': (f" BMR PD:{' ' * 8}"
                      f"{'      :      '.join(v6p_hex_seglst)}"
-                     f"      ::/{bmrpd_len}"),
+                     f"      ::/{bmrpfx_len}"),
       'upd_hexstr': (f" User PD:{' ' * 7}"
                      f"{'      :      '.join(upd_hex_seglst)}"
                      f"      ::/{upd_len}"),
@@ -658,10 +658,10 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
 
    # Binary display 2 highlight index data
    #---------------------------------------------#
-   v4if1_l = 5 + (V6Indices(bmrpd_len))
-   v4if1_r = 5 + (V6Indices(bmrpd_len + v4hostbin_len))
+   v4if1_l = 5 + (V6Indices(bmrpfx_len))
+   v4if1_r = 5 + (V6Indices(bmrpfx_len + v4hostbin_len))
    psid1_l = v4if1_r
-   psid1_r = 5 + (V6Indices(bmrpd_len + v4hostbin_len + psidlen))
+   psid1_r = 5 + (V6Indices(bmrpfx_len + v4hostbin_len + psidlen))
    v4if2_l = 21 + param_ls[4]
    v4if2_l = V6Indices(v4if2_l)
    v4if2_r = 20 + 32
@@ -907,11 +907,11 @@ class UserPd:
       self.lastpd = ''
 
    def new_pd(self):
-      if self.plist == self.last_plist:  # New PD
+      if self.plist == self.last_plist:  # Next PD from current PD object
          nextpd = next(self.pd_obj)
          self.lastpd = nextpd
          return nextpd
-      else:                              # Next PD
+      else:                              # New PD object & new PD
          self.last_plist = self.plist
          bmr_v6p = ip.ip_network('/'.join((self.plist[1], str(self.plist[2]))))
          pd_len = int(self.plist[2]) + int(self.plist[5])
