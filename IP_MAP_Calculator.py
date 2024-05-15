@@ -6,7 +6,7 @@ import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.11.1 - 05/15/2024 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.11.2 - 05/15/2024 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -1267,19 +1267,26 @@ while True:
    if event.endswith('SLDR-') and values['-STRING_IN-']: # rule to edit must exist
       portidxadd = 0
       param_ls = last_params
-      param_ls[2] = int(values['-V6PFX_LEN_SLDR-'])
-      param_ls[5] = int(values['-EA_LEN_SLDR-'])
-      param_ls[4] = int(values['-V4PFX_LEN_SLDR-'])
-      param_ls[6] = int(values['-PSID_OFST_SLDR-'])
-      valid = validate(param_ls)
+      test_param_ls = [
+         param_ls[0],
+         param_ls[1],
+         int(values['-V6PFX_LEN_SLDR-']),
+         param_ls[3],
+         int(values['-V4PFX_LEN_SLDR-']),
+         int(values['-EA_LEN_SLDR-']),
+         int(values['-PSID_OFST_SLDR-'])
+      ]
+
+      valid = validate(test_param_ls)
+
       if valid == 'pass':
-         last_params = param_ls # Used for UserPd() to decide next vs. new PD
-         userpd_cls_obj = UserPd(param_ls)
+         last_params = test_param_ls # Used for UserPd() to decide next vs. new PD
+         userpd_cls_obj = UserPd(test_param_ls)
          new_userpd_obj = userpd_cls_obj.new_pd()
          last_userpd_obj = new_userpd_obj
-         rule_calc(param_ls, new_userpd_obj)
+         rule_calc(test_param_ls, new_userpd_obj)
          window['MLINE_BIN_2'].Widget.xview_moveto('0.9')
-      # Need "else:" statement here??
+         # Need "else:" statement here??
 
    # Display next User Delegated Prefix (PD)
    #-----------------------------------------#
