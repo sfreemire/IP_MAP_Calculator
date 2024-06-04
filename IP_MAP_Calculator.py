@@ -6,7 +6,7 @@ import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.11.2 - 05/15/2024 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.11.3 - 06/04/2024 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -658,25 +658,26 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
 
    # Binary display 2 highlight index data
    #---------------------------------------------#
-   v4if1_l = 5 + (V6Indices(bmrpfx_len))
-   v4if1_r = 5 + (V6Indices(bmrpfx_len + v4hostbin_len))
-   psid1_l = v4if1_r
-   psid1_r = 5 + (V6Indices(bmrpfx_len + v4hostbin_len + psidlen))
-   v4if2_l = 21 + param_ls[4]
-   v4if2_l = V6Indices(v4if2_l)
-   v4if2_r = 20 + 32
-   v4if2_r = V6Indices(v4if2_r)
-   psid2_l = 56 + (16 - psidlen)
-   psid2_r = 72
+   if bmrpfx_len % 16 == 0: # Prevent highlighting a colon
+      v4if_l1_l = 5 + (V6Indices(bmrpfx_len)) + 1
+   else:
+      v4if_l1_l = 5 + (V6Indices(bmrpfx_len))
+   v4if_l1_r = 5 + (V6Indices(bmrpfx_len + v4hostbin_len))
+   psid_l1_l = v4if_l1_r
+   psid_l1_r = 5 + (V6Indices(bmrpfx_len + v4hostbin_len + psidlen))
+   v4if_l2_l = 5 + (V6Indices(16 + param_ls[4]))
+   v4if_l2_r = v4if_l2_l + (32 - param_ls[4])
+   psid_l2_l = 56 + (16 - psidlen)
+   psid_l2_r = 72
 
    # Binary display 2 highlight index dictionary
    #---------------------------------------------#
    # Prepend line number for each highlight index
    hl_dic2 = {
-      'v4if_hl1': [f'3.{v4if1_l}', f'3.{v4if1_r}'],
-      'psid_hl1': [f'3.{psid1_l}', f'3.{psid1_r}'],
-      'v4if_hl2': [f'6.{v4if2_l}', f'6.{v4if2_r}'],
-      'psid_hl2': [f'6.{psid2_l}', f'6.{psid2_r}']
+      'v4if_hl1': [f'3.{v4if_l1_l}', f'3.{v4if_l1_r}'],
+      'psid_hl1': [f'3.{psid_l1_l}', f'3.{psid_l1_r}'],
+      'v4if_hl2': [f'6.{v4if_l2_l}', f'6.{v4if_l2_r}'],
+      'psid_hl2': [f'6.{psid_l2_l}', f'6.{psid_l2_r}']
    }
 
    #-------------------------------------------------------------------------#
