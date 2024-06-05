@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import PySimpleGUI as sg
 import ipaddress as ip
 import os
