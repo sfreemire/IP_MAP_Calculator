@@ -6,7 +6,7 @@ import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.11.4 - 06/05/2024 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.11.5 - 06/05/2024 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -1113,11 +1113,15 @@ while True:
       break
 
    if event == 'About':
-      about_txt_file = resource_path('files/about_txt')
-      with open(about_txt_file) as lt:
-         abouttxt = lt.read()
-      about = sg.popup_scrolled(abouttxt, title='About',
-         size=(70, 33), font=('Arial', 14))
+      if os.path.isfile('files/about_txt'):
+         about_txt_file = resource_path('files/about_txt')
+         with open(about_txt_file) as lt:
+            abouttxt = lt.read()
+         about = sg.popup_scrolled(abouttxt, title='About',
+            size=(70, 33), font=('Arial', 14))
+      else:
+         abouttxt = 'File "files/about_txt" not found.'
+         about = sg.popup(abouttxt, title='About', font=('Arial', 14))
 
    # Clear message fields on next event
    window['-PARAM_MESSAGES-'].update('')
