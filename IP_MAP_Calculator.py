@@ -6,7 +6,7 @@ import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.11.6 - 06/11/2024 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.11.7 - 06/11/2024 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -1159,6 +1159,7 @@ while True:
    # Load example values in main display and editors
    #-------------------------------------------------#
    if event == '-EXAMPLE-':
+      print('Example Button')
       portidxadd = 0      # reset port index setting
       v4hostint = 0       # reset v4 host
       if example_obj:
@@ -1172,6 +1173,7 @@ while True:
       userpd_obj = userpd_cls_obj.new_pd()
       last_userpd_obj = userpd_obj
       rule_calc(param_ls, userpd_obj, v4hostint)
+      window['-V4HOST_SLIDER-'].update(value=0)
       window['MLINE_BIN_2'].Widget.xview_moveto('0.0')
 
    # BMR parameter entry - validate input as it is typed
