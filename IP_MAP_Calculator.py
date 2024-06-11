@@ -991,16 +991,24 @@ def validate(param_ls):
       validflag = 'fail'
       advance('-R6PRE-')
       window['-PARAM_MESSAGES-'].update(
-         f'IPv6 {v6p}/{v6pl} not valid. Host bits set?')
+         f'IPv6 prefix {v6p}/{v6pl} not valid. Host bits set?')
 
    # test IPv4 prefix/mask
+   try:
+      v4 = ip.ip_network('/'.join((v4p, str(v4pl))))
+      v4pfx_bits = f'{ip.IPv4Address(v4p):b}'[:v4pl]
+   except:
+      window['-PD_MESSAGES-'].update(
+         f'IPv4 prefix {v4p}/{v4pl} not valid. Host bits set?')
+      validflag = 'fail'
+
    if validflag == 'pass':
-      try:
-         v4pfx_bits = f'{ip.IPv4Address(v4p):b}'[:v4pl]
-      except ValueError:
-         valdflag = 'fail'
+      # try:
+      #    v4pfx_bits = f'{ip.IPv4Address(v4p):b}'[:v4pl]
+      # except ValueError:
+      #    valdflag = 'fail' # CHECK SPELLING IN MAIN CODE
  
-      if validflag == 'pass':
+      # if validflag == 'pass':
          v4pfx_bin = f'{v4pfx_bits:<032s}'
          v4pfx_int = int(v4pfx_bin, 2)
          v4pfx = ip.ip_address(v4pfx_int)
