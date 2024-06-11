@@ -988,53 +988,62 @@ def validate(param_ls):
       v6p_out = ip.ip_network('/'.join((v6p, str(v6pl))))
       validflag = 'pass'
    except:
-      validflag = 'fail'
       advance('-R6PRE-')
       window['-PARAM_MESSAGES-'].update(
          f'IPv6 {v6p}/{v6pl} not valid. Host bits set?')
+      # validflag = 'fail'
+      return(validflag)
 
    # test IPv4 prefix/mask
-   if validflag == 'pass':
-      try:
-         ip.ip_network('/'.join((v4p, str(v4pl))))
-         v4pfx_bits = f'{ip.IPv4Address(v4p):b}'[:v4pl]
-         v4pfx_bin = f'{v4pfx_bits:<032s}'
-         v4pfx_int = int(v4pfx_bin, 2)
-         v4pfx = ip.ip_address(v4pfx_int)
-      except ValueError:
-         validflag = 'fail'
-         window['-PARAM_MESSAGES-'].update(
-            f'IPv4 {v4p}/{v4pl} not valid. Host bits set?')
+   try:
+      ip.ip_network('/'.join((v4p, str(v4pl))))
+      v4pfx_bits = f'{ip.IPv4Address(v4p):b}'[:v4pl]
+      v4pfx_bin = f'{v4pfx_bits:<032s}'
+      v4pfx_int = int(v4pfx_bin, 2)
+      v4pfx = ip.ip_address(v4pfx_int)
+      # validflag = 'pass'
+   except ValueError:
+      validflag = 'fail'
+      window['-PARAM_MESSAGES-'].update(
+         f'IPv4 {v4p}/{v4pl} not valid. Host bits set?')
+      return(validflag)
  
    # validate Rule prefix masks are in acceptable MAP-T Rule ranges
-   if validflag == 'pass':
-      if int(v6pl) + eal > 64: # (v6 prefix + EA length) > 64 not allowed
-         validflag = 'fail'
-         window['-PD_MESSAGES-'].update(
-            f"IPv6 prefix mask + EA Bits can't exceed 64 bits")
-      if eal < (32 - v4pl):  # EA length < v4 host bits (RFC?)
-         validflag = 'fail'
-         window['-PD_MESSAGES-'].update(
-            f"EA Bits can't be less than IPv4 host bits")
+   # if validflag == 'pass':
+   if int(v6pl) + eal > 64: # (v6 prefix + EA length) > 64 not allowed
+      validflag = 'fail'
+      window['-PD_MESSAGES-'].update(
+         f"IPv6 prefix mask + EA Bits can't exceed 64 bits")
+      return(validflag)
+
+   if eal < (32 - v4pl):  # EA length < v4 host bits (RFC?)
+      validflag = 'fail'
+      window['-PD_MESSAGES-'].update(
+         f"EA Bits can't be less than IPv4 host bits")
+      return(validflag)
 
    # validate EA Bits and PSID Offset values are in valid MAP-T Rule range
    # (values not tested with actual BMR!)
-   if validflag == 'pass':
-      if eal > 48:     # EA length > 48 is invalid, rfc7597 5.2
-         validflag = 'fail'
-         advance('-EABITS-')
-         window['-PARAM_MESSAGES-'].update('EA bits out of range')
-      elif psofst_len > 15:   # PSID offset > 15 = no available ports
-         validflag = 'fail'
-         window['-PARAM_MESSAGES-'].update('PSID Offset must not exceed 15')
-         window['-PD_MESSAGES-'].update('PSID Offset must not exceed 15')
-##         advance('-OFFSET-')
+   # if validflag == 'pass':
+   if eal > 48:     # EA length > 48 is invalid, rfc7597 5.2
+      validflag = 'fail'
+      advance('-EABITS-')
+      window['-PARAM_MESSAGES-'].update('EA bits out of range')
+      return(validflag)
+   elif psofst_len > 15:   # PSID offset > 15 = no available ports
+      validflag = 'fail'
+      window['-PARAM_MESSAGES-'].update('PSID Offset must not exceed 15')
+      window['-PD_MESSAGES-'].update('PSID Offset must not exceed 15')
+      advance('-OFFSET-')
+      return(validflag)
 ##### >>>> CHECK TO SEE IF OFFSET > 15 IS ACTUALLY POSSIBLE <<<< ##### <----- REVIEW
-      elif psofst_len + psid_len > 16:
-         # psid length + psid offset > 16 bit port length not valid
-         validflag = 'fail'
-         window['-PARAM_MESSAGES-'].update('PSID Offset + PSID Length > 16 bits')
-         window['-PD_MESSAGES-'].update('PSID Offset + PSID Length > 16 bits')
+   elif psofst_len + psid_len > 16:
+      # psid length + psid offset > 16 bit port length not valid
+      validflag = 'fail'
+      window['-PARAM_MESSAGES-'].update('PSID Offset + PSID Length > 16 bits')
+      window['-PD_MESSAGES-'].update('PSID Offset + PSID Length > 16 bits')
+      return(validflag)
+
    return validflag
 
 # Path to additional data files
@@ -1221,7 +1230,6 @@ while True:
                last_userpd_obj = new_userpd_obj
                rule_calc(param_ls, new_userpd_obj)
             else:
-            #    window['-PARAM_MESSAGES-'].update('Values out of MAP-T range') # Review if this is possible after pre-checks
                print('PARAMETER ENTRY ERROR')
 
    # Validate Enter/Edit String
@@ -1265,7 +1273,6 @@ while True:
                   last_userpd_obj = new_userpd_obj
                   rule_calc(param_ls, new_userpd_obj)
                else:
-                  # window['-PARAM_MESSAGES-'].update('Values out of MAP-T range') # Review if this is possible after pre-checks
                   print('RULE STRING ERROR')
 
    # Update binary editor values and highlights
@@ -1284,7 +1291,6 @@ while True:
       ]
 
       valid = validate(test_param_ls)
-
       if valid == 'pass':
          last_params = test_param_ls # Used for UserPd() to decide next vs. new PD
          userpd_cls_obj = UserPd(test_param_ls)
