@@ -991,33 +991,21 @@ def validate(param_ls):
       validflag = 'fail'
       advance('-R6PRE-')
       window['-PARAM_MESSAGES-'].update(
-         f'IPv6 prefix {v6p}/{v6pl} not valid. Host bits set?')
+         f'IPv6 {v6p}/{v6pl} not valid. Host bits set?')
 
    # test IPv4 prefix/mask
-   try:
-      v4 = ip.ip_network('/'.join((v4p, str(v4pl))))
-      v4pfx_bits = f'{ip.IPv4Address(v4p):b}'[:v4pl]
-   except:
-      window['-PD_MESSAGES-'].update(
-         f'IPv4 prefix {v4p}/{v4pl} not valid. Host bits set?')
-      validflag = 'fail'
-
    if validflag == 'pass':
-      # try:
-      #    v4pfx_bits = f'{ip.IPv4Address(v4p):b}'[:v4pl]
-      # except ValueError:
-      #    valdflag = 'fail' # CHECK SPELLING IN MAIN CODE
- 
-      # if validflag == 'pass':
+      try:
+         ip.ip_network('/'.join((v4p, str(v4pl))))
+         v4pfx_bits = f'{ip.IPv4Address(v4p):b}'[:v4pl]
          v4pfx_bin = f'{v4pfx_bits:<032s}'
          v4pfx_int = int(v4pfx_bin, 2)
          v4pfx = ip.ip_address(v4pfx_int)
+      except ValueError:
+         validflag = 'fail'
+         window['-PARAM_MESSAGES-'].update(
+            f'IPv4 {v4p}/{v4pl} not valid. Host bits set?')
  
-         try:
-            ip.ip_network(v4pfx, v4pl)
-         except:
-            validflag = 'fail'
-
    # validate Rule prefix masks are in acceptable MAP-T Rule ranges
    if validflag == 'pass':
       if int(v6pl) + eal > 64: # (v6 prefix + EA length) > 64 not allowed
@@ -1190,17 +1178,20 @@ while True:
    #    if len(str(values['-STRING_IN-'])) > 69:
    #       window[event].update(values[event][:-1])
    #       # Find a place to send error message ------------<<<<<<<<<<<< REVIEW
+
    if event == '-R6PRE-' and values['-R6PRE-']:
       if values['-R6PRE-'][-1] not in v6chars \
          or len(values['-R6PRE-']) > 21:
          # Delete last character entered
          window[event].update(values[event][:-1])
          window['-PARAM_MESSAGES-'].update('Bad character or too long')
+
    if event == '-R4PRE-' and values['-R4PRE-']:
       if values['-R4PRE-'][-1] not in v4chars \
          or len(values['-R4PRE-']) > 15:
          window[event].update(values[event][:-1])
          window['-PARAM_MESSAGES-'].update('Bad character or too long')
+
    if event == '-ENTER_PARAMS-':
       portidxadd = 0      # reset port index setting
       valid = 'not set'
@@ -1230,7 +1221,8 @@ while True:
                last_userpd_obj = new_userpd_obj
                rule_calc(param_ls, new_userpd_obj)
             else:
-               window['-PARAM_MESSAGES-'].update('Values out of MAP-T range') # Review if this is possible after pre-checks
+            #    window['-PARAM_MESSAGES-'].update('Values out of MAP-T range') # Review if this is possible after pre-checks
+               print('PARAMETER ENTRY ERROR')
 
    # Validate Enter/Edit String
    # Values in allowable ranges. But not tested that they work in BMR!
@@ -1273,7 +1265,8 @@ while True:
                   last_userpd_obj = new_userpd_obj
                   rule_calc(param_ls, new_userpd_obj)
                else:
-                  window['-PARAM_MESSAGES-'].update('Values out of MAP-T range') # Review if this is possible after pre-checks
+                  # window['-PARAM_MESSAGES-'].update('Values out of MAP-T range') # Review if this is possible after pre-checks
+                  print('RULE STRING ERROR')
 
    # Update binary editor values and highlights
    #--------------------------------------------#
@@ -1299,7 +1292,8 @@ while True:
          last_userpd_obj = new_userpd_obj
          rule_calc(test_param_ls, new_userpd_obj)
          window['MLINE_BIN_2'].Widget.xview_moveto('0.9')
-         # Need "else:" statement here??
+      else:
+         print('SLIDER ERROR')
 
    # Display next User Delegated Prefix (PD)
    #-----------------------------------------#
