@@ -6,7 +6,7 @@ import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.11.7 - 06/11/2024 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.11.8 - 06/12/2024 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -1324,7 +1324,8 @@ while True:
       rule_calc(last_params, last_userpd_obj, v4hostint)
    elif event == '-NEXT_HOST-': # button
       # If last_params=None (initial state or Clear was used) disable button
-      if last_params:
+      maxhost = (2 ** (32 - values["-R4LEN-"])) -1
+      if last_params and values['-V4HOST_SLIDER-'] < maxhost:
          v4hostint = int(values['-V4HOST_SLIDER-']) + 1 # slider values are floats
          # last_v4hostint = v4hostint
          window['-V4HOST_SLIDER-'].update(value=v4hostint)
@@ -1379,13 +1380,14 @@ while True:
 
    print(f'#------- End Event {cntr - 1} -------#')
 
+
    # Utilities
    #-------------------------------------------------------------#
    # This prints all available element keys:
    #-----------------------------------------#
-#   print('\n ---- VALUES KEYS ----')
-#   for x in values.keys():
-#      print(x)
+   # print('\n ---- VALUES KEYS ----')
+   # for x in values.keys():
+      # print(x)
 
    # This prints all variables:
    #-----------------------------------------#
