@@ -11,6 +11,13 @@ IP_MAP_Calculator calculates IPv4 address sharing and port allocations for "Mapp
 * Python 3.10+. Testing was done on Python 3.11
 * tkinter framework python-tk@3.11+
 * PySimpleGUI 4.60.4+ Python package
+* Or possibly FreeSimpleGUI 5.1.0*
+
+*In February 2024, the developer of PySimpleGUI deleted the open-source package from github and pypi, moved the package ownership to PySimpleSoft Inc., and changed the license to a subscription model requiring registration and a downloading a key. There are two licenses available, a free "Hobbyist" license and a $99.00/yr "Commercial" license. If registration or licensing is an issue for you, this project has been forked on github as [FreeSimpleGUI](https://github.com/spyoungtech/FreeSimpleGui/). It is available through pypi with ```pip install FreeSimpleGUI```. I will be testing this package with IP_MAP_Calculator and sharing the results here.
+
+If you wish to try it yourself, install FreeSimpleGUI and make the following change to your IP_MAP_Calculator.py file:\
+From: ```import PySimpleGUI as sg```\
+To:      ```import FreeSimpleGUI as sg```
 
 ## MAP-T Function and Rules Explanation
 
