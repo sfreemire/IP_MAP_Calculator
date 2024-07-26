@@ -1306,6 +1306,7 @@ while True:
    # Display next User Delegated Prefix (PD)
    #-----------------------------------------#
    if event == '-NXT_USER_PD-' and last_params:
+      # If last_params=None (initial state or Clear was used) ignore button
       portidxadd = 0
       new_userpd_obj = userpd_cls_obj.new_pd()
       last_userpd_obj = new_userpd_obj
@@ -1322,8 +1323,8 @@ while True:
       v4hostint = int(values['-V4HOST_SLIDER-']) # slider values are floats
       # last_v4hostint = v4hostint
       rule_calc(last_params, last_userpd_obj, v4hostint)
-   elif event == '-NEXT_HOST-': # button
-      # If last_params=None (initial state or Clear was used) disable button
+   elif event == '-NEXT_HOST-' and last_params: # +1 button
+      # If last_params=None (initial state or Clear was used) ignore button
       maxhost = (2 ** (32 - values["-R4LEN-"])) -1
       if last_params and values['-V4HOST_SLIDER-'] < maxhost:
          v4hostint = int(values['-V4HOST_SLIDER-']) + 1 # slider values are floats
