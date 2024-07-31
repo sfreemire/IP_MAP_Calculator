@@ -1071,7 +1071,8 @@ def resource_path(relative_path):
 
 # Display frame fields
 #----------------------------------#
-dframe_ls = ['-BMR_STRING_DSPLY-', '-USERS_DSPLY-', '-PORTS_DSPLY-',
+dframe_ls = ['-BMR_STRING_DSPLY-', '-USERS_DSPLY-',
+             '-PORTS_DSPLY-', '-EXCL_PORTS_DSPLY-',
              '-IPS_DSPLY-', '-RATIO_DSPLY-']   # Display Frame fields
 
 # Parameter Editor frame fields
