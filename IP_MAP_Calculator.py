@@ -1224,6 +1224,12 @@ while True:
    # Validate Enter/Edit String
    # Values in allowable ranges. But not tested that they work in BMR!
    #-------------------------------------------------------------------#
+
+   # Enforce string length before hitting enter?
+   # if event == '-STRING_IN-' and values['-STRING_IN-']:
+   #    if len(str(values['-STRING_IN-'])) > 69:
+   #       window[event].update(values[event][:-1])
+
    # Rule String Enter button pressed or Return key pressed in Rule String Field
    if event == '-ENTER_STRING-' or event == '-STRING_IN-' + '_Enter':
       portidxadd = 0      # reset port index setting
@@ -1238,7 +1244,7 @@ while True:
          values['-STRING_IN-'] = values['-STRING_IN-'][:space_idx]
          window['-STRING_IN-'].update(values['-STRING_IN-'])
          window['-ENTER_STRING-'].click() # "Re-click" String Enter button
-      elif len(values['-STRING_IN-']) > 69: # or use character delete and message during entry
+      elif len(values['-STRING_IN-']) > 69: # or delete characters >69 during entry (above)
          window['-STRING_IN-'].update('Rule string too long')
       else:
          input_str = values['-STRING_IN-']
