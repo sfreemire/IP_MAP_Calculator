@@ -1268,7 +1268,6 @@ while True:
    #--------------------------------------------#
    if event.endswith('SLDR-') and last_params: # rule to edit must exist
       portidxadd = 0
-      # param_ls = last_params
       param_ls = [
          param_ls[0],
          param_ls[1],
