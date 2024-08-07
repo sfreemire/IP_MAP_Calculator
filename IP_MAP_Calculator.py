@@ -6,7 +6,7 @@ import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.11.9 - 06/12/2024 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.11.11 - 08/07/2024 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -401,9 +401,8 @@ window['-STRING_IN-'].bind('<Return>', '_Enter')
 #----------------------------------------------------------------------------#
 # param_ls contains BMR parameters
 # param_ls = [name, v6pfx, v6pfx len, v4pfx, v4pfx len, ealen, psid offset]
-# upd_obj is "User delegated prefix" received from DHCP
-# 'obj' indicates a class object created with the imported ipaddress module
-def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
+# user_pd_obj is "User delegated prefix" received from DHCP
+def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
 #   print('\n********** START rule_calc **************')
    '''The rule_calc function accepts a BMR paramater list, an IPv6
    user PD (ipaddress object), and an optional port index integer from
@@ -416,7 +415,7 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    #----------------------------------#
    psidlen = (param_ls[5] - (32 - param_ls[4])) # ea_len - host_len
    bmrpfx_len = param_ls[2]
-   upd_len = upd_obj.prefixlen
+   upd_len = user_pd_obj.prefixlen
 
    # ppusr = 2^(16 - k) - 2^m (per rfc7597) (2^m is # of excluded ports)
    # 16 is the number of IP port bits (constant)
@@ -429,15 +428,15 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    # If call is from the host slider, update the upd with host bits
    # and update v4pfx value in param_ls
    if v4host != None:
-      pdbin = f'{upd_obj.network_address:b}'
+      pdbin = f'{user_pd_obj.network_address:b}'
       pdbin_l = pdbin[:param_ls[2]]
       pdbin_r = pdbin[param_ls[2] + (32 - last_params[4]) : ]
       v4hostbin = bin(v4host)[2:].zfill(32 - param_ls[4])
       newpdbin = pdbin_l + v4hostbin + pdbin_r
       newpdint = int(newpdbin, 2)
       new_upd_add_str = \
-         ip.IPv6Address(newpdint).compressed + '/' + str(upd_obj.prefixlen)
-      upd_obj = ip.IPv6Network(new_upd_add_str)
+         ip.IPv6Address(newpdint).compressed + '/' + str(user_pd_obj.prefixlen)
+      user_pd_obj = ip.IPv6Network(new_upd_add_str)
       v4pfxbin = f'{ip.IPv4Address(param_ls[3]):b}'[: int(param_ls[4])]
       newv4bin = v4pfxbin + v4hostbin
       newv4int = int(newv4bin, 2)
@@ -445,7 +444,7 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
       v4str = newv4add.compressed
    else:
       v4pfxbin = f'{ip.IPv4Address(param_ls[3]):b}'
-      v4hostbin = f'{upd_obj.network_address:b}]'[bmrpfx_len : bmrpfx_len + (32 - param_ls[4])]
+      v4hostbin = f'{user_pd_obj.network_address:b}]'[bmrpfx_len : bmrpfx_len + (32 - param_ls[4])]
       v4hostint = int(v4hostbin, 2)
       newv4bin = v4pfxbin[:param_ls[4]] + v4hostbin
 #      window['-V4HOST_SLIDER-'].update(value=0)
@@ -461,12 +460,12 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
    #--------------------------------------------------#
    v6p_hex_exp = ip.IPv6Address(param_ls[1]).exploded # 0000:0000:...
    v6p_hex_seglst = v6p_hex_exp.split(':')[:4] # ['0000', '0000', ...]
-   upd_hex_exp = ip.IPv6Address(upd_obj.network_address).exploded # 0000:0000:...
+   upd_hex_exp = ip.IPv6Address(user_pd_obj.network_address).exploded # 0000:0000:...
    upd_hex_seglst = upd_hex_exp.split(':')[:4] # ['0000', '0000', ...]
    v6p_bin = f'{ip.IPv6Address(param_ls[1]):b}'[:64] # first 64 bits of pfx
    v6p_bin_seglst = [v6p_bin[i:i+16] for i in range(0, 64, 16)]
    v6p_bin_fmt = ':'.join(v6p_bin_seglst) + f'::/{bmrpfx_len}'
-   upd_bin = f'{ip.IPv6Address(upd_obj.network_address):b}'[:64]
+   upd_bin = f'{ip.IPv6Address(user_pd_obj.network_address):b}'[:64]
    upd_bin_seglst = [upd_bin[i:i+16] for i in range(0, 64, 16)]
    upd_bin_fmt = ':'.join(upd_bin_seglst) + f'::/{upd_len}'
    ea_bin_idxl = V6Indices(param_ls[2]) # V6Indices adds # of ":"separators
@@ -691,7 +690,7 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
       'ppusr': ppusr,
       'excl_ports': 65536 - ((2 ** psidlen) * (ppusr)),
       'bmr_str': '|'.join([str(x) for x in param_ls]),
-      'upd_str': upd_obj.compressed, # upd = User Delegated Prefix (PD)
+      'upd_str': user_pd_obj.compressed, # user_pd = User Delegated Prefix (PD)
       'ce_ip': v4str,
       'port_int': port_int,
       'pidx_bin': pidx_bin,
@@ -702,7 +701,7 @@ def rule_calc(param_ls, upd_obj, v4host = None, portidx = None):
       'num_excl_ports': 2 ** (16 - param_ls[6])
    }
 
-   displays_update(d_dic, upd_obj)
+   displays_update(d_dic, user_pd_obj)
 
    return
 
@@ -856,7 +855,7 @@ class ExampleParams:
    self.rv6blk is used to create an IPv6 class (.subnets) object. New IPv6 BMR
    prefixes are pulled from this object until ExampleParams() is called and
    last_plist (created in global space by a global function) has been changed.
-   At this time, a new class object is created and saved.
+   At this time, a new class instance is created and saved.
    '''
    def __init__(self):
       self.ex_cnt = None
@@ -867,26 +866,26 @@ class ExampleParams:
       self.psid_ofst = 6
       self.rv6blk = '2001:db8::/32'
       self.rv4blk = '192.168.0.0/16'
-      self.rv6pfxs_obj = None
-      self.rv4pfxs_obj = None
+      self.rv6pfx_obj = None
+      self.rv4pfx_obj = None
 
    def new_params(self):
       if self.last_plist:
          plist = self.last_plist
          plist[0] = 'example_' + str(next(self.ex_cnt) + 1)
-         plist[1] = next(self.rv6pfxs_obj).network_address.compressed
-         plist[3] = next(self.rv4pfxs_obj).network_address.compressed
+         plist[1] = next(self.rv6pfx_obj).network_address.compressed
+         plist[3] = next(self.rv4pfx_obj).network_address.compressed
          return(plist)
       else:
          self.ex_cnt = (i for i in range(16384))
-         self.rv6pfxs_obj = ip.ip_network(self.rv6blk).subnets(
+         self.rv6pfx_obj = ip.ip_network(self.rv6blk).subnets(
             new_prefix = self.rv6plen)
-         self.rv4pfxs_obj = ip.ip_network(self.rv4blk).subnets(
+         self.rv4pfx_obj = ip.ip_network(self.rv4blk).subnets(
             new_prefix = self.rv4plen)
          plist = ['example_' + str(next(self.ex_cnt) + 1),
-                  next(self.rv6pfxs_obj).network_address.compressed,
+                  next(self.rv6pfx_obj).network_address.compressed,
                   self.rv6plen,
-                  next(self.rv4pfxs_obj).network_address.compressed,
+                  next(self.rv4pfx_obj).network_address.compressed,
                   self.rv4plen,
                   self.ealen,
                   self.psid_ofst
@@ -1087,26 +1086,19 @@ pframe_ls = ['-RULENAME-', '-R6PRE-', '-R6LEN-', '-R4PRE-', '-R4LEN-',
 
 # Event Loop Variables
 #----------------------------------#
-toggle_visible = True # Show hidden elements
 chars = 'abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789().'
 v6chars = '0123456789abcdefABCDEF:'
-intchars = '0123456789'
 v4chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.'
-integer_inputs = ['-R6LEN-', '-R4LEN-', '-EABITS-', '-OFFSET-',
-   '-CE_IDX-', '-CE_PRT_IDX-']
-example_obj = None
-userpd_cls_obj = None
+examples = None
+userpds = None
 savctr = False
 portidxadd = 0 # used with 'Source Port Index n = Port' section
 last_params = None
-testvar = "testvar text"
-hostvalue = 1
-saved_opened, opened2_test = False, True
 
 #-------------------------------------------------------------------------#
 # Main Event Loop - runs once for each 'event'
 #-------------------------------------------------------------------------#
-cntr = 1  # debugging
+cntr = 1  # Event counter
 while True:
    event, values = window.read()    # type: (str, dict)
    print(f'\n#--------- Event {str(cntr)} ----------#')
@@ -1152,28 +1144,27 @@ while True:
       window['-STRING_IN-'].update('')
       window['-SP_INDEX-'].update('')
       window['-SP_INT-'].update('')
-      userpd_cls_obj = None # delete UserPd class object
-      example_obj = None # delete NewParams class object
+      userpds = None # delete UserPd() class instance
+      examples = None # delete ExampleParams() class instance
       last_params = None
       portidx = 0
 
    # Load example values in main display and editors
    #-------------------------------------------------#
    if event == '-EXAMPLE-':
-      print('Example Button')
+      # print('Example Button')
       portidxadd = 0      # reset port index setting
-      v4hostint = 0       # reset v4 host
-      if example_obj:
-         param_ls = example_obj.new_params()
+      v4hostint = 0       # reset v4 host integer
+      if examples:
+         param_ls = examples.new_params()
       else:
-         example_obj = ExampleParams()
-         param_ls = example_obj.new_params()
-      last_params = param_ls
+         examples = ExampleParams()
+         param_ls = examples.new_params()
 
-      userpd_cls_obj = UserPd(param_ls)
-      userpd_obj = userpd_cls_obj.new_pd()
-      last_userpd_obj = userpd_obj
-      rule_calc(param_ls, userpd_obj, v4hostint)
+      last_params = param_ls
+      userpds = UserPd(param_ls)
+      user_pd = userpds.new_pd()
+      rule_calc(param_ls, user_pd, v4hostint)
       window['-V4HOST_SLIDER-'].update(value=0)
       window['MLINE_BIN_2'].Widget.xview_moveto('0.0')
 
@@ -1186,10 +1177,6 @@ while True:
       elif len(str(values['-RULENAME-'])) > 20:
          window[event].update(values[event][:-1])
          window['-PARAM_MESSAGES-'].update('Max Name length')
-   # if event == '-STRING_IN-' and values['-STRING_IN-']:
-   #    if len(str(values['-STRING_IN-'])) > 69:
-   #       window[event].update(values[event][:-1])
-   #       # Find a place to send error message ------------<<<<<<<<<<<< REVIEW
 
    if event == '-R6PRE-' and values['-R6PRE-']:
       if values['-R6PRE-'][-1] not in v6chars \
@@ -1212,7 +1199,7 @@ while True:
             allow = 'yes'
          elif not values[p]:
                window['-PARAM_MESSAGES-'].update(f'Missing Parameter')
-#               advance(p)
+               # advance(p)
                allow = 'no'
                break
          else:
@@ -1228,10 +1215,9 @@ while True:
             valid = validate(param_ls)
             if valid == 'pass':
                last_params = param_ls # Used for UserPd() to decide next vs. new PD
-               userpd_cls_obj = UserPd(param_ls)
-               new_userpd_obj = userpd_cls_obj.new_pd()
-               last_userpd_obj = new_userpd_obj
-               rule_calc(param_ls, new_userpd_obj)
+               userpds = UserPd(param_ls)
+               user_pd = userpds.new_pd()
+               rule_calc(param_ls, user_pd)
             else:
                print('PARAMETER ENTRY ERROR')
 
@@ -1252,7 +1238,7 @@ while True:
          values['-STRING_IN-'] = values['-STRING_IN-'][:space_idx]
          window['-STRING_IN-'].update(values['-STRING_IN-'])
          window['-ENTER_STRING-'].click() # "Re-click" String Enter button
-      elif len(values['-STRING_IN-']) > 69:
+      elif len(values['-STRING_IN-']) > 69: # or use character delete and message during entry
          window['-STRING_IN-'].update('Rule string too long')
       else:
          input_str = values['-STRING_IN-']
@@ -1271,19 +1257,19 @@ while True:
                valid = validate(param_ls)
                if valid == 'pass':
                   last_params = param_ls # Used for UserPd() to decide next vs. new PD
-                  userpd_cls_obj = UserPd(param_ls)
-                  new_userpd_obj = userpd_cls_obj.new_pd()
-                  last_userpd_obj = new_userpd_obj
-                  rule_calc(param_ls, new_userpd_obj)
+                  userpds = UserPd(param_ls)
+                  user_pd = userpds.new_pd()
+
+                  rule_calc(param_ls, user_pd)
                else:
                   print('RULE STRING ERROR')
 
    # Update binary editor values and highlights
    #--------------------------------------------#
-   if event.endswith('SLDR-') and values['-STRING_IN-']: # rule to edit must exist
+   if event.endswith('SLDR-') and last_params: # rule to edit must exist
       portidxadd = 0
-      param_ls = last_params
-      test_param_ls = [
+      # param_ls = last_params
+      param_ls = [
          param_ls[0],
          param_ls[1],
          int(values['-V6PFX_LEN_SLDR-']),
@@ -1293,13 +1279,13 @@ while True:
          int(values['-PSID_OFST_SLDR-'])
       ]
 
-      valid = validate(test_param_ls)
+      valid = validate(param_ls)
+
       if valid == 'pass':
-         last_params = test_param_ls # Used for UserPd() to decide next vs. new PD
-         userpd_cls_obj = UserPd(test_param_ls)
-         new_userpd_obj = userpd_cls_obj.new_pd()
-         last_userpd_obj = new_userpd_obj
-         rule_calc(test_param_ls, new_userpd_obj)
+         last_params = param_ls # Used for UserPd() to decide next vs. new PD
+         userpds = UserPd(param_ls)
+         user_pd = userpds.new_pd()
+         rule_calc(param_ls, user_pd)
          window['MLINE_BIN_2'].Widget.xview_moveto('0.9')
       else:
          print('SLIDER ERROR')
@@ -1309,33 +1295,30 @@ while True:
    if event == '-NXT_USER_PD-' and last_params:
       # If last_params=None (initial state or Clear was used) ignore button
       portidxadd = 0
-      new_userpd_obj = userpd_cls_obj.new_pd()
-      last_userpd_obj = new_userpd_obj
+      user_pd = userpds.new_pd()
 #     v4hostint = int(values['-V4HOST_SLIDER-']) # slider values are floats
-      rule_calc(last_params, new_userpd_obj, v4hostint)
+      rule_calc(last_params, user_pd, v4hostint)
 
    # Increment IPv4 host address
    #-----------------------------------------#
-   # Host slider initialized with range=0. It can't be incremented when range=0
-   # Range is updated when valid BMR parameters are "Enter"ed
-   # Range is reset to 0 when "Clear" is used
+   # Host slider initialized with range=0,0. It can't be incremented when range=0
+   # Range is updated when valid BMR parameters are Entered
+   # Range is reset to 0,0 when "Clear" is used
    if event == '-V4HOST_SLIDER-': # ---- May be able to use ip.addr + v4host_slider ----
       portidxadd = 0
       v4hostint = int(values['-V4HOST_SLIDER-']) # slider values are floats
-      # last_v4hostint = v4hostint
-      rule_calc(last_params, last_userpd_obj, v4hostint)
+      rule_calc(last_params, user_pd, v4hostint)
    elif event == '-NEXT_HOST-' and last_params: # +1 button
       # If last_params=None (initial state or Clear was used) ignore button
       maxhost = (2 ** (32 - values["-R4LEN-"])) -1
       if last_params and values['-V4HOST_SLIDER-'] < maxhost:
          v4hostint = int(values['-V4HOST_SLIDER-']) + 1 # slider values are floats
-         # last_v4hostint = v4hostint
          window['-V4HOST_SLIDER-'].update(value=v4hostint)
-         rule_calc(last_params, last_userpd_obj, v4hostint)
+         rule_calc(last_params, user_pd, v4hostint)
 
    # Display user source port numbers
    #-----------------------------------------#
-   if last_params and 'IDX' in event:
+   if 'IDX' in event and last_params:
       match event:
          case '-P_IDX_FIRST-':
             portidxadd = 0
@@ -1353,7 +1336,7 @@ while True:
       if portidxadd > 100000: # Preventing infinite growth
          portidxadd = 100000  # Figure out actual max required and DO THIS BETTER!!!
       v4hostint = int(values['-V4HOST_SLIDER-'])
-      rule_calc(last_params, last_userpd_obj, v4hostint, portidx = idx)
+      rule_calc(last_params, user_pd, v4hostint, portidx = idx)
 
    # Save Current BMR in bottom Multiline field for user to copy
    # Only BMR parameter list section needs to be entered
