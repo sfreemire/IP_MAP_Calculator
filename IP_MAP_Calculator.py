@@ -235,9 +235,9 @@ bin_display_col2 = [
 #    sg.Input('', size=(16, 1), justification='centered',
 #    use_readonly_for_disable=True,disabled=True, key='-SP_INDEX-'),
     sg.Button(' <<', font='Helvetica 11', key='-P_IDX_FIRST-'),
-    sg.Button(' + 1', font='Helvetica 11', key='-P_IDX_UP1-'),
-    sg.Button(' + 10', font='Helvetica 11', key='-P_IDX_UP10-'),
-    sg.Button(' + 100', font='Helvetica 11', key='-P_IDX_UP100-'),
+    sg.Button(' + 1', font='Helvetica 11', key='-P_IDX_UP_1-'),
+    sg.Button(' + 10', font='Helvetica 11', key='-P_IDX_UP_10-'),
+    sg.Button(' + 100', font='Helvetica 11', key='-P_IDX_UP_100-'),
     sg.Button(' >>', font='Helvetica 11', key='-P_IDX_LAST-'),
     sg.Text(f'= Port', font=('Helvetica', 14, 'bold')),
     sg.Text('', font=('Helvetica', 14, 'bold'), justification='centered',
@@ -512,7 +512,7 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
    # Sec 1, Modify Port string if Port Index (portidx) has been changed
    #--------------------------------------------------------------------#
    if portidx:
-      # Initial value of port index
+      # Initial binary value of port index
       pidx_bin_base = int(pidx_bin, 2)
       if portidx == 0:
          pass
@@ -1328,18 +1328,18 @@ while True:
          case '-P_IDX_FIRST-':
             portidxadd = 0
             idx = 0
-         case '-P_IDX_UP1-':
+         case '-P_IDX_UP_1-':
             idx = 1
-         case '-P_IDX_UP10-':
+         case '-P_IDX_UP_10-':
             idx = 10
-         case '-P_IDX_UP100-':
+         case '-P_IDX_UP_100-':
             idx = 100
          case '-P_IDX_LAST-':
-            idx = 100000
+            idx = 65535
       idx = idx + portidxadd
       portidxadd = idx
-      if portidxadd > 100000: # Preventing infinite growth
-         portidxadd = 100000  # Figure out actual max required and DO THIS BETTER!!!
+      if portidxadd > 65535: # 16 bit port field max value is 65535
+         portidxadd = 65535 # Prevent possibility of infinite growth
       v4hostint = int(values['-V4HOST_SLIDER-'])
       rule_calc(last_params, user_pd, v4hostint, portidx = idx)
 
