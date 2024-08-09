@@ -458,7 +458,7 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
    #-------------------------------------------------------------------------#
    # Sec 1, BMR PD, User PD, and EA Bits data
    #--------------------------------------------------#
-   v6p_hex_exp = ip.IPv6Address(param_ls[1]).exploded # 0000:0000:...
+   v6p_hex_exp = ip.IPv6Address(param_ls[1]).exploded # Hex style: 0000:0000:...
    v6p_hex_seglst = v6p_hex_exp.split(':')[:4] # ['0000', '0000', ...]
    upd_hex_exp = ip.IPv6Address(user_pd_obj.network_address).exploded # 0000:0000:...
    upd_hex_seglst = upd_hex_exp.split(':')[:4] # ['0000', '0000', ...]
@@ -512,7 +512,7 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
    # Sec 1, Modify Port string if Port Index (portidx) has been changed
    #--------------------------------------------------------------------#
    if portidx:
-      # Initial binary value of port index
+      # Initial value of port index
       pidx_bin_base = int(pidx_bin, 2)
       if portidx == 0:
          pass
@@ -685,12 +685,12 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
    d_dic = {
       'paramlist': param_ls,
       'v4ips': 2 ** v4hostbin_len, # 2^host_bits
-      'sratio': 2 ** psidlen, # num of unique psids/v4-host
+      'sratio': 2 ** psidlen, # num of unique psids per v4-host address
       'users': (2 ** v4hostbin_len) * (2 ** psidlen),
       'ppusr': ppusr,
       'excl_ports': 65536 - ((2 ** psidlen) * (ppusr)),
       'bmr_str': '|'.join([str(x) for x in param_ls]),
-      'upd_str': user_pd_obj.compressed, # user_pd = User Delegated Prefix (PD)
+      'upd_str': user_pd_obj.compressed, # upd_str = User Delegated Prefix (PD)
       'ce_ip': v4str,
       'port_int': port_int,
       'pidx_bin': pidx_bin,
@@ -716,7 +716,7 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
 def displays_update(dic, pd_obj):
    '''The displays_update function accepts a display values dictionary
    and an IPv6 user PD (ipaddress object) from the rule_calc function.
-   It then updates all affected UI fields.
+   It then updates all affected display fields.
    '''
 
    # Initial field updates
@@ -773,7 +773,7 @@ def displays_update(dic, pd_obj):
    window['-PSID_OFST_SLDR-'].update(dic['paramlist'][6])
    window['-V4HOST_SLIDER-'].update(range=(0, dic['v4ips'] - 1))
 #   window['-PORT_SLIDER-'].update(range=(0, (dic['ppusr'] - 1) ))
-#   window['-PORT_INDEX-'].update('0') #### <<<<------ UPDATE WITH ACTUAL VALUE !!! !!!
+#   window['-PORT_INDEX-'].update('0') #### <<<<--- UPDATE WITH ACTUAL VALUE !!! !!!
 
    return
 
@@ -896,7 +896,7 @@ class ExampleParams:
 class UserPd:
    '''Return a User Delegated Prefix (PD|upd) object.
    If BMR parameters (last_plist) remains the same, it returns
-   PD objects from this object. If the parameters change,
+   PD object from current object. If the parameters change,
    a new PD object is created.
    syntax: x = UserPd(param_ls)
    print(x.new_pd())'''
@@ -1035,7 +1035,7 @@ def validate(param_ls):
       window['-PD_MESSAGES-'].update('PSID Offset must not exceed 15')
       advance('-OFFSET-')
       return(validflag)
-##### >>>> CHECK TO SEE IF OFFSET > 15 IS ACTUALLY POSSIBLE <<<< ##### <----- REVIEW
+##### >>>> CHECK TO SEE IF OFFSET > 15 IS ACTUALLY POSSIBLE <<<<<----- REVIEW
    elif psofst_len + psid_len > 16:
       # psid length + psid offset > 16 bit port length not valid
       validflag = 'fail'
@@ -1121,7 +1121,7 @@ while True:
          abouttxt = 'File "files/about_txt" not found.'
          about = sg.popup(abouttxt, title='About', font=('Arial', 14))
 
-   # Clear message fields on next event
+   # Clear error message fields on next event
    window['-PARAM_MESSAGES-'].update('')
    window['-PD_MESSAGES-'].update('')
    window['-BTN_MESSAGES-'].update('')
@@ -1152,8 +1152,7 @@ while True:
    # Load example values in main display and editors
    #-------------------------------------------------#
    if event == '-EXAMPLE-':
-      # print('Example Button')
-      portidxadd = 0      # reset port index setting
+      portidxadd = 0      # reset port index value
       v4hostint = 0       # reset v4 host integer
       if examples:
          param_ls = examples.new_params()
@@ -1192,7 +1191,7 @@ while True:
          window['-PARAM_MESSAGES-'].update('Bad character or too long')
 
    if event == '-ENTER_PARAMS-':
-      portidxadd = 0      # reset port index setting
+      portidxadd = 0      # reset port index value
       valid = 'not set'
       for p in pframe_ls:
          if p == '-OFFSET-' and values[p] == 0:
@@ -1214,7 +1213,7 @@ while True:
          else:
             valid = validate(param_ls)
             if valid == 'pass':
-               last_params = param_ls # Used for UserPd() to decide next vs. new PD
+               last_params = param_ls # Used for UserPd() to decide next PD vs. new PD
                userpds = UserPd(param_ls)
                user_pd = userpds.new_pd()
                rule_calc(param_ls, user_pd)
@@ -1224,12 +1223,6 @@ while True:
    # Validate Enter/Edit String
    # Values in allowable ranges. But not tested that they work in BMR!
    #-------------------------------------------------------------------#
-
-   # Enforce string length before hitting enter?
-   # if event == '-STRING_IN-' and values['-STRING_IN-']:
-   #    if len(str(values['-STRING_IN-'])) > 69:
-   #       window[event].update(values[event][:-1])
-
    # Rule String Enter button pressed or Return key pressed in Rule String Field
    if event == '-ENTER_STRING-' or event == '-STRING_IN-' + '_Enter':
       portidxadd = 0      # reset port index setting
@@ -1239,7 +1232,7 @@ while True:
          window['-PARAM_MESSAGES-'].update('Missing String')
          advance('-STRING_IN-')
       elif ' ' in values['-STRING_IN-']:
-         # Remove space and everything following
+         # Remove extra information (space and everything following)
          space_idx = values['-STRING_IN-'].index(' ')
          values['-STRING_IN-'] = values['-STRING_IN-'][:space_idx]
          window['-STRING_IN-'].update(values['-STRING_IN-'])
@@ -1258,11 +1251,11 @@ while True:
                if i in [2, 4, 5, 6]:
                   param_ls[i] = int(param_ls[i])
             if param_ls == last_params:
-               window['-PARAM_MESSAGES-'].update('No change') # -------->> Add "only name changed" scenario???
+               window['-PARAM_MESSAGES-'].update('No change') # ---->> Add "only name changed" scenario???
             else:
                valid = validate(param_ls)
                if valid == 'pass':
-                  last_params = param_ls # Used for UserPd() to decide next vs. new PD
+                  last_params = param_ls # Used for UserPd() to decide next PD vs. new PD
                   userpds = UserPd(param_ls)
                   user_pd = userpds.new_pd()
 
@@ -1287,7 +1280,7 @@ while True:
       valid = validate(param_ls)
 
       if valid == 'pass':
-         last_params = param_ls # Used for UserPd() to decide next vs. new PD
+         last_params = param_ls # Used by UserPd() to decide next PD vs. new PD
          userpds = UserPd(param_ls)
          user_pd = userpds.new_pd()
          rule_calc(param_ls, user_pd)
@@ -1370,17 +1363,19 @@ while True:
 
    print(f'#------- End Event {cntr - 1} -------#')
 
+   '''
+   # Utilities:
+   #----------------------------------------#
 
-   # Utilities
-   #-------------------------------------------------------------#
    # This prints all available element keys:
-   #-----------------------------------------#
-   # print('\n ---- VALUES KEYS ----')
-   # for x in values.keys():
-      # print(x)
+   #----------------------------------------#
+   print('\n ---- VALUES KEYS ----')
+   for x in values.keys():
+      print(x)
 
    # This prints all variables:
-   #-----------------------------------------#
-#   print(dir())
+   #----------------------------------------#
+   print(dir())
+   '''
 
 window.close()
