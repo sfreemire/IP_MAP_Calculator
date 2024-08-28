@@ -10,14 +10,12 @@ IP_MAP_Calculator calculates IPv4 address sharing and port allocations for "Mapp
 
 * Python 3.10+. Testing was done on Python 3.11
 * tkinter framework python-tk@3.11+
-* PySimpleGUI 4.60.4+ Python package
-* Or possibly FreeSimpleGUI 5.1.0*
+* PySimpleGUI 4.60.4+ Python package (or FreeSimpleGUI 5.1.0*)
 
-*In February 2024, the developer of PySimpleGUI deleted the open-source package from github and pypi, moved the package ownership to PySimpleSoft Inc., and changed the license to a subscription model requiring registration and a downloading a key. There are two licenses available, a free "Hobbyist" license and a $99.00/yr "Commercial" license. If registration or licensing is an issue for you, this project has been forked on github as [FreeSimpleGUI](https://github.com/spyoungtech/FreeSimpleGui/). It is available through pypi with ```pip install FreeSimpleGUI```. I will be testing this package with IP_MAP_Calculator and sharing the results here.
+*In February 2024, the developer of PySimpleGUI deleted the open-source package from github and pypi, moved the package ownership to PySimpleSoft Inc., and changed the license to a subscription model requiring registration and a downloading a key. There are two licenses available, a free "Hobbyist" license and a paid "Commercial" license. If registration or licensing is an issue for you, the PySimpleGUI project has been forked on github as [FreeSimpleGUI](https://github.com/spyoungtech/FreeSimpleGui/). It is available through pypi with ```pip install FreeSimpleGUI```. I will be testing this package with IP_MAP_Calculator and sharing the results here.
 
-If you wish to try it yourself, install FreeSimpleGUI and make the following change to your IP_MAP_Calculator.py file:\
-From: ```import PySimpleGUI as sg```\
-To:      ```import FreeSimpleGUI as sg```
+**FreeSimpleGUI Update, 08/28/2024:**\
+I have tested the application with the latest version of FreeSimpleGUI (v5.1.1), and it appears to work fine. Therefore, I am going to add another app version, named IPMC.py, to this repository for use with that package. If FreeSimpleGUI continues to be actively maintained for a reasonable period of time, I will probably be deprecating the PySimpleGUI version of the app (IP_MAP_Calculator.py).
 
 ## MAP-T Function and Rules Explanation
 
