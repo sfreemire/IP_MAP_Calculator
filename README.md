@@ -64,6 +64,12 @@ Added "Excluded Ports" number to "Results" display
 * IPMCv0-10-4_macOS_Ventura13-4_M1
 * IPMCv0-10-4_macOS_Ventura13-6_Intel
 
+v0-11-9:
+Fixed several crash bugs
+Changed some formatting
+* IPMCv0-7-0_macOS_Ventura13-4_M1
+* IPMCv0-11-9_macOS_Ventura13-6_Intel
+
 ## License
 
 IP_MAP_Calculator is released under the "MIT License Agreement".
