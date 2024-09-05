@@ -1034,13 +1034,12 @@ def validate(param_ls):
       advance('-EABITS-')
       window['-PARAM_MESSAGES-'].update('EA bits out of range')
       return(validflag)
-   # Reduced PSID Offset Bits Combo & Slider values to Max 15
-   # elif psofst_len > 15:   # PSID offset > 15 = no available ports
-   #    validflag = 'fail'
-   #    window['-PARAM_MESSAGES-'].update('PSID Offset must not exceed 15')
-   #    window['-PD_MESSAGES-'].update('PSID Offset must not exceed 15')
-   #    advance('-OFFSET-')
-   #    return(validflag)
+   elif psofst_len > 15:   # PSID offset > 15 = no available ports
+      validflag = 'fail'
+      window['-PARAM_MESSAGES-'].update('PSID Offset must not exceed 15')
+      window['-PD_MESSAGES-'].update('PSID Offset must not exceed 15')
+      advance('-OFFSET-')
+      return(validflag)
 ##### >>>> CHECK TO SEE IF OFFSET > 15 IS ACTUALLY POSSIBLE <<<<<----- REVIEW
    elif psofst_len + psid_len > 16:
       # psid length + psid offset > 16 bit port length not valid
