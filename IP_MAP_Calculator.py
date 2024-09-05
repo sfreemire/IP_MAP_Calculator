@@ -6,7 +6,7 @@ import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.11.12 - 08/08/2024 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.11.13 - 09/05/2024 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -23,7 +23,7 @@ rulestring_tooltip = ('Name|IPv6 Prefix|IPv6 Pfx Len|IPv4 Prefix|'
                       'IPv4 Pfx Len|EA Len|PSID Offset')
 v4mask = [n for n in range(16, 33)] # for edit rule Combo
 v6mask = [n for n in range(32, 65)] # for edit rule Combo
-psidoff = [n for n in range(17)]    # for edit rule Combo
+psidoff = [n for n in range(16)]    # for edit rule Combo
 eabits = [n for n in range(33)]     # for edit rule Combo
 
 # Big headings for visibility in text editor "minimap"
@@ -219,7 +219,7 @@ bin_display_col2 = [
 #    sg.Push(),
     sg.Text('PSID Offset:', font=('Helvetica', 13, 'bold'),
     pad=((0, 5), (0, 5))),
-    sg.Slider(range=(0, 16), default_value=0, orientation='h',
+    sg.Slider(range=(0, 15), default_value=0, orientation='h',
     disable_number_display=False, enable_events=True,
     size=(19, 8), trough_color='white', font=('Helvetica', 13, 'bold'),
     pad=((5, 5), (0, 10)), disabled=True, key='-PSID_OFST_SLDR-'),
@@ -995,12 +995,15 @@ def validate(param_ls):
 
    # test IPv4 prefix/mask
    try:
-      ip.ip_network('/'.join((v4p, str(v4pl))))
+      v4pfx_val = ip.ip_network('/'.join((v4p, str(v4pl))))
       v4pfx_bits = f'{ip.IPv4Address(v4p):b}'[:v4pl]
       v4pfx_bin = f'{v4pfx_bits:<032s}'
       v4pfx_int = int(v4pfx_bin, 2)
       v4pfx = ip.ip_address(v4pfx_int)
-      # validflag = 'pass'
+      if v4pfx_val.prefixlen > 31:
+         window['-PD_MESSAGES-'].update('IPv4 Host Length = 0, Invalid')
+         window['-PARAM_MESSAGES-'].update('IPv4 Host Length = 0, Invalid')
+         validflag = 'fail'
    except ValueError:
       validflag = 'fail'
       window['-PARAM_MESSAGES-'].update(
@@ -1019,6 +1022,8 @@ def validate(param_ls):
       validflag = 'fail'
       window['-PD_MESSAGES-'].update(
          f"EA Bits can't be less than IPv4 host bits")
+      window['-PARAM_MESSAGES-'].update(
+         f"EA Bits can't be less than IPv4 host bits")
       return(validflag)
 
    # validate EA Bits and PSID Offset values are in valid MAP-T Rule range
@@ -1029,12 +1034,13 @@ def validate(param_ls):
       advance('-EABITS-')
       window['-PARAM_MESSAGES-'].update('EA bits out of range')
       return(validflag)
-   elif psofst_len > 15:   # PSID offset > 15 = no available ports
-      validflag = 'fail'
-      window['-PARAM_MESSAGES-'].update('PSID Offset must not exceed 15')
-      window['-PD_MESSAGES-'].update('PSID Offset must not exceed 15')
-      advance('-OFFSET-')
-      return(validflag)
+   # Reduced PSID Offset Bits Combo & Slider values to Max 15
+   # elif psofst_len > 15:   # PSID offset > 15 = no available ports
+   #    validflag = 'fail'
+   #    window['-PARAM_MESSAGES-'].update('PSID Offset must not exceed 15')
+   #    window['-PD_MESSAGES-'].update('PSID Offset must not exceed 15')
+   #    advance('-OFFSET-')
+   #    return(validflag)
 ##### >>>> CHECK TO SEE IF OFFSET > 15 IS ACTUALLY POSSIBLE <<<<<----- REVIEW
    elif psofst_len + psid_len > 16:
       # psid length + psid offset > 16 bit port length not valid
