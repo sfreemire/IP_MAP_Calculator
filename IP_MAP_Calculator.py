@@ -6,7 +6,7 @@ import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.11.14 - 09/06/2024 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.11.15 - 09/06/2024 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -969,8 +969,9 @@ element_in.Widget.icursor('end')
 # Input validation and create IP prefix objects
 #-----------------------------------------------#
 def validate(param_ls):
-   '''Validates input parameters by using "try" to create
-   required IP prefix object variables. Sets flag on failures.
+   '''Validates input parameters using ipaddress module to create
+   required IP prefix object variables. Then tests results for
+   compatibility with MAP-T.
    '''
    # param_ls = [name, v6p, v6len, v4p, v4len, eal, psol]
    validflag = 'fail'
@@ -992,7 +993,6 @@ def validate(param_ls):
          f'IPv6 {v6p}/{v6pl} not valid. Host bits set?')
       window['-PARAM_MESSAGES-'].update(
          f'IPv6 {v6p}/{v6pl} not valid. Host bits set?')
-      # validflag = 'fail'
       return(validflag)
 
    # test IPv4 prefix/mask
@@ -1002,10 +1002,6 @@ def validate(param_ls):
       v4pfx_bin = f'{v4pfx_bits:<032s}'
       v4pfx_int = int(v4pfx_bin, 2)
       v4pfx = ip.ip_address(v4pfx_int)
-      if v4pfx_val.prefixlen > 31:
-         window['-PD_MESSAGES-'].update('IPv4 Host Length = 0, Invalid')
-         window['-PARAM_MESSAGES-'].update('IPv4 Host Length = 0, Invalid')
-         validflag = 'fail'
    except ValueError:
       validflag = 'fail'
       window['-PD_MESSAGES-'].update(
@@ -1014,9 +1010,15 @@ def validate(param_ls):
          f'IPv4 {v4p}/{v4pl} not valid. Host bits set?')
       return(validflag)
  
-   # validate Rule prefix masks are in acceptable MAP-T Rule ranges
-   # if validflag == 'pass':
-   if int(v6pl) + eal > 64: # (v6 prefix + EA length) > 64 not allowed
+   # Validate host bits exist
+   if v4pfx_val.prefixlen > 31: # Valid for ip.ip_network test, but invalid for MAP-T
+      validflag = 'fail'
+      window['-PD_MESSAGES-'].update('IPv4 Host Length = 0, Invalid')
+      window['-PARAM_MESSAGES-'].update('IPv4 Host Length = 0, Invalid')
+      return(validflag)
+
+   # Validate Rule prefix masks are in acceptable MAP-T Rule ranges
+   if int(v6pl) + eal > 64: # v6 prefix length + EA length > 64 not valid for MAP-T
       validflag = 'fail'
       window['-PD_MESSAGES-'].update(
          f"IPv6 prefix mask + EA Bits can't exceed 64 bits")
@@ -1024,7 +1026,7 @@ def validate(param_ls):
          f"IPv6 prefix mask + EA Bits can't exceed 64 bits")
       return(validflag)
 
-   if eal < (32 - v4pl):  # EA length < v4 host bits (RFC?)
+   if eal < (32 - v4pl):  # EA length < v4 host bits (Check RFC)
       validflag = 'fail'
       window['-PD_MESSAGES-'].update(
          f"EA Bits can't be less than IPv4 host bits")
@@ -1034,7 +1036,6 @@ def validate(param_ls):
 
    # validate EA Bits and PSID Offset values are in valid MAP-T Rule range
    # (values not tested with actual BMR!)
-   # if validflag == 'pass':
    if eal > 48:     # EA length > 48 is invalid, rfc7597 5.2
       validflag = 'fail'
       advance('-EABITS-')
@@ -1047,15 +1048,14 @@ def validate(param_ls):
       window['-PARAM_MESSAGES-'].update('PSID Offset must not exceed 15')
       advance('-OFFSET-')
       return(validflag)
-##### >>>> CHECK TO SEE IF OFFSET > 15 IS ACTUALLY POSSIBLE <<<<<----- REVIEW
+      ##### >>>> Check RFC to see if offset > 15 is possible <<<<<
    elif psofst_len + psid_len > 16:
-      # psid length + psid offset > 16 bit port length not valid
       validflag = 'fail'
       window['-PD_MESSAGES-'].update('PSID Offset + PSID Length > 16 bits')
       window['-PARAM_MESSAGES-'].update('PSID Offset + PSID Length > 16 bits')
       return(validflag)
 
-   return validflag
+   return validflag # ('pass')
 
 # Path to additional data files
 #-------------------------------#
@@ -1218,10 +1218,7 @@ while True:
          else:
             allow = 'yes'
       if allow == 'yes':
-         print(f"pframe_ls is {pframe_ls}")
-
          param_ls = [values[p] for p in pframe_ls]
-         print(f"pframe_ls values are: \n {[values[p] for p in pframe_ls]}")
          for i, element in enumerate(param_ls):
             if i in [2, 4, 5, 6]:
                param_ls[i] = int(param_ls[i])
