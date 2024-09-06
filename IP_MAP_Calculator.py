@@ -988,6 +988,8 @@ def validate(param_ls):
       validflag = 'pass'
    except:
       advance('-R6PRE-')
+      window['-PD_MESSAGES-'].update(
+         f'IPv6 {v6p}/{v6pl} not valid. Host bits set?')
       window['-PARAM_MESSAGES-'].update(
          f'IPv6 {v6p}/{v6pl} not valid. Host bits set?')
       # validflag = 'fail'
@@ -1006,6 +1008,8 @@ def validate(param_ls):
          validflag = 'fail'
    except ValueError:
       validflag = 'fail'
+      window['-PD_MESSAGES-'].update(
+         f'IPv4 {v4p}/{v4pl} not valid. Host bits set?')
       window['-PARAM_MESSAGES-'].update(
          f'IPv4 {v4p}/{v4pl} not valid. Host bits set?')
       return(validflag)
@@ -1015,6 +1019,8 @@ def validate(param_ls):
    if int(v6pl) + eal > 64: # (v6 prefix + EA length) > 64 not allowed
       validflag = 'fail'
       window['-PD_MESSAGES-'].update(
+         f"IPv6 prefix mask + EA Bits can't exceed 64 bits")
+      window['-PARAM_MESSAGES-'].update(
          f"IPv6 prefix mask + EA Bits can't exceed 64 bits")
       return(validflag)
 
@@ -1032,20 +1038,21 @@ def validate(param_ls):
    if eal > 48:     # EA length > 48 is invalid, rfc7597 5.2
       validflag = 'fail'
       advance('-EABITS-')
+      window['-PD_MESSAGES-'].update('EA bits out of range')
       window['-PARAM_MESSAGES-'].update('EA bits out of range')
       return(validflag)
    elif psofst_len > 15:   # PSID offset > 15 = no available ports
       validflag = 'fail'
-      window['-PARAM_MESSAGES-'].update('PSID Offset must not exceed 15')
       window['-PD_MESSAGES-'].update('PSID Offset must not exceed 15')
+      window['-PARAM_MESSAGES-'].update('PSID Offset must not exceed 15')
       advance('-OFFSET-')
       return(validflag)
 ##### >>>> CHECK TO SEE IF OFFSET > 15 IS ACTUALLY POSSIBLE <<<<<----- REVIEW
    elif psofst_len + psid_len > 16:
       # psid length + psid offset > 16 bit port length not valid
       validflag = 'fail'
-      window['-PARAM_MESSAGES-'].update('PSID Offset + PSID Length > 16 bits')
       window['-PD_MESSAGES-'].update('PSID Offset + PSID Length > 16 bits')
+      window['-PARAM_MESSAGES-'].update('PSID Offset + PSID Length > 16 bits')
       return(validflag)
 
    return validflag
