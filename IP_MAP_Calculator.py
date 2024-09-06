@@ -6,7 +6,7 @@ import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.11.13 - 09/05/2024 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.11.14 - 09/06/2024 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -1202,6 +1202,8 @@ while True:
          window[event].update(values[event][:-1])
          window['-PARAM_MESSAGES-'].update('Bad character or too long')
 
+   # Enter new BMR
+   #---------------#
    if event == '-ENTER_PARAMS-':
       portidxadd = 0      # reset port index value
       valid = 'not set'
@@ -1216,7 +1218,10 @@ while True:
          else:
             allow = 'yes'
       if allow == 'yes':
+         print(f"pframe_ls is {pframe_ls}")
+
          param_ls = [values[p] for p in pframe_ls]
+         print(f"pframe_ls values are: \n {[values[p] for p in pframe_ls]}")
          for i, element in enumerate(param_ls):
             if i in [2, 4, 5, 6]:
                param_ls[i] = int(param_ls[i])
@@ -1241,7 +1246,7 @@ while True:
       valid = 'not set'
       if not values['-STRING_IN-']:
          window['-STRING_IN-'].update('Enter rule string')
-         window['-PARAM_MESSAGES-'].update('Missing String')
+         window['-PARAM_MESSAGES-'].update('Missing Rule String')
          advance('-STRING_IN-')
       elif ' ' in values['-STRING_IN-']:
          # Remove extra information (space and everything following)
@@ -1351,14 +1356,16 @@ while True:
    # Save Current BMR in bottom Multiline field for user to copy
    # Only BMR parameter list section needs to be entered
    #-------------------------------------------------------------#
-   if event == '-SAVE-':
+   if event == '-SAVE-' and last_params:
       rule = values["-BMR_STRING_DSPLY-"]
       name = rule.split('|')
       name = name[0]
+
       if name in values["-MLINE_SAVED-"]:
-         window['-PARAM_MESSAGES-'].update('Duplicate Name - Rename Rule')
+         window['-PARAM_MESSAGES-'].update('Duplicate Rule Name')
       elif rule[rule.index('|'):] in values["-MLINE_SAVED-"]:
-         window['-PARAM_MESSAGES-'].update('Duplicate Rule - Edit Rule')
+         print(rule[rule.index('|'):])
+         window['-PARAM_MESSAGES-'].update('Duplicate Rule')
       else:
          savstr = f'{values["-BMR_STRING_DSPLY-"]} ' \
                   f'(IPs-{window["-IPS_DSPLY-"].get()}, ' \
@@ -1366,11 +1373,15 @@ while True:
                   f'USRS-{window["-USERS_DSPLY-"].get()}, ' \
                   f'PTS-{window["-PORTS_DSPLY-"].get()}, ' \
                   f'XPTS-{window["-EXCL_PORTS_DSPLY-"].get()})\n'
+
          if savctr == True:
             window['-MLINE_SAVED-'].update(savstr, append=True)
          else:
             window['-MLINE_SAVED-'].update(savstr)
             savctr = True
+
+   elif event == '-SAVE-':
+      window['-PARAM_MESSAGES-'].update('Enter Rule')
 
 
    print(f'#------- End Event {cntr - 1} -------#')
