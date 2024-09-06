@@ -4,7 +4,7 @@ import ipaddress as ip
 import os
 import sys
 
-# IP_MAP_ADDRESS_CALCULATOR v0.11.12 - 08/08/2024 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.11.15 - 09/06/2024 - D. Scott Freemire
 
 '''IPMC.py: Calculates the results of IP MAP Rule parameters'''
 
@@ -25,7 +25,7 @@ rulestring_tooltip = ('Name|IPv6 Prefix|IPv6 Pfx Len|IPv4 Prefix|'
                       'IPv4 Pfx Len|EA Len|PSID Offset')
 v4mask = [n for n in range(16, 33)] # for edit rule Combo
 v6mask = [n for n in range(32, 65)] # for edit rule Combo
-psidoff = [n for n in range(17)]    # for edit rule Combo
+psidoff = [n for n in range(16)]    # for edit rule Combo
 eabits = [n for n in range(33)]     # for edit rule Combo
 
 # Big headings for visibility in text editor "minimap"
@@ -221,7 +221,7 @@ bin_display_col2 = [
 #    sg.Push(),
     sg.Text('PSID Offset:', font=('Helvetica', 13, 'bold'),
     pad=((0, 5), (0, 5))),
-    sg.Slider(range=(0, 16), default_value=0, orientation='h',
+    sg.Slider(range=(0, 15), default_value=0, orientation='h',
     disable_number_display=False, enable_events=True,
     size=(19, 8), trough_color='white', font=('Helvetica', 13, 'bold'),
     pad=((5, 5), (0, 10)), disabled=True, key='-PSID_OFST_SLDR-'),
@@ -971,8 +971,9 @@ element_in.Widget.icursor('end')
 # Input validation and create IP prefix objects
 #-----------------------------------------------#
 def validate(param_ls):
-   '''Validates input parameters by using "try" to create
-   required IP prefix object variables. Sets flag on failures.
+   '''Validates input parameters using ipaddress module to create
+   required IP prefix object variables. Then tests results for
+   compatibility with MAP-T.
    '''
    # param_ls = [name, v6p, v6len, v4p, v4len, eal, psol]
    validflag = 'fail'
@@ -990,62 +991,73 @@ def validate(param_ls):
       validflag = 'pass'
    except:
       advance('-R6PRE-')
+      window['-PD_MESSAGES-'].update(
+         f'IPv6 {v6p}/{v6pl} not valid. Host bits set?')
       window['-PARAM_MESSAGES-'].update(
          f'IPv6 {v6p}/{v6pl} not valid. Host bits set?')
-      # validflag = 'fail'
       return(validflag)
 
    # test IPv4 prefix/mask
    try:
-      ip.ip_network('/'.join((v4p, str(v4pl))))
+      v4pfx_val = ip.ip_network('/'.join((v4p, str(v4pl))))
       v4pfx_bits = f'{ip.IPv4Address(v4p):b}'[:v4pl]
       v4pfx_bin = f'{v4pfx_bits:<032s}'
       v4pfx_int = int(v4pfx_bin, 2)
       v4pfx = ip.ip_address(v4pfx_int)
-      # validflag = 'pass'
    except ValueError:
       validflag = 'fail'
+      window['-PD_MESSAGES-'].update(
+         f'IPv4 {v4p}/{v4pl} not valid. Host bits set?')
       window['-PARAM_MESSAGES-'].update(
          f'IPv4 {v4p}/{v4pl} not valid. Host bits set?')
       return(validflag)
  
-   # validate Rule prefix masks are in acceptable MAP-T Rule ranges
-   # if validflag == 'pass':
-   if int(v6pl) + eal > 64: # (v6 prefix + EA length) > 64 not allowed
+   # Validate host bits exist
+   if v4pfx_val.prefixlen > 31: # Valid for ip.ip_network test, but invalid for MAP-T
+      validflag = 'fail'
+      window['-PD_MESSAGES-'].update('IPv4 Host Length = 0, Invalid')
+      window['-PARAM_MESSAGES-'].update('IPv4 Host Length = 0, Invalid')
+      return(validflag)
+
+   # Validate Rule prefix masks are in acceptable MAP-T Rule ranges
+   if int(v6pl) + eal > 64: # v6 prefix length + EA length > 64 not valid for MAP-T
       validflag = 'fail'
       window['-PD_MESSAGES-'].update(
          f"IPv6 prefix mask + EA Bits can't exceed 64 bits")
+      window['-PARAM_MESSAGES-'].update(
+         f"IPv6 prefix mask + EA Bits can't exceed 64 bits")
       return(validflag)
 
-   if eal < (32 - v4pl):  # EA length < v4 host bits (RFC?)
+   if eal < (32 - v4pl):  # EA length < v4 host bits (Check RFC)
       validflag = 'fail'
       window['-PD_MESSAGES-'].update(
+         f"EA Bits can't be less than IPv4 host bits")
+      window['-PARAM_MESSAGES-'].update(
          f"EA Bits can't be less than IPv4 host bits")
       return(validflag)
 
    # validate EA Bits and PSID Offset values are in valid MAP-T Rule range
    # (values not tested with actual BMR!)
-   # if validflag == 'pass':
    if eal > 48:     # EA length > 48 is invalid, rfc7597 5.2
       validflag = 'fail'
       advance('-EABITS-')
+      window['-PD_MESSAGES-'].update('EA bits out of range')
       window['-PARAM_MESSAGES-'].update('EA bits out of range')
       return(validflag)
    elif psofst_len > 15:   # PSID offset > 15 = no available ports
       validflag = 'fail'
-      window['-PARAM_MESSAGES-'].update('PSID Offset must not exceed 15')
       window['-PD_MESSAGES-'].update('PSID Offset must not exceed 15')
+      window['-PARAM_MESSAGES-'].update('PSID Offset must not exceed 15')
       advance('-OFFSET-')
       return(validflag)
-##### >>>> CHECK TO SEE IF OFFSET > 15 IS ACTUALLY POSSIBLE <<<<<----- REVIEW
+      ##### >>>> Check RFC to see if offset > 15 is possible <<<<<
    elif psofst_len + psid_len > 16:
-      # psid length + psid offset > 16 bit port length not valid
       validflag = 'fail'
-      window['-PARAM_MESSAGES-'].update('PSID Offset + PSID Length > 16 bits')
       window['-PD_MESSAGES-'].update('PSID Offset + PSID Length > 16 bits')
+      window['-PARAM_MESSAGES-'].update('PSID Offset + PSID Length > 16 bits')
       return(validflag)
 
-   return validflag
+   return validflag # ('pass')
 
 # Path to additional data files
 #-------------------------------#
@@ -1192,6 +1204,8 @@ while True:
          window[event].update(values[event][:-1])
          window['-PARAM_MESSAGES-'].update('Bad character or too long')
 
+   # Enter new BMR
+   #---------------#
    if event == '-ENTER_PARAMS-':
       portidxadd = 0      # reset port index value
       valid = 'not set'
@@ -1231,7 +1245,7 @@ while True:
       valid = 'not set'
       if not values['-STRING_IN-']:
          window['-STRING_IN-'].update('Enter rule string')
-         window['-PARAM_MESSAGES-'].update('Missing String')
+         window['-PARAM_MESSAGES-'].update('Missing Rule String')
          advance('-STRING_IN-')
       elif ' ' in values['-STRING_IN-']:
          # Remove extra information (space and everything following)
@@ -1341,14 +1355,16 @@ while True:
    # Save Current BMR in bottom Multiline field for user to copy
    # Only BMR parameter list section needs to be entered
    #-------------------------------------------------------------#
-   if event == '-SAVE-':
+   if event == '-SAVE-' and last_params:
       rule = values["-BMR_STRING_DSPLY-"]
       name = rule.split('|')
       name = name[0]
+
       if name in values["-MLINE_SAVED-"]:
-         window['-PARAM_MESSAGES-'].update('Duplicate Name - Rename Rule')
+         window['-PARAM_MESSAGES-'].update('Duplicate Rule Name')
       elif rule[rule.index('|'):] in values["-MLINE_SAVED-"]:
-         window['-PARAM_MESSAGES-'].update('Duplicate Rule - Edit Rule')
+         print(rule[rule.index('|'):])
+         window['-PARAM_MESSAGES-'].update('Duplicate Rule')
       else:
          savstr = f'{values["-BMR_STRING_DSPLY-"]} ' \
                   f'(IPs-{window["-IPS_DSPLY-"].get()}, ' \
@@ -1356,11 +1372,15 @@ while True:
                   f'USRS-{window["-USERS_DSPLY-"].get()}, ' \
                   f'PTS-{window["-PORTS_DSPLY-"].get()}, ' \
                   f'XPTS-{window["-EXCL_PORTS_DSPLY-"].get()})\n'
+
          if savctr == True:
             window['-MLINE_SAVED-'].update(savstr, append=True)
          else:
             window['-MLINE_SAVED-'].update(savstr)
             savctr = True
+
+   elif event == '-SAVE-':
+      window['-PARAM_MESSAGES-'].update('Enter Rule')
 
 
    print(f'#------- End Event {cntr - 1} -------#')
