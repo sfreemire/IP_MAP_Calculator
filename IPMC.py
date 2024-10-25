@@ -4,9 +4,9 @@ import ipaddress as ip
 import os
 import sys
 
-# IP_MAP_ADDRESS_CALCULATOR v0.11.15 - 09/06/2024 - D. Scott Freemire
-
 '''IPMC.py: Calculates the results of IP MAP Rule parameters'''
+
+# IP_MAP_ADDRESS_CALCULATOR v0.11.16 - 10/25/2024 - D. Scott Freemire
 
 '''This version of IP_MAP_ADDRESS_CALCULATOR uses the FreeSimpleGUI graphics package.'''
 
@@ -1243,12 +1243,13 @@ while True:
    if event == '-ENTER_STRING-' or event == '-STRING_IN-' + '_Enter':
       portidxadd = 0      # reset port index setting
       valid = 'not set'
+      goodstring = True
       if not values['-STRING_IN-']:
          window['-STRING_IN-'].update('Enter rule string')
          window['-PARAM_MESSAGES-'].update('Missing Rule String')
          advance('-STRING_IN-')
-      elif ' ' in values['-STRING_IN-']:
-         # Remove extra information (space and everything following)
+      # Remove extra information (space and everything following)
+      elif ' (' in values['-STRING_IN-']:
          space_idx = values['-STRING_IN-'].index(' ')
          values['-STRING_IN-'] = values['-STRING_IN-'][:space_idx]
          window['-STRING_IN-'].update(values['-STRING_IN-'])
@@ -1257,7 +1258,7 @@ while True:
          window['-STRING_IN-'].update('Rule string too long')
       else:
          input_str = values['-STRING_IN-']
-         # Values for further processing
+         # New param list values. Validate strings and numeric entries.
          param_ls = input_str.split('|')
          if len(param_ls) != 7:
             window['-PARAM_MESSAGES-'].update('Enter valid rule string'),
@@ -1265,19 +1266,28 @@ while True:
          else:
             for i, element in enumerate(param_ls):
                if i in [2, 4, 5, 6]:
-                  param_ls[i] = int(param_ls[i])
-            if param_ls == last_params:
-               window['-PARAM_MESSAGES-'].update('No change') # ---->> Add "only name changed" scenario???
-            else:
-               valid = validate(param_ls)
-               if valid == 'pass':
-                  last_params = param_ls # Used for UserPd() to decide next PD vs. new PD
-                  userpds = UserPd(param_ls)
-                  user_pd = userpds.new_pd()
-
-                  rule_calc(param_ls, user_pd)
+                  try:
+                     param_ls[i] = int(param_ls[i])
+                  except ValueError:
+                     window['-PARAM_MESSAGES-'].update('Incorrect digit entry. View example.')
+                     advance('-STRING_IN-')
+                     goodstring = False
+            if goodstring:
+               if param_ls == last_params:
+                  window['-PARAM_MESSAGES-'].update('No change') # ---->> Add "only name changed" scenario???
                else:
-                  print('RULE STRING ERROR')
+                  valid = validate(param_ls)
+                  if valid == 'pass':
+                     last_params = param_ls # Used for UserPd() to decide next PD vs. new PD
+                     userpds = UserPd(param_ls)
+                     user_pd = userpds.new_pd()
+
+                     rule_calc(param_ls, user_pd)
+
+                  else:
+                     print('RULE STRING ERROR')
+            else:
+               pass
 
    # Update binary editor values and highlights
    #--------------------------------------------#
