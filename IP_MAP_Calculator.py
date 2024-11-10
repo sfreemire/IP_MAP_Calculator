@@ -197,7 +197,7 @@ bin_display_col2 = [
     sg.Text('EA Length:', font=('Helvetica', 13, 'bold'),
       pad=((0, 14), (5, 0))),
 #    sg.Sizer(h_pixels=5, v_pixels=0),
-    sg.Slider(range=(0, 32), default_value=32, orientation='h',
+    sg.Slider(range=(0, 32), default_value=32, orientation='h', # Per RFC 7598 (dhcp) 0-48 is valid.
     disable_number_display=False, enable_events=True,
     size=(19, 8), trough_color='white', font=('Helvetica', 13, 'bold'),
     text_color=None, disabled=True, key='-EA_LEN_SLDR-'),
@@ -311,7 +311,15 @@ bin_display_layout = [
    [sg.Column(bin_display_col3, expand_x=True)],
 ]
 
-# Binary Display (4th frame)
+# DHCP Display (4th frame)
+#-------------------------------------#
+dhcp_layout = [
+   [sg.Text('dhcp line 1')],
+   [sg.Text('dhcp line 2')]
+]
+
+
+# Binary Display (5th frame)
 #-------------------------------------#
 button_col1 = [
    [sg.Button('Example', font='Helvetica 11', key='-EXAMPLE-'),
@@ -327,7 +335,7 @@ button_layout = [
    [sg.Column(button_col1, expand_x=True)]
 ]
 
-# Saved rule string frame (5th frame)
+# Saved rule string frame (6th frame)
 #-------------------------------------#
 #MLINE_SAVED = '-MLINE_SAVED-'+sg.WRITE_ONLY_KEY
 saved_section_layout = [
@@ -349,6 +357,7 @@ sections_layout = [
     expand_x=True, border_width=6, relief='ridge')],
    [sg.Frame('', bin_display_layout, expand_x=True, border_width=6,
     relief='ridge')],
+   [sg.Frame('', dhcp_layout, expand_x=True, border_width=6, relief='ridge')],
    [sg.Frame('', button_layout, expand_x=True, border_width=6,
     relief='ridge')],
    [sg.Frame('Saved Rule Strings', saved_section_layout, expand_x=True,
@@ -907,13 +916,20 @@ class UserPd:
       self.lastpd = ''
 
    def new_pd(self):
+      print('\n------Begin User PD test output------')
+      print('in new_pd')      
       if self.plist == self.last_plist:  # Next PD from current PD object
+         print('in plist == last_plist')
          nextpd = next(self.pd_obj)
          self.lastpd = nextpd
          return nextpd
       else:                              # New PD object & new PD
+         print('in plist != last_plist')
          self.last_plist = self.plist
+         for index, value in enumerate(self.plist):
+            print(index, value)
          bmr_v6p = ip.ip_network('/'.join((self.plist[1], str(self.plist[2]))))
+         print(f'bmr_v6p is {bmr_v6p}')
          pd_len = int(self.plist[2]) + int(self.plist[5])
          self.pd_obj = bmr_v6p.subnets(new_prefix = pd_len)
          nextpd = next(self.pd_obj)
@@ -986,6 +1002,7 @@ def validate(param_ls):
    # test IPv6 prefix/mask
    try:
       v6p_out = ip.ip_network('/'.join((v6p, str(v6pl))))
+      print(v6p_out)
       validflag = 'pass'
    except:
       advance('-R6PRE-')
