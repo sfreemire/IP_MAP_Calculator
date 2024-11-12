@@ -21,6 +21,7 @@ ea_tooltip = 'Max 2 digits'
 #psid_tooltip = 'Max 1 digit'
 rulestring_tooltip = ('Name|IPv6 Prefix|IPv6 Pfx Len|IPv4 Prefix|'
                       'IPv4 Pfx Len|EA Len|PSID Offset')
+fmr_tooltip = 'Create FMR option string (forwarding)'
 v4mask = [n for n in range(16, 33)] # for edit rule Combo
 v6mask = [n for n in range(32, 65)] # for edit rule Combo
 psidoff = [n for n in range(16)]    # for edit rule Combo
@@ -289,7 +290,7 @@ bin_display_col2 = [
     sg.Slider(range=(0, 0), default_value=0, orientation='h',
     disable_number_display=False, enable_events=True,
     size=(42, 8), trough_color='white', font=('Helvetica', 14, 'bold'),
-    pad=((5, 10), (0, 10)), key='-V4HOST_SLIDER-'),
+    pad=((5, 10), (0, 10)), key='-V4HOST_SLDR-'),
     sg.Button(' + 1', font='Helvetica 11', key='-NEXT_HOST-'),
    ],
 ]
@@ -314,9 +315,37 @@ bin_display_layout = [
 # DHCP Display (4th frame)
 #-------------------------------------#
 dhcp_layout = [
-   [sg.Text('dhcp line 1')],
-   [sg.Text('dhcp line 2')]
+   # [sg.Text('------- DHCPv6 Options for MAP-T CEs -------', font=(None, 12, 'bold'),
+      # expand_x=True, justification='center')],
+   [sg.Text('DMR:', font=(None, 13, 'bold')),
+    sg.Input('Ex. 2001:db8:ffff::/64', background_color='#fdfdfc',
+      border_width=2, disabled=True, key='DMR_INPUT'),
+    sg.Button('Enter', key='DMR_ENTER'),
+    # sg.Push(),
+    sg.Checkbox('FMR', font=('Helvetica', 13, 'bold'), tooltip=fmr_tooltip,
+      enable_events=True, key='FMR_FLAG')],
+   [sg.Text('S46 MAP-T Container Option 95:', font=('Helvetica', 13, 'bold')),
+    sg.Text('', text_color='red', font='None 14 bold', key='-DHCP_MESSAGES-')],
+   [sg.Sizer(4, 0),
+    sg.Input('', justification='centered', size=(85, 1), disabled=True,
+      use_readonly_for_disable=True, key='OPT_95')],
+   # [sg.Text(f'Option 95', font=('Helvetica', 13, 'bold')),
+   #  sg.Input('', disabled=True, use_readonly_for_disable=True, key='OPT_95')], # OPTION_S46_CONT_MAPT (95)
+   [sg.Text(f'Option 89', font=('Helvetica', 13, 'bold')),
+    sg.Input('', size=(55, 1), disabled=True, use_readonly_for_disable=True, key='OPT_89')], # OPTION_S46_RULE (89)
+   [sg.Text('Option 93', font=('Helvetica', 13, 'bold')),
+    sg.Input('', disabled=True, use_readonly_for_disable=True, key='OPT_93')], # OPTION_S46_PORTPARAMS (93)
+   [sg.Text(f'Option 91', font=('Helvetica', 13, 'bold')),
+    sg.Input('', disabled=True, use_readonly_for_disable=True, key='OPT_91')], # OPTION_S46_DMR (91)
+   # [sg.Button('Generate', key='DHCP_GENERATE')]
 ]
+
+   #  sg.Input('', font=('Courier', 15, 'bold'),
+   # # use_readonly... with disabled creates display field that can be
+   # # selected and copied with cursor, but not edited (review need for this)
+   #  justification='centered', size=(60, 1), use_readonly_for_disable=True,
+   #  disabled=True, pad=((0, 8), (0, 0)), background_color='#fdfdfc',
+   #  key='-BMR_STRING_DSPLY-'),
 
 
 # Binary Display (5th frame)
@@ -357,7 +386,9 @@ sections_layout = [
     expand_x=True, border_width=6, relief='ridge')],
    [sg.Frame('', bin_display_layout, expand_x=True, border_width=6,
     relief='ridge')],
-   [sg.Frame('', dhcp_layout, expand_x=True, border_width=6, relief='ridge')],
+   [sg.Frame('DHCPv6 Options for MAP-T CEs', dhcp_layout,
+      font=('Helvetica', 13, 'bold'), title_location=sg.TITLE_LOCATION_TOP,
+      expand_x=True, border_width=6, relief='ridge')],
    [sg.Frame('', button_layout, expand_x=True, border_width=6,
     relief='ridge')],
    [sg.Frame('Saved Rule Strings', saved_section_layout, expand_x=True,
@@ -388,14 +419,32 @@ window = sg.Window('IP MAP Calculator', layout, font=windowfont,
    keep_on_top=False, resizable=True, size=(780, 1260), finalize=True) #(755, 1070)
 
 # Prevent horizontal window resizing
-#window.set_resizable(False, True) # Not available until PySimpleGUI v5
+# window.set_resizable(False, True) # Not available until PySimpleGUI v5
 
-# Formatting for Rule String field - applied immediately
-#--------------------------------------------------------#
+# Formatting for disabled input string fields - applied immediately
+#-------------------------------------------------------------------#
 window['-BMR_STRING_DSPLY-'].Widget.config(readonlybackground='#fdfdfc',
    borderwidth=3, relief='ridge')
+window['DMR_INPUT'].Widget.config(readonlybackground='#fdfdfc',
+   borderwidth=2)
+window['OPT_95'].Widget.config(readonlybackground='#fdfdfc',
+   borderwidth=2)
+window['OPT_89'].Widget.config(readonlybackground='#fdfdfc',
+   borderwidth=2)
+window['OPT_93'].Widget.config(readonlybackground='#fdfdfc',
+   borderwidth=2)
+window['OPT_91'].Widget.config(readonlybackground='#fdfdfc',
+   borderwidth=2)
+
+
+
+
 # Enable "Return" key to trigger Enter event in Rule String field
+# Bind events to text fields
 window['-STRING_IN-'].bind('<Return>', '_Enter')
+
+window['DMR_INPUT'].bind('<FocusIn>', '_FOCUS')
+window['DMR_INPUT'].bind('<Return>', '_Enter')
 
 '''
 ██████  ██    ██ ██      ███████      ██████  █████  ██       ██████ 
@@ -417,7 +466,7 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
    user PD (ipaddress object), and an optional port index integer from
    a user input or editing option. It calculates the network address results,
    formats them for the UI, and enters them into a dictionary for the
-   UI display function displays_update.
+   UI display function displays_update().
    '''
 
    # initial values
@@ -456,11 +505,10 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
       v4hostbin = f'{user_pd_obj.network_address:b}]'[bmrpfx_len : bmrpfx_len + (32 - param_ls[4])]
       v4hostint = int(v4hostbin, 2)
       newv4bin = v4pfxbin[:param_ls[4]] + v4hostbin
-#      window['-V4HOST_SLIDER-'].update(value=0)
+#      window['-V4HOST_SLDR-'].update(value=0)
       newv4add = ip.IPv4Address(int(newv4bin, 2))
       v4str = newv4add.compressed
-      window['-V4HOST_SLIDER-'].update(v4hostint)
-
+      window['-V4HOST_SLDR-'].update(v4hostint)
 
    #-------------------------------------------------------------------------#
    # Binary display strings
@@ -780,7 +828,7 @@ def displays_update(dic, pd_obj):
    window['-EA_LEN_SLDR-'].update(dic['paramlist'][5])
    window['-V4PFX_LEN_SLDR-'].update(dic['paramlist'][4])
    window['-PSID_OFST_SLDR-'].update(dic['paramlist'][6])
-   window['-V4HOST_SLIDER-'].update(range=(0, dic['v4ips'] - 1))
+   window['-V4HOST_SLDR-'].update(range=(0, dic['v4ips'] - 1))
 #   window['-PORT_SLIDER-'].update(range=(0, (dic['ppusr'] - 1) ))
 #   window['-PORT_INDEX-'].update('0') #### <<<<--- UPDATE WITH ACTUAL VALUE !!! !!!
 
@@ -916,25 +964,118 @@ class UserPd:
       self.lastpd = ''
 
    def new_pd(self):
-      print('\n------Begin User PD test output------')
-      print('in new_pd')      
       if self.plist == self.last_plist:  # Next PD from current PD object
-         print('in plist == last_plist')
          nextpd = next(self.pd_obj)
          self.lastpd = nextpd
          return nextpd
       else:                              # New PD object & new PD
-         print('in plist != last_plist')
          self.last_plist = self.plist
-         for index, value in enumerate(self.plist):
-            print(index, value)
          bmr_v6p = ip.ip_network('/'.join((self.plist[1], str(self.plist[2]))))
-         print(f'bmr_v6p is {bmr_v6p}')
          pd_len = int(self.plist[2]) + int(self.plist[5])
          self.pd_obj = bmr_v6p.subnets(new_prefix = pd_len)
          nextpd = next(self.pd_obj)
          self.lastpd = nextpd
          return nextpd
+
+# "Pad right" when IPv6 prefix not divisible by 8
+def find_next_divisible(num):
+    """Finds the next higher number evenly divisible by the divisor."""
+    while True:
+        if num % 8 == 0:
+            return num
+        num += 1
+
+   #-------------------------------------------------------------------------#
+   # DHCPv6 Option String Calculations = Based on RFC7597
+   #-------------------------------------------------------------------------#
+def dhcp_calc(dmr, fmr=False):
+   rulv6_obj = ip.ip_network(f"{param_ls[1]}/{param_ls[2]}")
+   rulv6_len = rulv6_obj.prefixlen
+   rulv4_obj = ip.ip_network(f"{param_ls[3]}/{param_ls[4]}")
+   rulv4_len = rulv4_obj.prefixlen
+   # rulv4_host_len = 32 - rulv4_len
+   ea_bits = int(param_ls[5])
+   ps_ofst = int(param_ls[6]) # "a bits" from RFC 7597
+   # psid_len = ea_bits - (32 - rulv4_len) # "k bits" from RFC 7597
+   # m_bits = 16 - ps_ofst - psid_len      # "m bits" from RFC 7597
+   dmr_obj = ip.ip_network(dmr)
+   dmr_len = dmr_obj.prefixlen
+
+   # sharing_ratio = 2**psid_len
+   # ports_per_user = 2 ** (16 - psid_len) - 2 ** m_bits
+   # ports_per_user = ppusr
+   # v4_host_ips = 2 ** (32 - rulv4_len)
+   # max_users = v4_host_ips * sharing_ratio
+
+   # user_pd_obj = user_pd_obj # <---- JUST FYI - NOT NEEDED
+
+   user_pd_len = rulv6_len + ea_bits
+   # user_pd_1 = f"{rulv6_obj.network_address.compressed}/{user_pd_len}"
+   # add_result(len(labels) - 1, user_pd_1)
+   # show_results()
+
+   opt_95_lbl = "005f"
+   opt_89_lbl = "0059"
+   opt_93_lbl = "005d"
+   opt_91_lbl = "005b"
+   opt_93_len_hx = "0004" # hard coded per RFC 7598
+
+   rulv6_len_hx = hex(rulv6_len).lstrip("0x").zfill(2)
+   rulv6_opt_len = find_next_divisible(rulv6_len)
+   rulv6_opt_hx = rulv6_obj.network_address.exploded.replace(":", "")[:rulv6_opt_len//4]
+
+   dmr_len_hx = hex(dmr_len).lstrip("0x").zfill(2)
+   dmr_opt_len = find_next_divisible(dmr_len)
+   dmr_opt_hx = dmr_obj.network_address.exploded.replace(":", "")[:dmr_opt_len//4]
+
+   v4_len_hx = hex(rulv4_len).lstrip("0x").zfill(2)
+   v4_segs = rulv4_obj.network_address.exploded.split(".")
+   v4_segs_hx = [hex(int(seg)).lstrip("0x").zfill(2) for seg in v4_segs]
+   v4_opt_hx = "".join(v4_segs_hx)
+
+   ea_bits_hx = hex(ea_bits).lstrip("0x").zfill(2)
+   ps_ofst_hx = hex(ps_ofst).lstrip("0x").zfill(2)
+   # rule_flags_hx = "00"
+   if fmr == True:
+      rule_flags_hx = "01" # Option for FMR
+   else:
+      rule_flags_hx = "00" # Option for BMR, not FMR
+
+   # S46 Port Parameters
+   opt_93_val = ps_ofst_hx + "000000" # Hard coding PSID Length & PSID to all 0's per this design
+   opt_93_str = opt_93_lbl + opt_93_len_hx + opt_93_val
+
+   # S46 Rule Option
+   opt_89_val = rule_flags_hx + ea_bits_hx + v4_len_hx + v4_opt_hx + rulv6_len_hx + rulv6_opt_hx
+   opt_89_len = ( len(opt_89_val) + len(opt_93_str) ) // 2
+   opt_89_len_hx = hex(opt_89_len).lstrip("0x").zfill(4)
+   opt_89_str = opt_89_lbl + opt_89_len_hx + opt_89_val + opt_93_str
+
+   # S46 DMR Option
+   opt_91_val = dmr_len_hx + dmr_opt_hx
+   opt_91_len_hx = hex((dmr_len // 4) // 2 + 1).lstrip("0x").zfill(4)
+   opt_91_str = opt_91_lbl + opt_91_len_hx + opt_91_val
+
+   # S46 MAP-T Container Option
+   opt_95_len = ( len(opt_89_str) + len(opt_91_str) ) // 2
+   opt_95_len_hx = hex(opt_95_len).lstrip("0x").zfill(4)
+   opt_95_str = opt_95_lbl + opt_95_len_hx + opt_89_str + opt_91_str
+
+   opt_95_payload = opt_89_str + opt_91_str
+   opt_95_w_head = f"({opt_95_lbl}{opt_95_len_hx}){opt_95_payload}" # New function test
+
+   # window['OPT_95'].update(opt_95_payload
+   window['OPT_95'].update(opt_95_w_head) # New function test
+   window['OPT_89'].update(opt_89_str)
+   window['OPT_93'].update(opt_93_str)
+   window['OPT_91'].update(opt_91_str)
+
+   print(f"\nOpt 95: {opt_95_str}")
+   print(f"Opt 95 Contents: {opt_95_payload}")
+   print(f"Opt 89: {opt_89_str}")
+   print(f"Opt 91: {opt_91_str}")
+   print(f"Opt 93: {opt_93_str}")
+   print("")
 
 # Account for IP address separators (: & .) in binary strings
 def V6Indices(bin_right):
@@ -1109,7 +1250,7 @@ pframe_ls = ['-RULENAME-', '-R6PRE-', '-R6LEN-', '-R4PRE-', '-R4LEN-',
    '-EABITS-', '-OFFSET-']
 #stringin = ['-STRING_IN-']  # Rule String field
 #bframe_ls = ['-USER_PD-', '-USER_IP4-', '-V6PFX_LEN_SLDR-', '-EA_LEN_SLDR-',
-#   '-V4PFX_LEN_SLDR-', '-PSID_OFST_SLDR-', '-V4HOST_SLIDER-',
+#   '-V4PFX_LEN_SLDR-', '-PSID_OFST_SLDR-', '-V4HOST_SLDR-',
 #   '-PORT_INDEX-', 'MLINE_BIN_1']       # Binary Editor fields
 #sframe_ls = ['MLINE_SAVED']                # Don't clear Save frame
 
@@ -1154,6 +1295,7 @@ while True:
    window['-PARAM_MESSAGES-'].update('')
    window['-PD_MESSAGES-'].update('')
    window['-BTN_MESSAGES-'].update('')
+   window['-DHCP_MESSAGES-'].update('')
 
    # Clear all fields except Save Frame
    if event == '-CLEAR-':
@@ -1161,8 +1303,8 @@ while True:
          window[i].update('')
       window['MLINE_BIN_1'].update('')
       window['MLINE_BIN_2'].update('')
-      window['-V4HOST_SLIDER-'].update(value=0)
-      window['-V4HOST_SLIDER-'].update(range=(0, 0))
+      window['-V4HOST_SLDR-'].update(value=0)
+      window['-V4HOST_SLDR-'].update(range=(0, 0))
       window['-V6PFX_LEN_SLDR-'].update(disabled=True)
       window['-EA_LEN_SLDR-'].update(disabled=True)
       window['-V4PFX_LEN_SLDR-'].update(disabled=True)
@@ -1173,6 +1315,11 @@ while True:
       window['-STRING_IN-'].update('')
       window['-SP_INDEX-'].update('')
       window['-SP_INT-'].update('')
+      window['DMR_INPUT'].update('Ex. 2001:db8:ffff::/64', disabled=True)
+      window['OPT_95'].update('')
+      window['OPT_89'].update('')
+      window['OPT_93'].update('')
+      window['OPT_91'].update('')
       userpds = None # delete UserPd() class instance
       examples = None # delete ExampleParams() class instance
       last_params = None
@@ -1193,7 +1340,7 @@ while True:
       userpds = UserPd(param_ls)
       user_pd = userpds.new_pd()
       rule_calc(param_ls, user_pd, v4hostint)
-      window['-V4HOST_SLIDER-'].update(value=0)
+      window['-V4HOST_SLDR-'].update(value=0)
       window['MLINE_BIN_2'].Widget.xview_moveto('0.0')
 
    # BMR parameter entry - validate input as it is typed
@@ -1335,7 +1482,7 @@ while True:
       # If last_params=None (initial state or Clear was used) ignore button
       portidxadd = 0
       user_pd = userpds.new_pd()
-#     v4hostint = int(values['-V4HOST_SLIDER-']) # slider values are floats
+#     v4hostint = int(values['-V4HOST_SLDR-']) # slider values are floats
       rule_calc(last_params, user_pd, v4hostint)
 
    # Increment IPv4 host address
@@ -1343,16 +1490,16 @@ while True:
    # Host slider initialized with range=0,0. It can't be incremented when range=0
    # Range is updated when valid BMR parameters are Entered
    # Range is reset to 0,0 when "Clear" is used
-   if event == '-V4HOST_SLIDER-': # ---- May be able to use ip.addr + v4host_slider ----
+   if event == '-V4HOST_SLDR-': # ---- May be able to use ip.addr + v4host_slDR ----
       portidxadd = 0
-      v4hostint = int(values['-V4HOST_SLIDER-']) # slider values are floats
+      v4hostint = int(values['-V4HOST_SLDR-']) # slider values are floats
       rule_calc(last_params, user_pd, v4hostint)
    elif event == '-NEXT_HOST-' and last_params: # +1 button
       # If last_params=None (initial state or Clear was used) ignore button
       maxhost = (2 ** (32 - values["-R4LEN-"])) -1
-      if last_params and values['-V4HOST_SLIDER-'] < maxhost:
-         v4hostint = int(values['-V4HOST_SLIDER-']) + 1 # slider values are floats
-         window['-V4HOST_SLIDER-'].update(value=v4hostint)
+      if last_params and values['-V4HOST_SLDR-'] < maxhost:
+         v4hostint = int(values['-V4HOST_SLDR-']) + 1 # slider values are floats
+         window['-V4HOST_SLDR-'].update(value=v4hostint)
          rule_calc(last_params, user_pd, v4hostint)
 
    # Display user source port numbers
@@ -1374,7 +1521,7 @@ while True:
       portidxadd = idx
       if portidxadd > 65535: # 16 bit port field max value is 65535
          portidxadd = 65535 # Prevent possibility of infinite growth
-      v4hostint = int(values['-V4HOST_SLIDER-'])
+      v4hostint = int(values['-V4HOST_SLDR-'])
       rule_calc(last_params, user_pd, v4hostint, portidx = idx)
 
    # Save Current BMR in bottom Multiline field for user to copy
@@ -1407,8 +1554,55 @@ while True:
    elif event == '-SAVE-':
       window['-PARAM_MESSAGES-'].update('Enter Rule')
 
+   # DHCPv6 operations
+   #-------------------------------------------------------------#
+
+   # Disable section until valid BMR is entered
+   if last_params:
+      if event == 'DMR_INPUT_FOCUS':
+         window['DMR_INPUT'].update(disabled=False)
+         if not values['OPT_95']:
+            window['DMR_INPUT'].update('')
+
+      if event == 'DMR_ENTER' or event == 'DMR_INPUT' + '_Enter':
+         try:
+            dmr_obj = ip.ip_network(values['DMR_INPUT'])
+            if values['FMR_FLAG'] == True:
+               dhcp_calc(values['DMR_INPUT'], fmr=True)
+               last_dmr_entry = values['DMR_INPUT'] # New function test
+               last_fmr_flag = values['FMR_FLAG'] # New function test
+            else:
+               dhcp_calc(values['DMR_INPUT'], fmr=False)
+               last_dmr_entry = values['DMR_INPUT'] # New function test
+               last_fmr_flag = values['FMR_FLAG'] # New function test
+         except ValueError as ve:
+            window['-DHCP_MESSAGES-'].update(f"'{values['DMR_INPUT']}' is not a valid IPv6 network")
+            window['DMR_INPUT'].update('Ex. 2001:db8:ffff::/64')
+         except Exception as e:
+            errname = type(e).__name__
+            window['-DHCP_MESSAGES-'].update(f'{errname}: {e}')
+            window['DMR_INPUT'].update('Ex. 2001:db8:ffff::/64')
+
+      # FMR checkbox changes option string to FMR without re-clicking DMR Enter Button
+      if event == 'FMR_FLAG' and values['OPT_95']: # New function test
+         print(f'fmr flag is {values["FMR_FLAG"]}, last flag is {last_fmr_flag}')
+         if values['FMR_FLAG'] != last_fmr_flag:
+            print(f'flags are different - re-running dhcp_calc')
+            window['OPT_95'].update('')
+            window['OPT_89'].update('')
+            window.read(timeout=50)
+            last_fmr_flag = values['FMR_FLAG']
+            window['DMR_INPUT'].update(last_dmr_entry)
+            dhcp_calc(last_dmr_entry, values['FMR_FLAG'])
 
    print(f'#------- End Event {cntr - 1} -------#')
+
+   print('\n ---- VALUES KEYS ----')
+   # values = [values[x] for x in values.keys()]
+   # # for x in values():
+   # print(values)
+   # for x in values.keys():
+   #    print(x)
 
    '''
    # Utilities:
