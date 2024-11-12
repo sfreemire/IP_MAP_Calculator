@@ -290,7 +290,7 @@ bin_display_col2 = [
     sg.Slider(range=(0, 0), default_value=0, orientation='h',
     disable_number_display=False, enable_events=True,
     size=(42, 8), trough_color='white', font=('Helvetica', 14, 'bold'),
-    pad=((5, 10), (0, 10)), key='-V4HOST_SLDR-'),
+    pad=((5, 10), (0, 0)), key='-V4HOST_SLDR-'),
     sg.Button(' + 1', font='Helvetica 11', key='-NEXT_HOST-'),
    ],
 ]
@@ -320,11 +320,10 @@ dhcp_layout = [
    [sg.Text('DMR:', font=(None, 13, 'bold')),
     sg.Input('Ex. 2001:db8:ffff::/64', background_color='#fdfdfc',
       border_width=2, disabled=True, key='DMR_INPUT'),
-    sg.Button('Enter', key='DMR_ENTER'),
-    # sg.Push(),
-    sg.Checkbox('FMR', font=('Helvetica', 13, 'bold'), tooltip=fmr_tooltip,
-      enable_events=True, key='FMR_FLAG')],
+    sg.Button('Enter', key='DMR_ENTER')],
    [sg.Text('S46 MAP-T Container Option 95:', font=('Helvetica', 13, 'bold')),
+    sg.Checkbox('FMR String', font=('Helvetica', 13, 'bold'), tooltip=fmr_tooltip,
+      enable_events=True, key='FMR_FLAG'),
     sg.Text('', text_color='red', font='None 14 bold', key='-DHCP_MESSAGES-')],
    [sg.Sizer(4, 0),
     sg.Input('', justification='centered', size=(85, 1), disabled=True,
@@ -1143,7 +1142,6 @@ def validate(param_ls):
    # test IPv6 prefix/mask
    try:
       v6p_out = ip.ip_network('/'.join((v6p, str(v6pl))))
-      print(v6p_out)
       validflag = 'pass'
    except:
       advance('-R6PRE-')
@@ -1535,7 +1533,7 @@ while True:
       if name in values["-MLINE_SAVED-"]:
          window['-PARAM_MESSAGES-'].update('Duplicate Rule Name')
       elif rule[rule.index('|'):] in values["-MLINE_SAVED-"]:
-         print(rule[rule.index('|'):])
+         # print(rule[rule.index('|'):])
          window['-PARAM_MESSAGES-'].update('Duplicate Rule')
       else:
          savstr = f'{values["-BMR_STRING_DSPLY-"]} ' \
@@ -1585,9 +1583,7 @@ while True:
 
       # FMR checkbox changes option string to FMR without re-clicking DMR Enter Button
       if event == 'FMR_FLAG' and values['OPT_95']: # New function test
-         print(f'fmr flag is {values["FMR_FLAG"]}, last flag is {last_fmr_flag}')
          if values['FMR_FLAG'] != last_fmr_flag:
-            print(f'flags are different - re-running dhcp_calc')
             window['OPT_95'].update('')
             window['OPT_89'].update('')
             window.read(timeout=50)
@@ -1597,7 +1593,9 @@ while True:
 
    print(f'#------- End Event {cntr - 1} -------#')
 
-   print('\n ---- VALUES KEYS ----')
+
+
+   # print('\n ---- VALUES KEYS ----')
    # values = [values[x] for x in values.keys()]
    # # for x in values():
    # print(values)
@@ -1620,3 +1618,4 @@ while True:
    '''
 
 window.close()
+ 
