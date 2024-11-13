@@ -8,7 +8,7 @@ import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.11.16 - 10/25/2024 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.12.00 - 11/13/2024 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -437,9 +437,6 @@ window['OPT_93'].Widget.config(readonlybackground='#fdfdfc',
    borderwidth=2)
 window['OPT_91'].Widget.config(readonlybackground='#fdfdfc',
    borderwidth=2)
-
-
-
 
 # Enable "Return" key to trigger Enter event in Rule String field
 # Bind events to text fields
