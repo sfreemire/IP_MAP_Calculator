@@ -1,5 +1,3 @@
-# IP_MAP_Calculator.py WITH DHCP FRAME
-
 #!/usr/bin/env python3
 import PySimpleGUI as sg
 import ipaddress as ip
