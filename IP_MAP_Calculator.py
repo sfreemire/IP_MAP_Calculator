@@ -15,32 +15,6 @@ import sys
 #----------------------------------------------------------------------------#
 sg.theme('TanBlue') # Tan is #E5DECE, Blue is #063289, Text backgrounds are #FDFDFC
 # windowfont=('Helvetica', 10) # = sg.DEFAULT_FONT
-name_tooltip = 'Enter unique rule name'
-v6_tooltip = 'Format is 2008:8cd:0::/xx'
-# v6m_tooltip = 'Enter IPv6 mask bits'
-v4_tooltip = 'Format is 192.168.2.0/24'
-# v4m_tooltip = 'Enter IPv4 mask bits'
-# ea_tooltip = 'Max 2 digits'
-#psid_tooltip = 'Max 1 digit'
-rulestring_tooltip = ('Name|IPv6 Prefix|IPv6 Pfx Len|IPv4 Prefix|'
-                      'IPv4 Pfx Len|EA Len|PSID Offset')
-v4mask = [n for n in range(16, 33)] # for rule editor Combo
-v6mask = [n for n in range(32, 65)] # for rule editor Combo
-psidoff = [n for n in range(16)]    # for rule editor Combo
-eabits = [n for n in range(33)]     # for rule editor Combo
-
-# Create collapsible frame.
-#------------------------------------------#
-def collapse(title, layout, key, height=100, width=450): # -------------------- vertical size?
-    return sg.pin(sg.Frame(title, layout,
-      border_width=6,
-      pad=(0, 0),
-      # size=(466, height),
-      size=(width, height),
-      relief="ridge",
-      # expand_x=True,
-      visible=False,
-      key=key))
 
 '''
 ██    ██ ██     ██       █████  ██    ██  ██████  ██    ██ ████████ ███████ 
@@ -55,94 +29,160 @@ def collapse(title, layout, key, height=100, width=450): # -------------------- 
 # expand_x=True causes element to expand to width of its container
 # expand_y=True causes element to expand to height of its container
 
+# UI variables
+#----------------------------------------------------------------------------#
+name_tooltip = 'Enter unique rule name'
+v6_tooltip = 'Format is 2008:8cd:0::/xx'
+# v6m_tooltip = 'Enter IPv6 mask bits'
+v4_tooltip = 'Format is 192.168.2.0/24'
+# v4m_tooltip = 'Enter IPv4 mask bits'
+# ea_tooltip = 'Max 2 digits'
+#psid_tooltip = 'Max 1 digit'
+rulestring_tooltip = ('Name|IPv6 Prefix|IPv6 Pfx Len|IPv4 Prefix|'
+                      'IPv4 Pfx Len|EA Len|PSID Offset')
+
+v4mask = [n for n in range(16, 33)] # for rule editor Combo
+v6mask = [n for n in range(32, 65)] # for rule editor Combo
+psidoff = [n for n in range(16)]    # for rule editor Combo
+eabits = [n for n in range(33)]     # for rule editor Combo
+
+# UI Formulas
+#----------------------------------------------------------------------------#
+def collapse(title, layout, key, height=100, width=450): # -------------------- vertical size?
+   '''Create Frame element with optional visibility'''
+   return sg.pin(sg.Frame(title, layout,
+      border_width=6,
+      pad=(0, 0),
+      # size=(466, height),
+      size=(width, height),
+      relief="ridge",
+      # expand_x=True,
+      visible=False,
+      key=key))
+
+def result_val_col(label, key):
+   '''Create Column layout for displaying one result parameter'''
+   layout = [
+      [sg.Text(label, font=(None, 10, 'bold'), p=0)],
+      [sg.Text(
+         '',
+         justification='centered',
+         size=(7, 1),
+         background_color='#fdfdfc',
+         border_width=2,
+         relief='sunken',
+         key=key
+      )]
+   ]
+
+   col = sg.Column(layout, element_justification='centered', p=0)
+
+   return(col)
+
 # Main Results Display (top frame) - Calculated Values
 #----------------------------------------------------------------------------#
-display_col1 = [
-   [sg.Text('Uniq v4 IPs', font=(None, 10, 'bold'), pad=((0, 0),(3, 3)))],
-   [sg.Text('', justification='centered',
-    size=(7, 1), background_color='#fdfdfc', border_width=4,
-    relief='ridge', key='-IPS_DSPLY-')]
+result_layout_dat = [
+   ('Uniq v4 IPs', '-IPS_DSPLY-'),
+   ('Sharing', '-RATIO_DSPLY-'),
+   ('Users', '-USERS_DSPLY-'),
+   ('Ports/User', '-PORTS_DSPLY-')
 ]
 
-display_col1_b = [
-   [sg.Text('Uniq v4 IPs', font=(None, 10, 'bold')),
-    sg.Text('', justification='centered',
-    size=(7, 1), background_color='#fdfdfc', border_width=4,
-    relief='ridge', key='-IPS_DSPLY-')]
+result_cols_layout = [
+   result_val_col(result_layout_dat[i][0], result_layout_dat[i][1]) for i in range(4)
 ]
 
-display_col2 = [
-   [sg.Text('Sharing', font=(None, 10, 'bold'), pad=((2, 0),(3, 3)))],
-   [sg.Text('', justification='centered',
-    size=(7, 1), background_color='#fdfdfc', border_width=4,
-    relief='ridge', key='-RATIO_DSPLY-')]
-]
+# display_col1 = [
+#    [sg.Text('Uniq v4 IPs', font=(None, 10, 'bold'), pad=((0, 0),(3, 3)))],
+#    [sg.Text('', justification='centered',
+#     size=(7, 1), background_color='#fdfdfc', border_width=4,
+#     relief='ridge', key='-IPS_DSPLY-')]
+# ]
 
-display_col2_b = [
-   [sg.Text('Sharing', font=(None, 10, 'bold')),
-    sg.Text('', justification='centered',
-    size=(7, 1), background_color='#fdfdfc', border_width=4,
-    relief='ridge', key='-RATIO_DSPLY-')]
-]
+# display_col1_b = [
+#    [sg.Text('Uniq v4 IPs', font=(None, 10, 'bold')),
+#     sg.Text('', justification='centered',
+#     size=(7, 1), background_color='#fdfdfc', border_width=4,
+#     relief='ridge', key='-IPS_DSPLY-')]
+# ]
 
-display_col3 = [
-   [sg.Text('Users', font=(None, 10, 'bold'), pad=((0, 0),(3, 3)))],
-   [sg.Text('', justification='centered',
-    size=(7, 1), background_color='#fdfdfc', border_width=4,
-    relief='ridge', key='-USERS_DSPLY-')]
-]
+# display_col2 = [
+#    [sg.Text('Sharing', font=(None, 10, 'bold'), pad=((2, 0),(3, 3)))],
+#    [sg.Text('', justification='centered',
+#     size=(7, 1), background_color='#fdfdfc', border_width=4,
+#     relief='ridge', key='-RATIO_DSPLY-')]
+# ]
 
-display_col3_b = [
-   [sg.Text('Users', font=(None, 10, 'bold')),
-    sg.Text('', justification='centered',
-    size=(7, 1), background_color='#fdfdfc', border_width=4,
-    relief='ridge', key='-USERS_DSPLY-')]
-]
+# display_col2_b = [
+#    [sg.Text('Sharing', font=(None, 10, 'bold')),
+#     sg.Text('', justification='centered',
+#     size=(7, 1), background_color='#fdfdfc', border_width=4,
+#     relief='ridge', key='-RATIO_DSPLY-')]
+# ]
 
-display_col4 = [
-   [sg.Text('Ports/User', font=(None, 10, 'bold'), pad=((0, 0),(3, 3)))],
-   [sg.Text('', justification='centered',
-    size=(7, 1), background_color='#fdfdfc', border_width=4,
-    relief='ridge', key='-PORTS_DSPLY-')]
-]
+# display_col3 = [
+#    [sg.Text('Users', font=(None, 10, 'bold'), pad=((0, 0),(3, 3)))],
+#    [sg.Text('', justification='centered',
+#     size=(7, 1), background_color='#fdfdfc', border_width=4,
+#     relief='ridge', key='-USERS_DSPLY-')]
+# ]
 
-display_col4_b = [
-   [sg.Text('Ports/User', font=(None, 10, 'bold')),
-    sg.Text('', justification='centered',
-    size=(7, 1), background_color='#fdfdfc', border_width=4,
-    relief='ridge', key='-PORTS_DSPLY-')]
-]
+# display_col3_b = [
+#    [sg.Text('Users', font=(None, 10, 'bold')),
+#     sg.Text('', justification='centered',
+#     size=(7, 1), background_color='#fdfdfc', border_width=4,
+#     relief='ridge', key='-USERS_DSPLY-')]
+# ]
 
-display_col5 = [
-   [sg.Text('Excluded Ports', font=(None, 10, 'bold'))],
-   [sg.Text('', justification='centered',
-    size=(7, 1), background_color='#fdfdfc', border_width=4,
-    relief='ridge', key='-EXCL_PORTS_DSPLY-')]
-]
+# display_col4 = [
+#    [sg.Text('Ports/User', font=(None, 10, 'bold'), pad=((0, 0),(3, 3)))],
+#    [sg.Text('', justification='centered',
+#     size=(7, 1), background_color='#fdfdfc', border_width=4,
+#     relief='ridge', key='-PORTS_DSPLY-')]
+# ]
+
+# display_col4_b = [
+#    [sg.Text('Ports/User', font=(None, 10, 'bold')),
+#     sg.Text('', justification='centered',
+#     size=(7, 1), background_color='#fdfdfc', border_width=4,
+#     relief='ridge', key='-PORTS_DSPLY-')]
+# ]
+
+# display_col5 = [
+#    [sg.Text('Excluded Ports', font=(None, 10, 'bold'))],
+#    [sg.Text('', justification='centered',
+#     size=(7, 1), background_color='#fdfdfc', border_width=4,
+#     relief='ridge', key='-EXCL_PORTS_DSPLY-')]
+# ]
 
 display_layout = [
-   [sg.Column(display_col1, element_justification='centered', p=0),
-    sg.Text('x', pad=((2, 0), (20, 0))),
-    sg.Column(display_col2, element_justification='centered', p=0),
-    sg.Text('=', pad=((2, 0), (20, 0))),
-    sg.Column(display_col3, element_justification='centered', p=0),
-    sg.Text(':', font=(None, 10, 'bold'), pad=((2, 0), (20, 0))),
-    sg.Column(display_col4, element_justification='centered', p=0),
+   # [sg.Column(display_col1, element_justification='centered', p=0),
+   [result_cols_layout[0],
+    sg.Text('x', font=(None, 10, 'bold'), pad=((0, 0), (12, 0))),
+    # sg.Column(display_col2, element_justification='centered', p=0),
+    result_cols_layout[1],
+    sg.Text('=', font=(None, 10, 'bold'), pad=((0, 0), (12, 0))),
+    # sg.Column(display_col3, element_justification='centered', p=0),
+    result_cols_layout[2],
+    sg.Text(':', font=(None, 12, 'bold'), pad=((0, 0), (10, 0))),
+    # sg.Column(display_col4, element_justification='centered', p=0),
+    result_cols_layout[3],
     # sg.Column(display_col5, element_justification='centered')],
     ],
    # [sg.Text('BMR', font=(None, 10, 'bold')),
-    # Addl (widget) formatting at end of layouts
-   # [sg.Input('', font=(None, 10, 'bold'), size=(50, 1), disabled=True,
+   # # Addl (widget) formatting at end of layouts
+   #  sg.Input('', font=(None, 10, 'bold'), size=(50, 1), disabled=True,
    #  justification='centered', pad=((4, 8), (0, 0)), key='-BMR_STRING_DSPLY-'), # Addl formatting
    #  sg.Button('Save', key='-SAVE-')],
    # [sg.Push(),
    #  sg.Text('Select and copy, or click Save', font=(None, 10, 'italic'),
    #  justification='centered', pad=((5, 5), (0, 5))),
    #  sg.Push()],
-   [sg.Text('First User IPv6 PD:', font=(None, 10, 'bold')),
-    # Addl (widget) formatting at end of layouts
+   [sg.Text('First User IPv6 PD:', font=(None, 10, 'bold'),
+      pad=((4, 0), (4, 6))),
+   # Addl (Input widget) formatting at end of layouts section
     sg.Input('', font=(None, 10, 'bold'), size=(28 , 1), disabled=True,
-    justification='centered', key='USER_IPV6PD')],
+      justification='centered', key='USER_IPV6PD')],
 ]
 
 # display_layout = [
@@ -206,10 +246,10 @@ editor_layout = [
     sg.Combo(v4mask, readonly=True, font=(None, 10, 'bold'),
     enable_events=True, key='-R4LEN-',)],
    [sg.Text('EA Bits Length', font=(None, 10, 'bold')),
-    sg.Sizer(h_pixels=23, v_pixels=0),
+    sg.Sizer(h_pixels=22, v_pixels=0),
     sg.Combo(eabits, readonly=True, font=(None, 10, 'bold'),
     background_color='#fdfdfc', enable_events=True, key='-EABITS-',),
-    sg.Sizer(h_pixels=26, v_pixels=0),
+    sg.Sizer(h_pixels=22, v_pixels=0),
     sg.Text('PSID Offset', font=(None, 10, 'bold')),
     sg.Combo(psidoff, readonly=True, font=(None, 10, 'bold'),
     background_color='#fdfdfc', enable_events=True, key='-OFFSET-'),
@@ -218,11 +258,11 @@ editor_layout = [
    # [sg.Sizer(h_pixels=0, v_pixels=5)],
    # [sg.HorizontalSeparator()],
    # [sg.Sizer(h_pixels=0, v_pixels=5)],
-   [sg.Text('Rule String:', font=(None, 10, 'italic', 'bold'),
-    pad=((5, 5), (5, 0))),
+   [sg.Text('Rule String:', font=(None, 10, 'bold'),
+    pad=((5, 0), (3, 0))),
     sg.Input('', font=('Courier', 10, 'bold'), size=(50, 1),  # ----------- size=(60, 1),
-    justification='centered', pad=((5, 5), (5, 0)), enable_events=True,
-    background_color='#fdfdfc', tooltip=rulestring_tooltip, key='-STRING_IN-'),
+    justification='centered', pad=((0, 5), (5, 0)), enable_events=True,
+    background_color='#fdfdfc', border_width=2, tooltip=rulestring_tooltip, key='-STRING_IN-'),
     # sg.Button('Enter', pad=((5, 5), (5, 0)), # --------------------- font='Helvetica 11',
     # key='-ENTER_STRING-')],
    ],
@@ -232,6 +272,16 @@ editor_layout = [
     pad=((5, 5), (0, 5))),
     sg.Push()]
 ]
+
+top_layout=[
+   [sg.Frame('', editor_layout),
+    sg.Frame('', display_layout, element_justification='centered', expand_y=True)]
+]
+
+
+   # [sg.Frame('', editor_layout, expand_y=True),
+   #  sg.Frame('', display_layout, element_justification='centered', expand_y=True)],
+
 
 # Collapsible Frames in Scrollable Column
 #----------------------------------------------------------------------------#
@@ -375,8 +425,9 @@ scroll_column_layout = [
      sg.Text("Dynamic Rule Editor", enable_events=True,
      font=(None, 10, 'bold'), k='OPEN_FRM_3_TXT')],
 
-    [collapse('', content_3, 'FRAME_3', 215, 480), #], # 10pt font = 13px
-     collapse('', content_3b, 'FRAME_3B', 215, 420)],
+    [collapse('', content_3, 'FRAME_3', 215, 480)], #], # 10pt font = 13px
+    [collapse('', content_3b, 'FRAME_3B', 215, 420)],
+
     # [sg.Sizer(0, 4)],
     # [sg.Text(sg.SYMBOL_RIGHT, enable_events=True, k='OPEN_FRM_4'),
     #  sg.Text("CE Addresses and Ports", enable_events=True,
@@ -401,7 +452,6 @@ scroll_column = [
    #    sbar_background_color='#D6CFBF', sbar_arrow_color='#09348A',
    #    sbar_relief='solid')],
 ]
-
 
 ######
 ######
@@ -428,8 +478,10 @@ scroll_column = [
 # Final Layout
 #-----------------------------------------#
 layout = [
-   [sg.Frame('', editor_layout,),
-    sg.Frame('', display_layout, element_justification='centered')],
+   # [sg.Frame('', editor_layout, expand_y=True),
+   #  sg.Frame('', display_layout, element_justification='centered', expand_y=True)],
+   [sg.Column(top_layout, background_color='grey')],
+   # [top_layout],
 
    # sg.Frame('', display_layout, size=(930, 124), expand_x=True, border_width=6, # height 930
    #    relief='ridge', element_justification='centered', k='DISPLAY_FRM'),
@@ -464,8 +516,7 @@ window = sg.Window('IP MAP Calculator', layout, # -----------------------font=wi
 # Background and border formatting for disabled Input elements
 # window['-BMR_STRING_DSPLY-'].Widget.config(readonlybackground='#fdfdfc',
    # borderwidth=3, relief='ridge')
-window['USER_IPV6PD'].Widget.config(readonlybackground='#fdfdfc',
-   borderwidth=3, relief='ridge')
+window['USER_IPV6PD'].Widget.config(readonlybackground='#fdfdfc', borderwidth=2)
 # Enable Enter key to trigger event in Rule String field
 window['-STRING_IN-'].bind('<Return>', '_Enter')
 
