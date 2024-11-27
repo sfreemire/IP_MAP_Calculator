@@ -6,7 +6,7 @@ import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.12.00 - 11/13/2024 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.13.00 - 11/15/2024 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -29,7 +29,7 @@ eabits = [n for n in range(33)]     # for edit rule Combo
 
 def collapse(title, layout, key):
 #     """
-#     Helper function that creates a Column that can be later made hidden, thus appearing "collapsed"
+#     Helper function that creates a Frame that can be later made hidden, thus appearing "collapsed"
 #     :param layout: The layout for the section
 #     :param key: Key used to make this seciton visible / invisible
 #     :return: A pinned column that can be placed directly into your layout
@@ -444,13 +444,25 @@ sections_layout = [
    ],
    [collapse("User TCP/UDP Port Ranges", all_ports, "PORTS_DISPLAY")],
 
-   # [sg.Frame('User TCP/UDP Port Ranges', multiline3_layout,
+#=================================
+
+   [
+      sg.T(sg.SYMBOL_RIGHT, enable_events=True, k="OPEN_DHCP_SYMBL"),
+      sg.T(
+         "DHCPv6 Options",
+         enable_events=True,
+         font="None 10 bold",
+         k="OPEN_DHCP_TEXT",
+      ),
+   ],
+   [collapse("DHCPv6 Options for MAP-T CEs", dhcp_layout, "DHCP_DISPLAY")],
+
+#=================================
+
+   # [sg.Frame('DHCPv6 Options for MAP-T CEs', dhcp_layout,
    #    font=('Helvetica', 13, 'bold'), title_location=sg.TITLE_LOCATION_TOP,
    #    expand_x=True, border_width=6, relief='ridge')],
 
-   [sg.Frame('DHCPv6 Options for MAP-T CEs', dhcp_layout,
-      font=('Helvetica', 13, 'bold'), title_location=sg.TITLE_LOCATION_TOP,
-      expand_x=True, border_width=6, relief='ridge')],
    [sg.Frame('', button_layout, expand_x=True, border_width=6,
     relief='ridge')],
    [sg.Frame('Saved Rule Strings', saved_section_layout, expand_x=True,
@@ -465,7 +477,7 @@ layout = [
    [sg.Column(sections_layout, size=(735, None), expand_y=True,
     scrollable=True, vertical_scroll_only = True,
     sbar_background_color='#D6CFBF', sbar_arrow_color='#09348A',
-    sbar_relief='solid')]
+    sbar_relief='solid', key='MAIN_COL')]
 ]
 
 #-------------------------------------------------------------------------#
@@ -1382,6 +1394,13 @@ dframe_ls = ['-BMR_STRING_DSPLY-', '-USERS_DSPLY-',
 #----------------------------------#
 pframe_ls = ['-RULENAME-', '-R6PRE-', '-R6LEN-', '-R4PRE-', '-R4LEN-',
    '-EABITS-', '-OFFSET-']
+
+# Output Fields
+#---------------------------------#
+outfields_ls = ['MLINE_BIN_1', 'MLINE_BIN_2', 'MLINE_PORTS',
+                '-USER_PD-', '-USER_IP4-', '-USER_PORT-',
+                '-STRING_IN-', '-SP_INDEX-', '-SP_INT-']
+
 #stringin = ['-STRING_IN-']  # Rule String field
 #bframe_ls = ['-USER_PD-', '-USER_IP4-', '-V6PFX_LEN_SLDR-', '-EA_LEN_SLDR-',
 #   '-V4PFX_LEN_SLDR-', '-PSID_OFST_SLDR-', '-V4HOST_SLIDER-',
@@ -1403,7 +1422,7 @@ last_params = None
 # Main Event Loop - runs once for each 'event'
 #-------------------------------------------------------------------------#
 cntr = 1  # Event counter
-open_ports = False # Frame visibility flag
+open_ports, open_dhcp = False, False # Frame visibility flag
 while True:
    event, values = window.read()    # type: (str, dict)
    print(f'\n#--------- Event {str(cntr)} ----------#')
@@ -1434,23 +1453,23 @@ while True:
 
    # Clear all fields except Save Frame
    if event == '-CLEAR-':
-      for i in [*dframe_ls, *pframe_ls]: #, *sframe_ls]:
+      for i in [*dframe_ls, *pframe_ls, *outfields_ls]: #, *sframe_ls]:
          window[i].update('')
-      window['MLINE_BIN_1'].update('')
-      window['MLINE_BIN_2'].update('')
-      window['MLINE_PORTS'].update('')
+      # window['MLINE_BIN_1'].update('')
+      # window['MLINE_BIN_2'].update('')
+      # window['MLINE_PORTS'].update('')
       window['-V4HOST_SLIDER-'].update(value=0)
       window['-V4HOST_SLIDER-'].update(range=(0, 0))
       window['-V6PFX_LEN_SLDR-'].update(disabled=True)
       window['-EA_LEN_SLDR-'].update(disabled=True)
       window['-V4PFX_LEN_SLDR-'].update(disabled=True)
       window['-PSID_OFST_SLDR-'].update(disabled=True)
-      window['-USER_PD-'].update('')
-      window['-USER_IP4-'].update('')
-      window['-USER_PORT-'].update('')
-      window['-STRING_IN-'].update('')
-      window['-SP_INDEX-'].update('')
-      window['-SP_INT-'].update('')
+      # window['-USER_PD-'].update('')
+      # window['-USER_IP4-'].update('')
+      # window['-USER_PORT-'].update('')
+      # window['-STRING_IN-'].update('')
+      # window['-SP_INDEX-'].update('')
+      # window['-SP_INT-'].update('')
       clear_dhcp_fields()
       window['FMR_FLAG'].update(False)
       last_dmr_entry = None
@@ -1690,19 +1709,77 @@ while True:
    elif event == '-SAVE-':
       window['-PARAM_MESSAGES-'].update('Enter Rule')
 
+   # # DHCPv6 operations
+   # #-------------------------------------------------------------#
+   # # Disable section until valid BMR is entered
+   # # if last_params:
+   # #    if event == 'DMR_INPUT_FOCUS':
+   # if last_params: #..................Look for way to keep this out of every event
+   #    if event == 'DMR_INPUT_FOCUS':
+   #       window['DMR_INPUT'].update(disabled=False)
+   #       if not values['OPT_95']:
+   #          if values['DMR_INPUT'] == 'Ex. 2001:db8:ffff::/64':
+   #             window['DMR_INPUT'].update('')
+   #          # else:
+   #          #    window['DMR_INPUT'].update(bad_value)
+
+   #    if event == 'DMR_ENTER' or event == 'DMR_INPUT' + '_Enter':
+   #       try:
+   #          dmr_obj = ip.ip_network(values['DMR_INPUT'])
+   #       except ValueError as ve:
+   #          window['-DHCP_MESSAGES-'].update(f"'{values['DMR_INPUT']}' is not a valid IPv6 network")
+   #          bad_value = values['DMR_INPUT']
+   #          clear_dhcp_fields(reset_prompt=False)
+   #       except Exception as e:
+   #          errname = type(e).__name__
+   #          window['-DHCP_MESSAGES-'].update(f'{errname}: {e}')
+   #          bad_value = values['DMR_INPUT']
+   #          clear_dhcp_fields(reset_prompt=False)
+   #       else:
+   #          bad_value = None
+   #          if values['FMR_FLAG'] == True:
+   #             dhcp_calc(values['DMR_INPUT'], fmr=True)
+   #             last_dmr_entry = values['DMR_INPUT']
+   #             last_fmr_flag = values['FMR_FLAG']
+   #          else:
+   #             dhcp_calc(values['DMR_INPUT'], fmr=False)
+   #             last_dmr_entry = values['DMR_INPUT']
+   #             last_fmr_flag = values['FMR_FLAG']
+
+   #    # Move focus out of DMR_INPUT to reset for next DMR_INPUT_FOCUS event
+   #    if event == 'DMR_INPUT' + '_Enter':
+   #       window['DMR_ENTER'].set_focus()
+
+   #    # FMR checkbox changes option string to FMR without re-clicking DMR Enter Button
+   #    if event == 'FMR_FLAG' and values['OPT_95']:
+   #       if values['FMR_FLAG'] != last_fmr_flag:
+   #          window['OPT_95'].update('')
+   #          window['OPT_89'].update('')
+   #          window.read(timeout=50) # Flashes changing fields so user knows what updated
+   #          last_fmr_flag = values['FMR_FLAG']
+   #          window['DMR_INPUT'].update(last_dmr_entry)
+   #          dhcp_calc(last_dmr_entry, values['FMR_FLAG'])
+
+
+
    # DHCPv6 operations
    #-------------------------------------------------------------#
    # Disable section until valid BMR is entered
-   if last_params:
-      if event == 'DMR_INPUT_FOCUS':
+   # if last_params:
+   #    if event == 'DMR_INPUT_FOCUS':
+   # if last_params: #..............................>>>>> Look for way to keep this out of every event
+   #    if event == 'DMR_INPUT_FOCUS':
+   if event == 'DMR_INPUT_FOCUS':
+      if last_params:
          window['DMR_INPUT'].update(disabled=False)
          if not values['OPT_95']:
             if values['DMR_INPUT'] == 'Ex. 2001:db8:ffff::/64':
                window['DMR_INPUT'].update('')
-            else:
-               window['DMR_INPUT'].update(bad_value)
+            # else:
+            #    window['DMR_INPUT'].update(bad_value) #...No bad_value yet
 
-      if event == 'DMR_ENTER' or event == 'DMR_INPUT' + '_Enter':
+   if event == 'DMR_ENTER' or event == 'DMR_INPUT' + '_Enter':
+      if last_params:
          try:
             dmr_obj = ip.ip_network(values['DMR_INPUT'])
          except ValueError as ve:
@@ -1724,20 +1801,22 @@ while True:
                dhcp_calc(values['DMR_INPUT'], fmr=False)
                last_dmr_entry = values['DMR_INPUT']
                last_fmr_flag = values['FMR_FLAG']
-
-      # Move focus out of DMR_INPUT to reset for next DMR_INPUT_FOCUS event
-      if event == 'DMR_INPUT' + '_Enter':
+         # Move focus to re-enable Input "focus in" events
          window['DMR_ENTER'].set_focus()
 
-      # FMR checkbox changes option string to FMR without re-clicking DMR Enter Button
-      if event == 'FMR_FLAG' and values['OPT_95']:
-         if values['FMR_FLAG'] != last_fmr_flag:
-            window['OPT_95'].update('')
-            window['OPT_89'].update('')
-            window.read(timeout=50)
-            last_fmr_flag = values['FMR_FLAG']
-            window['DMR_INPUT'].update(last_dmr_entry)
-            dhcp_calc(last_dmr_entry, values['FMR_FLAG'])
+      # # Move focus out of DMR_INPUT to reset for next DMR_INPUT_FOCUS event
+      # if event == 'DMR_INPUT' + '_Enter':
+      #    window['DMR_ENTER'].set_focus() # moved to previous section
+
+   # FMR checkbox changes option string to FMR without re-clicking DMR Enter Button
+   if event == 'FMR_FLAG' and values['OPT_95']:
+      if values['FMR_FLAG'] != last_fmr_flag:
+         window['OPT_95'].update('')
+         window['OPT_89'].update('')
+         window.read(timeout=50) # Flashes changing fields so user knows what updated
+         last_fmr_flag = values['FMR_FLAG']
+         window['DMR_INPUT'].update(last_dmr_entry)
+         dhcp_calc(last_dmr_entry, values['FMR_FLAG'])
 
    # Frame visibility controls
    # ----------------------------------------------------------------------------#
@@ -1745,9 +1824,17 @@ while True:
       open_ports = not open_ports
       window["OPEN_PORTS_SYMBL"].update(sg.SYMBOL_DOWN if open_ports else sg.SYMBOL_RIGHT)
       window["PORTS_DISPLAY"].update(visible=open_ports)
+   if event.startswith("OPEN_DHCP_"):
+      open_dhcp = not open_dhcp
+      window["OPEN_DHCP_SYMBL"].update(sg.SYMBOL_DOWN if open_dhcp else sg.SYMBOL_RIGHT)
+      window["DHCP_DISPLAY"].update(visible=open_dhcp)
 
 
    print(f'#------- End Event {cntr - 1} -------#')
+
+   print(f"window.size is {window.size}")
+   print(f"main column size is {window['MAIN_COL'].Size}")
+
 
 
 
