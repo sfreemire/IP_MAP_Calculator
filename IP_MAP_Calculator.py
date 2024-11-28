@@ -6,13 +6,28 @@ import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.14.00 - 11/26/2024 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.12.00 - 11/13/2024 - D. Scott Freemire
 
-'''
-"TanBlue": {"BACKGROUND": "#e5dece", "TEXT": "#063289", "INPUT": "#f9f8f4", "TEXT_INPUT": "#242834", "SCROLL": "#eee8d5", "BUTTON": ("#FFFFFF", "#063289"),
-            "PROGRESS": DEFAULT_PROGRESS_BAR_COMPUTE, "BORDER": 1, "SLIDER_DEPTH": 0, "PROGRESS_DEPTH": 0, },
-'''
+# Window theme and frame variables
+#-------------------------------------#
+sg.theme('TanBlue') # Tan is #E5DECF, Blue is #09348A
+windowfont=('Helvetica', 13)
+name_tooltip = 'Enter unique rule name'
+v6_tooltip = 'Format similar to 2008:8cd:0::/xx'
+v6m_tooltip = 'Enter IPv6 mask bits'
+v4_tooltip = 'Format similar to 192.168.2.0/24'
+v4m_tooltip = 'Enter IPv4 mask bits'
+ea_tooltip = 'Max 2 digits'
+#psid_tooltip = 'Max 1 digit'
+rulestring_tooltip = ('Name|IPv6 Prefix|IPv6 Pfx Len|IPv4 Prefix|'
+                      'IPv4 Pfx Len|EA Len|PSID Offset')
+fmr_tooltip = 'Create FMR option string (forwarding)'
+v4mask = [n for n in range(16, 33)] # for edit rule Combo
+v6mask = [n for n in range(32, 65)] # for edit rule Combo
+psidoff = [n for n in range(16)]    # for edit rule Combo
+eabits = [n for n in range(33)]     # for edit rule Combo
 
+# Big headings for visibility in text editor "minimap"
 '''
 ██    ██ ██     ██       █████  ██    ██  ██████  ██    ██ ████████ ███████ 
 ██    ██ ██     ██      ██   ██  ██  ██  ██    ██ ██    ██    ██    ██      
@@ -26,420 +41,407 @@ import sys
 # expand_x=True causes an element to expand to the width of its container
 # expand_y=True causes element to expand to the height of its container
 
-# Display Layout Resources
+# Main Display (top frame) - Calculated Values
 #----------------------------------------------#
-# Display settings and variables
-sg.theme('TanBlue') # Tan is #E5DECF, Blue is #09348A
-# windowfont=('Helvetica', 22)
-name_tooltip = ' Enter unique rule name '
-v6_tooltip = ' Format like 2008:8cd:0:: '
-v4_tooltip = ' Format like 192.168.2.0 '
-rulestring_tooltip = (' Name|IPv6 Prefix|IPv6 Pfx Len|IPv4 Prefix|'
-                      'IPv4 Pfx Len|EA Len|PSID Offset ')
-fmr_tooltip = ' Create FMR option string (forwarding rule) '
-cleared = True
-
-# Input field examples
-examples_dic = {  #........................Use to repopulate after clear
-   "NAME": 'Test_BMR',
-   "RULEV6P": 'Ex. 2001:db8::',
-   "-R6LEN-": 46,
-   "RULEV4P": 'Ex. 192.168.0.0',
-   "-R4LEN-": 24,
-   "EALEN": 14,
-   "PSID_OFST": 6,
-   "BMR_STRING": 'Ex. Test_BMR|2001:db8::|46|192.168.0.0|24|14|6',
-   "DMR_INPUT": 'Ex. 2001:db8:ffff::/64'
-}
-
-v4mask = [n for n in range(16, 33)] # for edit rule Combo
-v6mask = [n for n in range(32, 65)] # for edit rule Combo
-psidoff = [n for n in range(16)]    # for edit rule Combo
-ealen = [n for n in range(33)]     # for edit rule Combo
-
-# Display Layouts
-#----------------------------------------------#
-# Main Results Display Elements
 display_col1 = [
-   [sg.Text('Uniq v4 IPs', font=(None, 11, 'bold'))], # font=('Arial', 14, 'bold')
-   [sg.Text('', justification='centered', # ............font=('Arial', 16, 'bold')
-    size=(7, 1), background_color='#f5f2eb', border_width=2,
-    relief='sunken', key='-IPS_DSPLY-')]
+   [sg.Text('Uniq v4 IPs', font=('Arial', 14, 'bold'))],
+   [sg.Text('', font=('Arial', 16, 'bold'), justification='centered',
+    size=(7, 1), background_color='#fdfdfc', border_width=4,
+    relief='ridge', key='-IPS_DSPLY-')]
 ]
 
 display_col2 = [
-   [sg.Text('Sharing', font=(None, 11, 'bold'))],
-   [sg.Text('', justification='centered',
-    size=(7, 1), background_color='#f5f2eb', border_width=2,
-    relief='sunken', key='-RATIO_DSPLY-')]
+   [sg.Text('Sharing', font=('Arial', 14, 'bold'))],
+   [sg.Text('', font=('Arial', 16, 'bold'), justification='centered',
+    size=(7, 1), background_color='#fdfdfc', border_width=4,
+    relief='ridge', key='-RATIO_DSPLY-')]
 ]
 
 display_col3 = [
-   [sg.Text('Users', font=(None, 11, 'bold'))],
-   [sg.Text('', justification='centered',
-    size=(7, 1), background_color='#f5f2eb', border_width=2,
-    relief='sunken', key='-USERS_DSPLY-')]
+   [sg.Text('Users', font=('Arial', 14, 'bold'))],
+   [sg.Text('', font=('Arial', 16, 'bold'), justification='centered',
+    size=(7, 1), background_color='#fdfdfc', border_width=4,
+    relief='ridge', key='-USERS_DSPLY-')]
 ]
 
 display_col4 = [
-   [sg.Text('Ports/User', font=(None, 11, 'bold'), pad=((0, 4), (4, 4)))],
-   [sg.Text('', justification='centered',
-    size=(7, 1), background_color='#f5f2eb', border_width=2,
-    relief='sunken', key='-PORTS_DSPLY-')]
+   [sg.Text('Ports/User', font=('Arial', 14, 'bold'))],
+   [sg.Text('', font=('Arial', 16, 'bold'), justification='centered',
+    size=(7, 1), background_color='#fdfdfc', border_width=4,
+    relief='ridge', key='-PORTS_DSPLY-')]
 ]
 
 display_col5 = [
-   [sg.Text('Excluded Ports', font=(None, 11, 'bold'))],
-   [sg.Text('', justification='centered',
-    size=(7, 1), background_color='#f5f2eb', border_width=2,
-    relief='sunken', key='-EXCL_PORTS_DSPLY-')]
+   [sg.Text('Excluded Ports', font=('Arial', 14, 'bold'))],
+   [sg.Text('', font=('Arial', 16, 'bold'), justification='centered',
+    size=(7, 1), background_color='#fdfdfc', border_width=4,
+    relief='ridge', key='-EXCL_PORTS_DSPLY-')]
 ]
 
-# Main Results Display Frame
+# Top frame with results fields
 display_layout = [
-   [sg.Column(display_col1, element_justification='centered',
-      pad=0),
-    sg.Text('x', font=(None, 12, 'bold'), pad=((0, 5), (20, 0))),
+   [sg.Column(display_col1, element_justification='centered'),
+    sg.Text('x', pad=((0, 0), (20, 0))),
     sg.Column(display_col2, element_justification='centered'),
-    sg.Text('=', font=(None, 12, 'bold'), pad=((0, 0), (20, 0))),
-    sg.Column(display_col3, element_justification='centered',
-      pad=((4, 5), (4, 4))),
+    sg.Text('=', pad=((0, 0), (20, 0))),
+    sg.Column(display_col3, element_justification='centered'),
     sg.Text(':', font=('Arial', 16, 'bold'), pad=((0, 0), (20, 0))),
-    sg.Column(display_col4, element_justification='centered',
-      pad=((0, 9), (2, 4))),
+    sg.Column(display_col4, element_justification='centered'),
     sg.Column(display_col5, element_justification='centered')],
-   [sg.Sizer(0, 6)],
+   [sg.Text('BMR', font=('Arial', 14, 'bold')),
+    sg.Input('', font=('Courier', 15, 'bold'),
+   # use_readonly... with disabled creates display field that can be
+   # selected and copied with cursor, but not edited (review need for this)
+    justification='centered', size=(60, 1), use_readonly_for_disable=True,
+    disabled=True, pad=((0, 8), (0, 0)), background_color='#fdfdfc',
+    key='-BMR_STRING_DSPLY-'),
+    sg.Button('Save', font=('Helvetica', 11), key='-SAVE-')],
+   [sg.Push(),
+    sg.Text('Select and copy, or click Save', font=('Helvetica', 13, 'italic'),
+    justification='centered', pad=((5, 5), (0, 5))),
+    sg.Push()],
+]
+
+# Parameter Editing Display (2nd frame)
+#---------------------------------------#
+param_edit_col1 = [
+   [sg.Text('Name:', font=('Arial', 14, 'bold')),
+    sg.Input('', font=('Arial', 14, 'bold'), size=(20, 1),
+    enable_events=True, tooltip=name_tooltip, border_width=2,
+    pad=((89, 5), (5, 5)), background_color='#fdfdfc', key='-RULENAME-'),
+    sg.Push(),
+    sg.Text('', text_color='red', font='None 14 bold', key='-PARAM_MESSAGES-'),
+    sg.Push()],
+   [sg.Text('IPv6 Prefix/Length:', font=('Arial', 14, 'bold')),
+    sg.Input('', font=('Arial', 14, 'bold'), size=(20, 1), enable_events=True,
+    tooltip=v6_tooltip, border_width=2, background_color='#fdfdfc',
+    key='-R6PRE-'),
+    sg.Text('/'),
+    sg.Combo(v6mask, readonly=True, font=('Helvetica', 14, 'bold'),
+    enable_events=True, background_color='#fdfdfc', key='-R6LEN-')],
+   [sg.Text('IPv4 Prefix/Length:', font=('Arial', 14, 'bold')),
+    sg.Input('', font=('Arial', 14, 'bold'), size=(20, 1), enable_events=True,
+    tooltip=v4_tooltip,  border_width=2, background_color='#fdfdfc',
+    key='-R4PRE-'),
+    sg.Text('/'),
+    sg.Combo(v4mask, readonly=True, font=('Helvetica', 14, 'bold'),
+    enable_events=True, key='-R4LEN-',)],
+   [sg.Text('EA Bits Length', font=('Helvetica', 13, 'bold')),
+    sg.Sizer(h_pixels=32, v_pixels=0),
+    sg.Combo(eabits, readonly=True, font=('Helvetica', 14, 'bold'),
+    background_color='#fdfdfc', enable_events=True, key='-EABITS-',),
+    sg.Sizer(h_pixels=23, v_pixels=0),
+    sg.Text('PSID Offset Bits', font=('Helvetica', 13, 'bold')),
+    sg.Combo(psidoff, readonly=True, font=('Helvetica', 13, 'bold'),
+    background_color='#fdfdfc', enable_events=True, key='-OFFSET-'),
+    sg.Sizer(h_pixels=202, v_pixels=0),
+    sg.Button('Enter', font=('Helvetica', 11), key='-ENTER_PARAMS-')],
+   [sg.Sizer(h_pixels=0, v_pixels=5)],
+   [sg.HorizontalSeparator()],
+   [sg.Sizer(h_pixels=0, v_pixels=5)],
+   [sg.Text('Rule String:', font=(None, 14, 'italic', 'bold'),
+    pad=((5, 5), (5, 0))),
+    sg.Input('', font=('Courier', 14, 'bold'), size=(60, 1),
+    justification='centered', pad=((5, 5), (5, 0)), enable_events=True,
+    background_color='#fdfdfc', tooltip=rulestring_tooltip, key='-STRING_IN-'),
+    sg.Button('Enter', font='Helvetica 11', pad=((5, 5), (5, 0)),
+    key='-ENTER_STRING-')],
+   [sg.Push(),
+    sg.Text('Type or paste saved string and click Enter',
+    font=('Helvetica', 13, 'italic'), justification='centered',
+    pad=((5, 5), (0, 5))),
+    sg.Push()]
 ]
 
 editor_layout = [
-   [sg.Text('Name (optional)', font=(None, 10), pad=(4, 0))],
-   [sg.Input('', size=(25, 1), font=('Courier', 12),
-      justification='centered', background_color='#fdfdfc', pad=(4, 0),
-      enable_events=True, tooltip=name_tooltip, key="NAME"),
-    sg.Push(),
-    sg.Text('', text_color='red', font='None 12 bold', key='-PARAM_MESSAGES-'),
-    sg.Push()],
-   [sg.Sizer(v_pixels=4)],
-   # [sg.Sizer(h_pixels=0),
-   [sg.Text('Rule IPv6 Prefix / Length', pad=(4, 0)),
-    sg.Sizer(h_pixels=103),
-    sg.Text('Rule IPv4 Prefix / Length', pad=(4, 0)),
-    sg.Sizer(h_pixels=67),
-    sg.Text('EA Bits', pad=(4, 0)),
-    sg.Text('PSID Offset', pad=(3, 0))],
-   [sg.Input('', size=(25, 1), font=('Courier', 12),
-      justification='centered', background_color='#fdfdfc',
-      enable_events=True, pad=((4, 0), (3, 0)), tooltip=v6_tooltip,
-      key='RULEV6P'),
-    sg.Text('/', font=(None, 12, 'bold'), pad=((0, 0), (0, 2))),
-    sg.Combo(v6mask, readonly=True, font=('Helvetica', 11),
-    enable_events=True, background_color='#fdfdfc', 
-    size=(2, 1), pad=((0, 4), (2, 0)), key='-R6LEN-'),
-    sg.Sizer(h_pixels=4),
-    sg.Input('', size=(20, 1), font=('Courier', 12),
-      justification='centered', background_color='#fdfdfc', pad=((4, 0), (2, 0)),
-      enable_events=True, tooltip=v4_tooltip, key='RULEV4P'),
-    sg.Text('/', font=(None, 12, 'bold'), pad=((0, 0), (0, 2))),
-    sg.Combo(v4mask, readonly=True, font=('Helvetica', 11),
-    enable_events=True, background_color='#fdfdfc', 
-    size=(2, 1), pad=((0, 7), (2, 0)), key='-R4LEN-'),
-    sg.Combo(ealen, readonly=True, font=('Helvetica', 11),
-    enable_events=True, background_color='#fdfdfc', 
-    size=(2, 1), pad=((6, 2), (2, 0)), key='EALEN'),
-    sg.Sizer(h_pixels=4),
-    sg.Combo(psidoff, readonly=True, font=('Helvetica', 11),
-    enable_events=True, background_color='#fdfdfc', 
-    size=(2, 1), pad=((6, 2), (2, 0)), key='PSID_OFST')],
-   [sg.Sizer(v_pixels=4)],
-   [sg.Text('BMR String (optional)', font=(None, 10), pad=(4, 0))],
-   [sg.Input('',
-      size=(65, 1), font=('Courier', 12), justification='centered',
-      background_color='#fdfdfc', pad=(4, 0), tooltip=rulestring_tooltip,
-      enable_events=True, key='BMR_STRING'),
-      # Move focus out of input fields so "focus_in" works for all of them on app start
-      sg.Button('Enter', font='None 8', key="-ENTER_PARAMS-"),
-      sg.Button('Save', font='None 8', focus=True, key="SAVE")], 
-   [sg.Sizer(v_pixels=8)],
+   [sg.Column(param_edit_col1, expand_x=True)],
 ]
 
-bmr_pd_multiline = [
-   [sg.Multiline("BMR and User PD Prefixes", size=(83, 13),
-      pad=((4, 4), (4, 0)), font=('Courier', 12), background_color='#fdfdfc',
-      expand_x=True, disabled=True, border_width=2, # horizontal_scroll = True,
-      no_scrollbar=True, key='MLINE_BINOPS')
-   ]
+# Binary Display (3rd frame)
+#-------------------------------------#
+multiline1_layout = [
+   [sg.Multiline(size=(83, 13), auto_size_text=True,
+    font=('Courier', 14, 'bold'), background_color='#fdfdfc',
+    expand_x=True, disabled=True, # horizontal_scroll = True,
+    no_scrollbar=True, key='MLINE_BIN_1')]
 ]
 
-bmr_sliders = [
-         [
-            sg.Text('IPv6 Prefix Length:', font=(None, 11, 'bold'),
-               background_color="#e5dfcf", pad=((6, 0), (14, 0))),
-            sg.Slider(range=(32, 64), default_value=32, orientation='h',
-               disable_number_display=False, enable_events=True,
-               size=(19, 10), trough_color='white', font=(None, 11, 'bold'),
-               text_color=None, background_color="#e5dfcf", disabled=True,
-               border_width=2, pad=((0, 4), (0, 0)), key='-V6PFX_LEN_SLDR-'),
-            sg.Push(background_color="#e5dfcf"),
-            sg.Text('EA Length:', font=(None, 11, 'bold'), background_color="#e5dfcf",
-               pad=((0, 0), (14, 0))),
-            sg.Slider(range=(0, 32), default_value=0, orientation='h', # Per RFC 7598 (dhcp) 0-48 is valid.
-               disable_number_display=False, enable_events=True,
-               size=(19, 10), trough_color='white', font=(None, 11, 'bold'),
-               text_color=None, disabled=True, background_color="#e5dfcf",
-               border_width=2, pad=((0, 4), (0, 0)), key='-EA_LEN_SLDR-'),
-            sg.Sizer(h_pixels=3)
-         ],
-         [
-            sg.Text('IPv4 Prefix Length:', font=(None, 11, 'bold'),
-               background_color="#e5dfcf", pad=((6, 0), (10, 0))),
-            sg.Slider(range=(16, 32), default_value=16, orientation='h',
-               disable_number_display=False, enable_events=True,
-               size=(19, 10), trough_color='white', font=(None, 11, 'bold'),
-               text_color=None, background_color="#e5dfcf", disabled=True,
-               border_width=2, pad=((0, 4), (0, 4)), key='-V4PFX_LEN_SLDR-'),
-            sg.Push(background_color="#e5dfcf"),
-            sg.Text('PSID Offset:', font=(None, 11, 'bold'),
-               background_color="#e5dfcf", pad=((0, 0), (10, 0))),
-            sg.Slider(range=(0, 15), default_value=0, orientation='h',
-               disable_number_display=False, enable_events=True,
-               size=(19, 10), trough_color='white', font=(None, 11, 'bold'),
-               text_color=None, disabled=True, background_color="#e5dfcf",
-               border_width=2, pad=((0, 4), (0, 4)), key='-PSID_OFST_SLDR-'),
-            sg.Sizer(h_pixels=3)
-         ],
-         # [sg.Sizer(h_pixels=612, v_pixels=4)], # Sets necessary width for binary strings
-         [sg.Sizer(v_pixels=4)],
-         [sg.HorizontalSeparator()],
-         [sg.Sizer(v_pixels=4)],
-         [sg.Sizer(h_pixels=64),
-          sg.Text('IPv6 User PD:', font=(None, 11, 'bold'), pad=((4, 0), (2, 4))),
-          sg.Text('', font=('Courier', 12), justification='centered',
-            size=(30, 1), pad=((0, 4), (4, 4)), border_width=2, relief='sunken',
-            background_color='#f5f2eb', key='USER_PD'),
-          sg.Button('First', font='None 8', pad=((4, 0), (4, 4))),
-          sg.Button('Next', font='None 8', pad=((3, 0), (4, 4))),
-          sg.Button('Last', font='None 8', pad=((3, 4), (4, 4))),
-          sg.Push()],
-         [sg.Text('CE MAP-T WAN Address:', font=(None, 11, 'bold'),
-            pad=((4, 0), (2, 4))),
-          sg.Text('', font=('Courier', 12), size=(30, 1), #......................Maybe make Input for copy/paste
-            justification='centered', pad=((0, 4), (4, 4)), border_width=2,
-            relief='sunken', background_color='#f5f2eb', key='CE_V6_WAN'),
-            # key='USER_PD'),
-          sg.Push()],
-          [sg.Sizer(v_pixels=1)],
-],
+multiline2_layout = [
+   [sg.Multiline(size=(83, 7), auto_size_text=True,
+    font=('Courier', 14, 'bold'), background_color='#fdfdfc',
+    expand_x=True, horizontal_scroll = False, disabled=True,
+    no_scrollbar=True, key='MLINE_BIN_2')]
+]
 
-ipv4_test_text = (" IPv4 Prefix and Host Bits\n\n"
-                  " IPv4 Addr:     192  .   168  .    0   .    0   /24\n"
-                  " IPv4 Addr:  11000000.10101000.00000000.00000000/24")
+bin_display_col1 = [
+   [sg.Sizer(h_pixels=0, v_pixels=6)],
+   [sg.Frame(
+    'BMR Prefix, User Prefix, & IPv4 Prefix - IPv4 Host & Port Calculation',
+    multiline1_layout, expand_x=True, border_width=1, relief='ridge',
+    font=('Helvetica', 13, 'bold'), title_location=sg.TITLE_LOCATION_TOP,)],
+]
 
-ipv4_section = [
-   [sg.Multiline(ipv4_test_text, size=(None, 4), # size=(83, 13), # auto_size_text=True,...Needed?
-      p=4, font=('Courier', 12), background_color='#fdfdfc',
-      expand_x=True, disabled=True, border_width=2, # horizontal_scroll = True,
-      no_scrollbar=True, key='MLINE_IPV4')
-   ],
+bin_display_col2 = [
+   [
+    sg.Sizer(37, 0),
+    sg.Text('IPv6 Prefix Length:', font=('Helvetica', 13, 'bold'),
+    pad=((0, 1), (5, 0))),
+    sg.Slider(range=(32, 64), default_value=32, orientation='h',
+    disable_number_display=False, enable_events=True,
+    size=(16, 8), trough_color='white', font=('Helvetica', 13, 'bold'),
+    text_color=None, disabled=True, key='-V6PFX_LEN_SLDR-'),
+#    sg.Push(),
+    sg.Sizer(8, 0),
+    sg.VerticalSeparator(),
+    sg.Sizer(8, 0),
+#    sg.Push(),
+    sg.Text('EA Length:', font=('Helvetica', 13, 'bold'),
+      pad=((0, 14), (5, 0))),
+#    sg.Sizer(h_pixels=5, v_pixels=0),
+    sg.Slider(range=(0, 32), default_value=32, orientation='h', # Per RFC 7598 (dhcp) 0-48 is valid.
+    disable_number_display=False, enable_events=True,
+    size=(19, 8), trough_color='white', font=('Helvetica', 13, 'bold'),
+    text_color=None, disabled=True, key='-EA_LEN_SLDR-'),
+#    sg.Sizer(40, 0),
+    ],
+   [
+    sg.Sizer(37, 0),
+    sg.Text('IPv4 Prefix Length:', font=('Helvetica', 13, 'bold'),
+      pad=((0, 1), (5, 0))),
+    sg.Slider(range=(16, 32), default_value=16, orientation='h',
+    disable_number_display=False, enable_events=True,
+    size=(16, 8), trough_color='white', font=('Helvetica', 13, 'bold'),
+    disabled=True, text_color=None,
+    key='-V4PFX_LEN_SLDR-'),
+#    sg.Push(),
+    sg.Sizer(8, 0),
+    sg.VerticalSeparator(),
+    sg.Sizer(8, 0),
+#    sg.Push(),
+    sg.Text('PSID Offset:', font=('Helvetica', 13, 'bold'),
+    pad=((0, 5), (0, 5))),
+    sg.Slider(range=(0, 15), default_value=0, orientation='h',
+    disable_number_display=False, enable_events=True,
+    size=(19, 8), trough_color='white', font=('Helvetica', 13, 'bold'),
+    pad=((5, 5), (0, 10)), disabled=True, key='-PSID_OFST_SLDR-'),
+#    sg.Push()
+    ],
+
+   [sg.Sizer(h_pixels=0, v_pixels=9)],
    [sg.Push(),
-    sg.Text('IPv4 Host:', font=(None, 11, 'bold'), pad=((4, 0), (10, 0))),
-    sg.Slider(range=(0, 0), default_value=0, orientation='h',
-    disable_number_display=False, enable_events=True, border_width=2,
-    size=(42, 10), trough_color='white', font=(None, 11, 'bold'),
-    pad=((0, 2), (0, 6)), key='-V4HOST_SLIDER-'),
-    sg.Button(' + 1', font='None 8', pad=((2, 5), (12, 0)), key='-NEXT_HOST-'),
-    sg.Push()
-   ],
-   [sg.Sizer(v_pixels=4)],
-]
+    sg.Text('Source Port Index:', font=('Helvetica', 13, 'bold')),
+    sg.Text('', font=('Arial', 14, 'bold'), justification='centered',
+    size=(16, 1), background_color='#fdfdfc', border_width=4,
+    relief='ridge', key='-SP_INDEX-'),
+#    sg.Input('', size=(16, 1), justification='centered',
+#    use_readonly_for_disable=True,disabled=True, key='-SP_INDEX-'),
+    sg.Button(' <<', font='Helvetica 11', key='-P_IDX_FIRST-'),
+    sg.Button(' + 1', font='Helvetica 11', key='-P_IDX_UP_1-'),
+    sg.Button(' + 10', font='Helvetica 11', key='-P_IDX_UP_10-'),
+    sg.Button(' + 100', font='Helvetica 11', key='-P_IDX_UP_100-'),
+    sg.Button(' >>', font='Helvetica 11', key='-P_IDX_LAST-'),
+    sg.Text(f'= Port', font=('Helvetica', 14, 'bold')),
+    sg.Text('', font=('Helvetica', 14, 'bold'), justification='centered',
+    size=(7, 1), background_color='#fdfdfc', border_width=4,
+    relief='ridge', key='-SP_INT-'),
+#    sg.Input('', size=(7, 1), justification='centered',
+#    use_readonly_for_disable=True, disabled=True, key='-SP_INT-'),
+    sg.Push()],
 
-portidx_multiline = [
-   [sg.Multiline("Port Set ID and Port Selection", size=(None, 4), # size=(83, 13), # auto_size_text=True,...Needed?
-      p=4, font=('Courier', 12), background_color='#fdfdfc',
-      expand_x=True, disabled=True, border_width=2, # horizontal_scroll = True,
-      no_scrollbar=True, key='MLINE_PORTIDX')
-   ],
-   [sg.Sizer(v_pixels=3)],
-   [sg.Text('Source Port Index:', font=(None, 11, 'bold'),
-      pad=((6, 0), (1, 4))),
-    sg.Text('', font=(None, 11, 'bold'), justification='centered',
-    size=(16, 1), border_width=2, relief='sunken', pad=((1, 4), (4, 4)),
-      background_color='#f5f2eb', key='-SP_INDEX-'),
-    sg.Text(f'= Port:', font=(None, 11, 'bold'), pad=((0, 0), (1, 4))),
-    sg.Text('', font=(None, 11, 'bold'), justification='centered',
-      size=(7, 1), pad=((0, 0), (4, 4)), border_width=2, relief='sunken',
-      background_color='#f5f2eb', key='-SP_INT-'),
-    sg.Sizer(h_pixels=16),
-    sg.Button(' <<', font='None 8', pad=((4, 2), (4, 4)), key='-P_IDX_FIRST-'),
-    sg.Button(' + 1', font='None 8', pad=((2, 2), (4, 4)), key='-P_IDX_UP_1-'),
-    sg.Button(' + 10', font='None 8', pad=((2, 2), (4, 4)), key='-P_IDX_UP_10-'),
-    sg.Button(' + 100', font='None 8', pad=((2, 2), (4, 4)), key='-P_IDX_UP_100-'),
-    sg.Button(' >>', font='None 8', pad=((2, 0), (4, 4)), key='-P_IDX_LAST-')],
-   [sg.Sizer(v_pixels=4)]
-]
+   [sg.Sizer(0, 9)],
+   [sg.HorizontalSeparator()],
+   [sg.Sizer(h_pixels=0, v_pixels=3)],
 
-bmr_binops_tab_layout = [
-   [sg.Frame("", [
-      # [sg.Sizer(v_pixels=3)],
-      # [sg.Frame("", [
-      [sg.Sizer(v_pixels=2)],
-      [sg.Text(('Bit analysis to determine the allocated CE '
-                'IPv4 host addresses and ports'),
-       font='None 12 bold', background_color="#E5DECF", justification='centered', 
-       border_width=0, relief='raised', pad=0, expand_x=True)],],
-       p=0, expand_x=True, expand_y=True, border_width=0, relief='raised')
-   ],
-   [sg.Sizer(v_pixels=4)],
-   [sg.Frame("", [[bmr_pd_multiline], [bmr_sliders]], font='None 11 bold italic',
-      title_location=sg.TITLE_LOCATION_TOP_LEFT, expand_x=True, border_width=3,
-      relief="raised", pad=((4, 4), (0, 0)))],
-   [sg.Column([[]], pad=((4, 4), (0, 0)), background_color='#45433e',
-      size=(2, 3), expand_x=True)],
-   [sg.Frame("", ipv4_section, font='None 11 bold italic',
-      title_location=sg.TITLE_LOCATION_TOP_LEFT, expand_x=True, border_width=3,
-      relief="raised", pad=((4, 4), (0, 0)))
-   ],
-   [sg.Column([[]], pad=((4, 4), (0, 0)), background_color='#45433e',
-      size=(2, 3), expand_x=True)],
-   [sg.Frame("", portidx_multiline,
-      font='None 11 bold italic', title_location=sg.TITLE_LOCATION_TOP_LEFT,
-      expand_x=True, border_width=3, relief="raised", pad=((4, 4), (0, 4)))
-   ],
-]
-
-user_ports_multiline = [
-      [sg.Multiline(
-         size=(None, 11), # size=(83,
-         border_width=2,
-         pad=3,
-         auto_size_text=True,
-         font=('Courier', 12),
-         background_color='#fdfdfc',
-         expand_x=True,
-         horizontal_scroll = False,
-         disabled=True,
-         no_scrollbar=False,
-         key='MLINE_PORTS')]
-]
-
-user_ports_tab_layout = [
-   [sg.Text("All ports for current CE IPv4 Address and PSID ",
-      font=(None, 12, 'bold'), expand_x=True, justification='centered')],
-   [sg.Frame("", user_ports_multiline, p=4, expand_x=True, border_width=3,
-      relief='raised')],
-   [sg.Sizer(v_pixels=6)],
-]
-dhcp_fields = [
-   [sg.Sizer(0, 6),],
-   [sg.Text('DMR', font=(None, 11, 'bold'), pad=((4, 0), (3, 0))),
-    sg.Input('', font=('Courier', 12), size=25, justification='centered',
-      background_color='#fdfdfc', pad=((0, 0), (4, 0)), border_width=2,
-      disabled=True, key='DMR_INPUT'),
-    sg.Button('Enter', font='None 8', key='DMR_ENTER')],
-   [sg.Text('S46 MAP-T Container Option 95:', font=(None, 11, 'bold')),
-    sg.Checkbox('Make FMR String', font=(None, 11, 'bold'), #tooltip=fmr_tooltip,
-      enable_events=True, tooltip=fmr_tooltip, key='FMR_FLAG'),
-    sg.Text('', text_color='red', font='None 11 bold', key='-DHCP_MESSAGES-')],
-   [sg.Sizer(0, 0),
-    sg.Input('', size=(93, 1), font=('Courier', 12), justification='centered',
-      disabled=True, use_readonly_for_disable=True, key='OPT_95')],
-   [sg.Text(f'Option 89', font=(None, 11, 'bold')),
-    sg.Input('', size=(55, 1), font=('Courier', 12), justification='centered',
-      disabled=True, use_readonly_for_disable=True, key='OPT_89')], # OPTION_S46_RULE (89)
-   [sg.Text('Option 93', justification='centered', font=(None, 11, 'bold')),
-    sg.Input('', font=('Courier', 12), justification='centered',
-      disabled=True, use_readonly_for_disable=True, key='OPT_93')], # OPTION_S46_PORTPARAMS (93)
-   [sg.Text(f'Option 91', justification='centered', font=(None, 11, 'bold')),
-    sg.Input('', font=('Courier', 12), justification='centered',
-      disabled=True, use_readonly_for_disable=True, key='OPT_91')], # OPTION_S46_DMR (91)
-   [sg.Sizer(v_pixels=6)],
-]
-
-dhcp_tab_layout = [
-   [sg.Text("Softwire 46 MAP-T Options", font=(None, 12, 'bold'),
-      expand_x=True, justification='centered')],
-   [sg.Frame("", dhcp_fields, expand_x=True, border_width=3, relief='raised')]
-]
-
-tab_group_layout = [
-   [sg.Tab('Binary Operations', bmr_binops_tab_layout,
-      key='TAB_BINARY'),
-    # image_source=binops_tab_label, key='TAB_BINARY'),
-    # sg.Tab('User PD', user_pd_tab_layout, key='TAB_UPD'),
-    sg.Tab('User Ports', user_ports_tab_layout, key='TAB_PORTS'),
-    sg.Tab('DHCP Options', dhcp_tab_layout, key='TAB_DHCP')]
-]
-
-
-
-# Master Layout
-# ----------------------------------------------------------------------------#
-layout = [
-   [sg.Sizer(v_pixels=4)],
-   [sg.Frame("", display_layout, element_justification='centered', expand_x=True,
-      border_width=4)],
-   [sg.Frame("Enter or Edit BMR Parameters", editor_layout,
-      font=(None, 12, 'bold'), title_location=sg.TITLE_LOCATION_TOP,
-      border_width=4, expand_x=True,)],
-   [sg.TabGroup(tab_group_layout, enable_events=True, border_width=1,
-      key="TABGROUP")],
-   [sg.Sizer(v_pixels=5)],
-   [sg.Sizer(h_pixels=8),
-    sg.Button('Example Values', focus=True, key="EXAMPLE"), 
-    sg.Button('Clear', pad=(4, 0)),
+   [sg.Sizer(10, 0),
+    sg.Text('End-user IPv6 prefix (User PD):',
+            pad=0, font=('Helvetica', 13, 'bold'))],
+   [sg.Sizer(h_pixels=0, v_pixels=8)],
+   [sg.Push(),
+    sg.Text('User PD', font=('Helvetica', 13, 'bold'), pad=((5, 0), (5, 5))),
+    sg.Input('', size=(24, 1), pad=((4, 5), (5, 5)),
+    font=('Helvetica', 13, 'bold'), justification='centered',
+    use_readonly_for_disable=True, disabled=True, key='-USER_PD-',
+    disabled_readonly_background_color='#fdfdfc'),
     sg.Push(),
-    sg.Button('About', pad=(4, 0)),
-    # sg.Push(),
-    sg.Exit(pad=(4, 0)),
-    sg.Sizer(h_pixels=8)],
-   [sg.Sizer(v_pixels=5)],
+    sg.Text('CE IP', font='Helvetica 13 bold', pad=((0, 0), (5, 5))),
+    sg.Input('', size=(16, 1), font=('Helvetica', 13, 'bold'),
+    pad=((5, 0), (5, 5)), justification='centered',
+    use_readonly_for_disable=True, disabled=True, key='-USER_IP4-',
+    disabled_readonly_background_color='#fdfdfc'),
+    sg.Push(),
+    sg.Text('Port', font=('Helvetica', 13, 'bold'), pad=((4, 0), (5, 5))),
+    sg.Input('', size=((9), 1), font=('Helvetica', 13, 'bold'),
+    justification='centered', use_readonly_for_disable=True,
+    disabled=True, key='-USER_PORT-',
+    disabled_readonly_background_color='#fdfdfc'),
+    sg.Push()],
+
+   [sg.Sizer(0, 5)],
+   [sg.Frame('User IPv6 Source Address and Port',
+    multiline2_layout, expand_x=True, border_width=1, relief='ridge',
+    font=('Helvetica', 13, 'bold'), pad=((0, 0), (0, 0)),
+    title_location=sg.TITLE_LOCATION_TOP,)],
+   [sg.Sizer(0, 7)],
+
+   [sg.Sizer(h_pixels=2, v_pixels=0),
+    sg.Button('Next User PD', font='Helvetica 11', key='-NXT_USER_PD-'),
+    sg.Push(),
+    sg.Text('IPv4 Host:', font=('Helvetica', 13, 'bold')),
+    sg.Slider(range=(0, 0), default_value=0, orientation='h',
+    disable_number_display=False, enable_events=True,
+    size=(42, 8), trough_color='white', font=('Helvetica', 14, 'bold'),
+    pad=((5, 10), (0, 0)), key='-V4HOST_SLIDER-'),
+    sg.Button(' + 1', font='Helvetica 11', key='-NEXT_HOST-'),
+   ],
+]
+
+# Error messages
+bin_display_col3 = [
+   [sg.Push(),
+    sg.Text('', text_color='red', font='None 14 bold',
+            pad=((5, 5), (0, 0)), key='-PD_MESSAGES-'),
+    sg.Push()],
+   [sg.Sizer(h_pixels=0, v_pixels=1)]
+]
+
+bin_display_layout = [
+   [sg.Column(bin_display_col1, element_justification='centered',
+    expand_x=True)],
+   [sg.Column(bin_display_col2,
+    expand_x=True)],
+   [sg.Column(bin_display_col3, expand_x=True)],
+]
+
+# DHCP Display (4th frame)
+#-------------------------------------#
+dhcp_layout = [
+   # [sg.Text('------- DHCPv6 Options for MAP-T CEs -------', font=(None, 12, 'bold'),
+      # expand_x=True, justification='center')],
+   [sg.Text('DMR:', font=(None, 13, 'bold')),
+    sg.Input('Ex. 2001:db8:ffff::/64', background_color='#fdfdfc',
+      border_width=2, disabled=True, key='DMR_INPUT'),
+    sg.Button('Enter', key='DMR_ENTER')],
+   [sg.Text('S46 MAP-T Container Option 95:', font=('Helvetica', 13, 'bold')),
+    sg.Checkbox('FMR String', font=('Helvetica', 13, 'bold'), tooltip=fmr_tooltip,
+      enable_events=True, key='FMR_FLAG'),
+    sg.Text('', text_color='red', font='None 14 bold', key='-DHCP_MESSAGES-')],
+   [sg.Sizer(4, 0),
+    sg.Input('', justification='centered', size=(85, 1), disabled=True,
+      use_readonly_for_disable=True, key='OPT_95')],
+   # [sg.Text(f'Option 95', font=('Helvetica', 13, 'bold')),
+   #  sg.Input('', disabled=True, use_readonly_for_disable=True, key='OPT_95')], # OPTION_S46_CONT_MAPT (95)
+   [sg.Text(f'Option 89', font=('Helvetica', 13, 'bold')),
+    sg.Input('', size=(55, 1), disabled=True, use_readonly_for_disable=True, key='OPT_89')], # OPTION_S46_RULE (89)
+   [sg.Text('Option 93', font=('Helvetica', 13, 'bold')),
+    sg.Input('', disabled=True, use_readonly_for_disable=True, key='OPT_93')], # OPTION_S46_PORTPARAMS (93)
+   [sg.Text(f'Option 91', font=('Helvetica', 13, 'bold')),
+    sg.Input('', disabled=True, use_readonly_for_disable=True, key='OPT_91')], # OPTION_S46_DMR (91)
+   # [sg.Button('Generate', key='DHCP_GENERATE')]
+]
+
+   #  sg.Input('', font=('Courier', 15, 'bold'),
+   # # use_readonly... with disabled creates display field that can be
+   # # selected and copied with cursor, but not edited (review need for this)
+   #  justification='centered', size=(60, 1), use_readonly_for_disable=True,
+   #  disabled=True, pad=((0, 8), (0, 0)), background_color='#fdfdfc',
+   #  key='-BMR_STRING_DSPLY-'),
+
+
+# Binary Display (5th frame)
+#-------------------------------------#
+button_col1 = [
+   [sg.Button('Example', font='Helvetica 11', key='-EXAMPLE-'),
+    sg.Button('Clear', font='Helvetica 11', key='-CLEAR-'),
+    sg.Text('', text_color='red', font='None 14 bold', key='-BTN_MESSAGES-'),
+    sg.Push(),
+#    sg.Button('Save', font='Helvetica 11', key=('-SAVE_MAIN-')),
+    sg.Button('About', font=('Helvetica', 12)),
+    sg.Button(' Exit ', font=('Helvetica', 12, 'bold'))]
+]
+
+button_layout = [
+   [sg.Column(button_col1, expand_x=True)]
+]
+
+# Saved rule string frame (6th frame)
+#-------------------------------------#
+#MLINE_SAVED = '-MLINE_SAVED-'+sg.WRITE_ONLY_KEY
+saved_section_layout = [
+      [sg.Sizer(h_pixels=3, v_pixels=0),
+       sg.Multiline(default_text='', size=(81, 8),
+       font=('Courier', 14, 'bold'), disabled=True, autoscroll=True,
+       expand_x=True, expand_y=True, pad=(0,0), horizontal_scroll=True,
+       background_color='#fdfdfc', key='-MLINE_SAVED-'),
+       sg.Push()]
+]
+
+# All Sections
+#-------------------------------------#
+sections_layout = [
+   [sg.Frame('', display_layout, expand_x=True, border_width=6,
+      relief='ridge', element_justification='centered')],
+   [sg.Frame('Enter or Edit BMR Parameters', editor_layout,
+    font=('Helvetica', 13, 'bold'), title_location=sg.TITLE_LOCATION_TOP,
+    expand_x=True, border_width=6, relief='ridge')],
+   [sg.Frame('', bin_display_layout, expand_x=True, border_width=6,
+    relief='ridge')],
+   [sg.Frame('DHCPv6 Options for MAP-T CEs', dhcp_layout,
+      font=('Helvetica', 13, 'bold'), title_location=sg.TITLE_LOCATION_TOP,
+      expand_x=True, border_width=6, relief='ridge')],
+   [sg.Frame('', button_layout, expand_x=True, border_width=6,
+    relief='ridge')],
+   [sg.Frame('Saved Rule Strings', saved_section_layout, expand_x=True,
+    font=('Helvetica', 13, 'bold'), title_location=sg.TITLE_LOCATION_TOP,
+    border_width=6, relief='ridge')]
+]
+
+# Final Layout
+# Width 735 allows multiline widths of 83
+#-----------------------------------------#
+layout = [
+   [sg.Column(sections_layout, size=(735, None), expand_y=True,
+    scrollable=True, vertical_scroll_only = True,
+    sbar_background_color='#D6CFBF', sbar_arrow_color='#09348A',
+    sbar_relief='solid')]
 ]
 
 #-------------------------------------------------------------------------#
 # Create Main Window
 #-------------------------------------------------------------------------#
 # Window uses last screen location for next start
-# Location is saved on Exit or WINDOW_CLOSE... events
-window = sg.Window(
-    "IP_MAP_Calculator Tabs Demo",
-    layout,
-    # background_color="#d6cfc9",
-    enable_close_attempted_event=True,
-    location=sg.user_settings_get_entry("-location-", (None, None)),
-    finalize=True
-)
+# Location is set upon Exit or WINDOW_CLOSE... event
+# Width 780 allows Final Layout width of 735
+window = sg.Window('IP MAP Calculator', layout, font=windowfont,
+   enable_close_attempted_event=True,
+   location=sg.user_settings_get_entry('-location-', (None, None)),
+   # keep_on_top=False, resizable=True, size=(780, 1150), finalize=True) #(755, 1070)
+   # keep_on_top=False, resizable=True, size=(780, 1260), finalize=True) #(755, 1070)
+   keep_on_top=False, resizable=True, size=(780, 1445), finalize=True) #(755, 1070)
 
-# Populate "example" entries in BMR input fields
-for key in examples_dic:
-   window[key].update(examples_dic[key])
-
-# Input fields except for "DMR_INPUT" which needs special handling
-input_keys = ("NAME", "RULEV6P", "RULEV4P", # "EALEN", "PSID_OFST", # Combos
-   "BMR_STRING", "DMR_INPUT")
-
-print(f"window size is {window.size}")
+# Prevent horizontal window resizing
+# window.set_resizable(False, True) # Not available until PySimpleGUI v5
 
 # Formatting for disabled input string fields - applied immediately
 #-------------------------------------------------------------------#
-# window['-BMR_STRING_DSPLY-'].Widget.config(readonlybackground='#f5f2eb',
-#        borderwidth=2)
-# window['DMR_PROMPT'].Widget.config(readonlybackground='#e5dece', borderwidth=0)
-window['DMR_INPUT'].Widget.config(readonlybackground='#fdfdfc', borderwidth=2)
-window['OPT_95'].Widget.config(readonlybackground='#fdfdfc', borderwidth=2)
-window['OPT_89'].Widget.config(readonlybackground='#fdfdfc', borderwidth=2)
-window['OPT_93'].Widget.config(readonlybackground='#fdfdfc', borderwidth=2)
-window['OPT_91'].Widget.config(readonlybackground='#fdfdfc', borderwidth=2)
-
-tab_group = window['TABGROUP']
-tab_group.Style.configure(tab_group.StyleName + '.Tab', font='None 12 bold', padding=(2, 2))
+window['-BMR_STRING_DSPLY-'].Widget.config(readonlybackground='#fdfdfc',
+   borderwidth=3, relief='ridge')
+window['DMR_INPUT'].Widget.config(readonlybackground='#fdfdfc',
+   borderwidth=2)
+window['OPT_95'].Widget.config(readonlybackground='#fdfdfc',
+   borderwidth=2)
+window['OPT_89'].Widget.config(readonlybackground='#fdfdfc',
+   borderwidth=2)
+window['OPT_93'].Widget.config(readonlybackground='#fdfdfc',
+   borderwidth=2)
+window['OPT_91'].Widget.config(readonlybackground='#fdfdfc',
+   borderwidth=2)
 
 # Enable "Return" key to trigger Enter event in Rule String field
 # Bind events to text fields
-window['BMR_STRING'].bind('<Return>', '_Enter')
-window['DMR_INPUT'].bind('<Return>', '_Enter')
+window['-STRING_IN-'].bind('<Return>', '_Enter')
 
-# Focus bindings to clear example text from input fields
-focus_bindings = [window[key].bind("<FocusIn>", "_FOCUS") for
-                  key in input_keys]
+window['DMR_INPUT'].bind('<FocusIn>', '_FOCUS')
+window['DMR_INPUT'].bind('<Return>', '_Enter')
 
 '''
 ██████  ██    ██ ██      ███████      ██████  █████  ██       ██████ 
@@ -578,7 +580,7 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
          port_bin = psid_ofst_bin + psid + portrpad_bin
          port_int = int(port_bin, 2) # for d_dic
       else:
-         window['-PARAM_MESSAGES-'].update('Port index maximum reached') # Was "-PARAM_MESSAGES-"
+         window['-PD_MESSAGES-'].update('Port index maximum reached')
          pidx_bin = "1" * len(pidx_bin)
          pidx_int = int(pidx_bin, 2)
          psid_ofst_bin = pidx_bin[: len(psid_ofst_bin)]
@@ -653,22 +655,6 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
       'v6sip_hex_str2': f'     {v6hex_pad}:{v4hex_segs}:{psid_hex}       ]:{port_int}',
       'v6sip_binstr2': f'     {pad2}:{v4sip_bin}:{psid_bin} ]:{port_int}'
    }
-
-   # User Ports List data
-   #--------------------------------------------------#
-   psid_ofst = param_ls[6]
-   # Interval between initial port sequence numbers assigned to the same user
-   prt_rng_intvl = 2 ** (16 - psid_ofst)
-   # Number of contiguous port sequences (and omits seq 0)
-   rng = range(1, 2**psid_ofst)
-   # Number of port bits - PSID and Offset bits
-   prt_seq_bits = (16 - psid_ofst - psidlen)
-   prt_seq_len = 2**prt_seq_bits  # Length of contiguous port sequences
-   psid_idx = int(psid, 2)
-   prt_seq_mod = psid_idx * prt_seq_len
-   prt_seq_ls = [
-       f"{x * prt_rng_intvl + prt_seq_mod}-{(x * prt_rng_intvl + prt_seq_mod) + prt_seq_len - 1}" for x in rng
-   ]
 
    #-------------------------------------------------------------------------#
    # Binary display highlight indices
@@ -766,8 +752,7 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
       'bin_ipstr_dic': bin_ipstr_dic,
       'hl_dic1': hl_dic1,
       'hl_dic2': hl_dic2,
-      'num_excl_ports': 2 ** (16 - param_ls[6]),
-      'prt_seq_ls': prt_seq_ls
+      'num_excl_ports': 2 ** (16 - param_ls[6])
    }
 
    # If v4host is None, clear DHCPv6 fields. If v4host is 0, don't clear
@@ -775,7 +760,6 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
       clear_dhcp_fields()
 
    displays_update(d_dic, user_pd_obj)
-   cleared = False
 
    return
 
@@ -801,24 +785,23 @@ def displays_update(dic, pd_obj):
    window['-USERS_DSPLY-'].update(dic['users'])
    window['-PORTS_DSPLY-'].update(dic['ppusr'])
    window['-EXCL_PORTS_DSPLY-'].update(dic['excl_ports'])
-   # window['-BMR_STRING_DSPLY-'].update(dic['bmr_str']) #...........field eliminated
+   window['-BMR_STRING_DSPLY-'].update(dic['bmr_str'])
 
    # Output values to Edit String and Values fields
-   window['BMR_STRING'].update(dic['bmr_str'])
+   window['-STRING_IN-'].update(dic['bmr_str'])
    for i, element in enumerate(pframe_ls):
       window[element].update(dic['paramlist'][i])
 
    # Output User PD, CE IP, and Port to binary string editor
-   window['USER_PD'].update(dic['upd_str'])
-   # window['-USER_IP4-'].update(dic['ce_ip']) #...................field eliminated
-   # window['-USER_PORT-'].update(dic['port_int']) #...............field eliminated
+   window['-USER_PD-'].update(dic['upd_str'])
+   window['-USER_IP4-'].update(dic['ce_ip'])
+   window['-USER_PORT-'].update(dic['port_int'])
    window['-SP_INT-'].update(dic['port_int'])
    window['-SP_INDEX-'].update(dic['pidx_bin'])
 
    # Binary displays update values and highlights
-   multiline1: sg.Multiline = window['MLINE_BINOPS']
-   # multiline2: sg.Multiline = window['MLINE_BIN_2'] #............field eliminated
-   multiline3: sg.Multiline = window['MLINE_PORTS']
+   multiline1: sg.Multiline = window['MLINE_BIN_1']
+   multiline2: sg.Multiline = window['MLINE_BIN_2']
 
    # Output binary strings to binary string editor
    multiline1.update('') # Clear field
@@ -827,52 +810,15 @@ def displays_update(dic, pd_obj):
       multiline1.update(dic['bin_str_dic'][bstr]
        + ('\n' if num < len(dic['bin_str_dic']) -1 else ''), append=True)
 
-   # multiline2.update('') # Clear field #..............................field changed
-   # for num, bstr in enumerate(dic['bin_ipstr_dic']):
-   #    # Don't append \n after last line
-   #    multiline2.update(dic['bin_ipstr_dic'][bstr]
-   #     + ('\n' if num < len(dic['bin_ipstr_dic']) -1 else ''), append=True)
+   multiline2.update('') # Clear field
+   for num, bstr in enumerate(dic['bin_ipstr_dic']):
+      # Don't append \n after last line
+      multiline2.update(dic['bin_ipstr_dic'][bstr]
+       + ('\n' if num < len(dic['bin_ipstr_dic']) -1 else ''), append=True)
 
    # Apply highlighting
    highlights(multiline1, dic)
-   # highlights(multiline2, dic) #.......................................field changed
-
-   # Format port list and output to Source Port List field
-   #-------------------------------------------------------#
-   # "x" row result array will be transposed into "x" columns, to fit in the output field
-   rows = 6
-   port_seqs = dic['prt_seq_ls']
-   width = max(len(item) for item in port_seqs)  # Find max item width
-
-   # Pad list items to keep columns aligned
-   for i, item in enumerate(port_seqs):
-      port_seqs[i] = port_seqs[i].ljust(width)
-   
-   # Make list fit evenly into number of rows (will be transposed to columns)
-   columns, remainder = divmod(len(port_seqs), rows)
-
-   if remainder:
-      add = range(rows - remainder)
-      for x in add:
-         port_seqs.append('')
-      columns += 1
-
-   idx = (x for x in range(len(port_seqs))) # Generator for port_seqs list indices
-   array = [[port_seqs[next(idx)] for _ in range(columns)] for _ in range(rows)]
-
-   # Transpose n rows into n columns.
-   newarray = []
-   newarray = transpose(array, newarray)
-
-   # # Output port list to User Port List multiline field
-   window['MLINE_PORTS'].update('')
-   # Don't append "\n" to last line
-   for ls in enumerate(newarray):
-      if ls[0] + 1 < len(newarray):
-         line = '  '.join(ls[1]) + '\n'
-      else:
-         line = '  '.join(ls[1])
-      window['MLINE_PORTS'].update(line, append=True)
+   highlights(multiline2, dic)
 
    # Output values to binary editor sliders and input fields
    window['-V6PFX_LEN_SLDR-'].update(disabled=False)
@@ -1119,7 +1065,6 @@ def dhcp_calc(dmr, fmr=False):
    window['OPT_89'].update(opt_89_str)
    window['OPT_93'].update(opt_93_str)
    window['OPT_91'].update(opt_91_str)
-   return
 
 # Account for IP address separators (: & .) in binary strings
 def V6Indices(bin_right):
@@ -1189,10 +1134,8 @@ def validate(param_ls):
       v6p_out = ip.ip_network('/'.join((v6p, str(v6pl))))
       validflag = 'pass'
    except:
-      advance('RULEV6P')
-      print("in validate exception")
-      print(param_ls)
-      window['-PARAM_MESSAGES-'].update(
+      advance('-R6PRE-')
+      window['-PD_MESSAGES-'].update(
          f'IPv6 {v6p}/{v6pl} not valid. Host bits set?')
       window['-PARAM_MESSAGES-'].update(
          f'IPv6 {v6p}/{v6pl} not valid. Host bits set?')
@@ -1207,7 +1150,7 @@ def validate(param_ls):
       v4pfx = ip.ip_address(v4pfx_int)
    except ValueError:
       validflag = 'fail'
-      window['-PARAM_MESSAGES-'].update(
+      window['-PD_MESSAGES-'].update(
          f'IPv4 {v4p}/{v4pl} not valid. Host bits set?')
       window['-PARAM_MESSAGES-'].update(
          f'IPv4 {v4p}/{v4pl} not valid. Host bits set?')
@@ -1216,14 +1159,14 @@ def validate(param_ls):
    # Validate host bits exist
    if v4pfx_val.prefixlen > 31: # Valid for ip.ip_network test, but invalid for MAP-T
       validflag = 'fail'
-      window['-PARAM_MESSAGES-'].update('IPv4 Host Length = 0, Invalid')
+      window['-PD_MESSAGES-'].update('IPv4 Host Length = 0, Invalid')
       window['-PARAM_MESSAGES-'].update('IPv4 Host Length = 0, Invalid')
       return(validflag)
 
    # Validate Rule prefix masks are in acceptable MAP-T Rule ranges
    if int(v6pl) + eal > 64: # v6 prefix length + EA length > 64 not valid for MAP-T
       validflag = 'fail'
-      window['-PARAM_MESSAGES-'].update(
+      window['-PD_MESSAGES-'].update(
          f"IPv6 prefix mask + EA Bits can't exceed 64 bits")
       window['-PARAM_MESSAGES-'].update(
          f"IPv6 prefix mask + EA Bits can't exceed 64 bits")
@@ -1231,7 +1174,7 @@ def validate(param_ls):
 
    if eal < (32 - v4pl):  # EA length < v4 host bits (Check RFC)
       validflag = 'fail'
-      window['-PARAM_MESSAGES-'].update(
+      window['-PD_MESSAGES-'].update(
          f"EA Bits can't be less than IPv4 host bits")
       window['-PARAM_MESSAGES-'].update(
          f"EA Bits can't be less than IPv4 host bits")
@@ -1241,20 +1184,20 @@ def validate(param_ls):
    # (values not tested with actual BMR!)
    if eal > 48:     # EA length > 48 is invalid, rfc7597 5.2
       validflag = 'fail'
-      advance('EALEN')
-      window['-PARAM_MESSAGES-'].update('EA bits out of range')
+      advance('-EABITS-')
+      window['-PD_MESSAGES-'].update('EA bits out of range')
       window['-PARAM_MESSAGES-'].update('EA bits out of range')
       return(validflag)
    elif psofst_len > 15:   # PSID offset > 15 = no available ports
       validflag = 'fail'
+      window['-PD_MESSAGES-'].update('PSID Offset must not exceed 15')
       window['-PARAM_MESSAGES-'].update('PSID Offset must not exceed 15')
-      window['-PARAM_MESSAGES-'].update('PSID Offset must not exceed 15')
-      advance('PSID_OFST')
+      advance('-OFFSET-')
       return(validflag)
       ##### >>>> Check RFC to see if offset > 15 is possible <<<<<
    elif psofst_len + psid_len > 16:
       validflag = 'fail'
-      window['-PARAM_MESSAGES-'].update('PSID Offset + PSID Length > 16 bits')
+      window['-PD_MESSAGES-'].update('PSID Offset + PSID Length > 16 bits')
       window['-PARAM_MESSAGES-'].update('PSID Offset + PSID Length > 16 bits')
       return(validflag)
 
@@ -1271,24 +1214,6 @@ def resource_path(relative_path):
       base_path = os.path.abspath(".")
    return os.path.join(base_path, relative_path)
 
-def transpose(array, array_new):
-   """
-   Transposes a 2d array (rows to columns).
-
-   Args:
-     array: Original 2d array (list of lists).
-     array_new: Transposed array.
-   """
-   # iterate over list array to the length of an item 
-   for i in range(len(array[0])):
-      row =[]
-      for item in array:
-         # appending to new list with values and index positions
-         # i contains index position and item contains values
-         row.append(item[i])
-      array_new.append(row)
-   return array_new
-
 # Clear DHCPv6 results fields, but not DMR entry field
 #------------------------------------------------------#
 def clear_dhcp_fields(reset_prompt=True):
@@ -1296,10 +1221,8 @@ def clear_dhcp_fields(reset_prompt=True):
    window['OPT_89'].update('')
    window['OPT_93'].update('')
    window['OPT_91'].update('')
-   window['FMR_FLAG'].update(False)
    if reset_prompt == True:
       window['DMR_INPUT'].update('Ex. 2001:db8:ffff::/64', disabled=True)
-   return
 
 '''
 ███████ ██    ██ ███████ ███    ██ ████████     ██       ██████   ██████  ██████  
@@ -1315,24 +1238,16 @@ def clear_dhcp_fields(reset_prompt=True):
 
 # Display frame fields
 #----------------------------------#
-# dframe_ls = ['-BMR_STRING_DSPLY-', '-USERS_DSPLY-',
-dframe_ls = ['-USERS_DSPLY-',
+dframe_ls = ['-BMR_STRING_DSPLY-', '-USERS_DSPLY-',
              '-PORTS_DSPLY-', '-EXCL_PORTS_DSPLY-',
              '-IPS_DSPLY-', '-RATIO_DSPLY-']   # Display Frame fields
 
 # Parameter Editor frame fields
 #----------------------------------#
-pframe_ls = ['NAME', 'RULEV6P', '-R6LEN-', 'RULEV4P', '-R4LEN-',
-   'EALEN', 'PSID_OFST']
-
-# Output Fields
-#---------------------------------#
-outfields_ls = ['MLINE_BINOPS', 'MLINE_PORTS', 'MLINE_IPV4', 'MLINE_PORTIDX', 'CE_V6_WAN',
-                'USER_PD',
-                'BMR_STRING', '-SP_INDEX-', '-SP_INT-']
-
-#stringin = ['BMR_STRING']  # Rule String field
-#bframe_ls = ['USER_PD', '-USER_IP4-', '-V6PFX_LEN_SLDR-', '-EA_LEN_SLDR-',
+pframe_ls = ['-RULENAME-', '-R6PRE-', '-R6LEN-', '-R4PRE-', '-R4LEN-',
+   '-EABITS-', '-OFFSET-']
+#stringin = ['-STRING_IN-']  # Rule String field
+#bframe_ls = ['-USER_PD-', '-USER_IP4-', '-V6PFX_LEN_SLDR-', '-EA_LEN_SLDR-',
 #   '-V4PFX_LEN_SLDR-', '-PSID_OFST_SLDR-', '-V4HOST_SLIDER-',
 #   '-PORT_INDEX-', 'MLINE_BIN_1']       # Binary Editor fields
 #sframe_ls = ['MLINE_SAVED']                # Don't clear Save frame
@@ -1351,69 +1266,17 @@ last_params = None
 #-------------------------------------------------------------------------#
 # Main Event Loop - runs once for each 'event'
 #-------------------------------------------------------------------------#
-# open_binops_help = False
 cntr = 1  # Event counter
 while True:
    event, values = window.read()    # type: (str, dict)
    print(f'\n#--------- Event {str(cntr)} ----------#')
+#   print(event, values)
    print(event)
-   # print(event, values)
-   # print(f"window size is {window.size}")
-
    cntr += 1
-   if event in ('Exit', sg.WINDOW_CLOSE_ATTEMPTED_EVENT):
+   if event in (' Exit ', sg.WINDOW_CLOSE_ATTEMPTED_EVENT):
       # Save screen location when closing window
       sg.user_settings_set_entry('-location-', window.current_location())
       break
-
-   # Workaround for tab contents not appearing until cursor is moved off of selected tab
-   if event == "TABGROUP":
-      window[event].get_next_focus().set_focus()
-      window.refresh()
-      window[event].get_previous_focus().set_focus()
-
-   # Clear error message fields on next event
-   window['-PARAM_MESSAGES-'].update('')
-   # window['-PARAM_MESSAGES-'].update('')
-   # window['-BTN_MESSAGES-'].update('')
-   window['-DHCP_MESSAGES-'].update('')
-
-   # Clear all fields except Save Frame
-   if event == 'Clear':
-      for i in [*dframe_ls, *pframe_ls, *outfields_ls]: #, *sframe_ls]:
-         window[i].update('')
-      # window['MLINE_BIN_1'].update('')
-      # window['MLINE_BIN_2'].update('')
-      # window['MLINE_PORTS'].update('')
-      window['-V4HOST_SLIDER-'].update(value=0)
-      window['-V4HOST_SLIDER-'].update(range=(0, 0))
-      window['-V6PFX_LEN_SLDR-'].update(disabled=True)
-      window['-EA_LEN_SLDR-'].update(disabled=True)
-      window['-V4PFX_LEN_SLDR-'].update(disabled=True)
-      window['-PSID_OFST_SLDR-'].update(disabled=True)
-      # window['USER_PD'].update('')
-      # window['-USER_IP4-'].update('')
-      # window['-USER_PORT-'].update('')
-      # window['BMR_STRING'].update('')
-      # window['-SP_INDEX-'].update('')
-      # window['-SP_INT-'].update('')
-      clear_dhcp_fields()
-      last_dmr_entry = None
-      userpds = None # delete UserPd() class instance
-      examples = None # delete ExampleParams() class instance
-      last_params = None
-      portidx = 0
-      cleared = True
-      # Populate "example" entries in BMR input fields
-      for key in examples_dic:
-         window[key].update(examples_dic[key])
-      # for key in examples_dic:
-      #    print(key)
-
-   # Clear example text from input fields
-   if "FOCUS" in event:
-      if values[event.strip("_FOCUS")] in examples_dic.values():
-         window[event.strip("_FOCUS")].update("")
 
    if event == 'About':
       if os.path.isfile('files/about_txt'):
@@ -1424,15 +1287,45 @@ while True:
             size=(70, 33), font=('Arial', 14))
       else:
          abouttxt = 'File "files/about_txt" not found.'
-         about = sg.popup(abouttxt, title='About', font=('Arial', 12))
+         about = sg.popup(abouttxt, title='About', font=('Arial', 14))
+
+   # Clear error message fields on next event
+   window['-PARAM_MESSAGES-'].update('')
+   window['-PD_MESSAGES-'].update('')
+   window['-BTN_MESSAGES-'].update('')
+   window['-DHCP_MESSAGES-'].update('')
+
+   # Clear all fields except Save Frame
+   if event == '-CLEAR-':
+      for i in [*dframe_ls, *pframe_ls]: #, *sframe_ls]:
+         window[i].update('')
+      window['MLINE_BIN_1'].update('')
+      window['MLINE_BIN_2'].update('')
+      window['-V4HOST_SLIDER-'].update(value=0)
+      window['-V4HOST_SLIDER-'].update(range=(0, 0))
+      window['-V6PFX_LEN_SLDR-'].update(disabled=True)
+      window['-EA_LEN_SLDR-'].update(disabled=True)
+      window['-V4PFX_LEN_SLDR-'].update(disabled=True)
+      window['-PSID_OFST_SLDR-'].update(disabled=True)
+      window['-USER_PD-'].update('')
+      window['-USER_IP4-'].update('')
+      window['-USER_PORT-'].update('')
+      window['-STRING_IN-'].update('')
+      window['-SP_INDEX-'].update('')
+      window['-SP_INT-'].update('')
+      clear_dhcp_fields()
+      window['FMR_FLAG'].update(False)
+      last_dmr_entry = None
+      userpds = None # delete UserPd() class instance
+      examples = None # delete ExampleParams() class instance
+      last_params = None
+      portidx = 0
 
    # Load example values in main display and editors
    #-------------------------------------------------#
-   if event == 'EXAMPLE':
+   if event == '-EXAMPLE-':
       portidxadd = 0      # reset port index value
       v4hostint = 0       # reset v4 host integer
-      window['-V4HOST_SLIDER-'].update(value=0)
-      window['FMR_FLAG'].update(False)
       clear_dhcp_fields()
       
       if examples:
@@ -1445,26 +1338,23 @@ while True:
       userpds = UserPd(param_ls)
       user_pd = userpds.new_pd()
       rule_calc(param_ls, user_pd, v4hostint)
-      window['DMR_INPUT'].update(examples_dic['DMR_INPUT'][4:])
-      dhcp_calc(examples_dic['DMR_INPUT'][4:])
-      window["DMR_ENTER"].click() # This is only to update window values. Find better "refresh" method.
-      # window['MLINE_BIN_2'].Widget.xview_moveto('0.0') # Scroll to beginning of line #.....field changed
+      window['-V4HOST_SLIDER-'].update(value=0)
+      window['MLINE_BIN_2'].Widget.xview_moveto('0.0')
 
    # BMR parameter entry - validate input as it is typed
    #-----------------------------------------------------#
-   if event == 'NAME' and values[event]:
+   if event == '-RULENAME-' and values[event]:
       if values[event][-1] not in chars:
-         # Delete last character entered
          window[event].update(values[event][:-1])
          window['-PARAM_MESSAGES-'].update('Invalid character')
-      elif len(str(values['NAME'])) > 20:
-         # Delete last character entered
+      elif len(str(values['-RULENAME-'])) > 20:
          window[event].update(values[event][:-1])
          window['-PARAM_MESSAGES-'].update('Max Name length')
 
    if event == '-R6PRE-' and values['-R6PRE-']:
       if values['-R6PRE-'][-1] not in v6chars \
          or len(values['-R6PRE-']) > 21:
+         # Delete last character entered
          window[event].update(values[event][:-1])
          window['-PARAM_MESSAGES-'].update('Bad character or too long')
 
@@ -1480,13 +1370,13 @@ while True:
       portidxadd = 0      # reset port index value
       valid = 'not set'
       for p in pframe_ls:
-         if p == 'PSID_OFST' and values[p] == 0: # Allow 0, but not None
+         if p == '-OFFSET-' and values[p] == 0:
             allow = 'yes'
          elif not values[p]:
-            window['-PARAM_MESSAGES-'].update(f'Missing Parameter')
-            # advance(p)
-            allow = 'no'
-            break
+               window['-PARAM_MESSAGES-'].update(f'Missing Parameter')
+               # advance(p)
+               allow = 'no'
+               break
          else:
             allow = 'yes'
       if allow == 'yes':
@@ -1510,7 +1400,7 @@ while True:
    # Values in allowable ranges. But not tested that they work in BMR!
    #-------------------------------------------------------------------#
    # Rule String Enter button pressed or Return key pressed in Rule String Field
-   if event == '-ENTER_STRING-' or event == '-STRING_IN-' + '_Enter':  #......Validate names with spaces???
+   if event == '-ENTER_STRING-' or event == '-STRING_IN-' + '_Enter':
       portidxadd = 0      # reset port index setting
       valid = 'not set'
       goodstring = True
@@ -1580,33 +1470,107 @@ while True:
          userpds = UserPd(param_ls)
          user_pd = userpds.new_pd()
          rule_calc(param_ls, user_pd)
-         # window['MLINE_BIN_2'].Widget.xview_moveto('0.9')
+         window['MLINE_BIN_2'].Widget.xview_moveto('0.9')
       else:
          print('SLIDER ERROR')
 
+   # Display next User Delegated Prefix (PD)
+   #-----------------------------------------#
+   if event == '-NXT_USER_PD-' and last_params:
+      # If last_params=None (initial state or Clear was used) ignore button
+      portidxadd = 0
+      user_pd = userpds.new_pd()
+#     v4hostint = int(values['-V4HOST_SLIDER-']) # slider values are floats
+      rule_calc(last_params, user_pd, v4hostint)
+      if last_dmr_entry:
+         window['DMR_INPUT'].update(last_dmr_entry)
+         dhcp_calc(last_dmr_entry, values['FMR_FLAG'])
 
+   # Increment IPv4 host address
+   #-----------------------------------------#
+   # Host slider initialized with range=0,0. It can't be incremented when range=0
+   # Range is updated when valid BMR parameters are Entered
+   # Range is reset to 0,0 when "Clear" is used
+   if event == '-V4HOST_SLIDER-': # ---- May be able to use ip.addr + v4host_slider ----
+      portidxadd = 0
+      v4hostint = int(values['-V4HOST_SLIDER-']) # slider values are floats
+      rule_calc(last_params, user_pd, v4hostint)
+   # If last_params=None (initial state or Clear was used) ignore button
+   elif event == '-NEXT_HOST-' and last_params: # +1 button
+      maxhost = (2 ** (32 - values["-R4LEN-"])) -1
+      if last_params and values['-V4HOST_SLIDER-'] < maxhost:
+         v4hostint = int(values['-V4HOST_SLIDER-']) + 1 # slider values are floats
+         window['-V4HOST_SLIDER-'].update(value=v4hostint)
+         rule_calc(last_params, user_pd, v4hostint)
+
+   # Display user source port numbers
+   #-----------------------------------------#
+   if 'IDX' in event and last_params:
+      match event:
+         case '-P_IDX_FIRST-':
+            portidxadd = 0
+            idx = 0
+         case '-P_IDX_UP_1-':
+            idx = 1
+         case '-P_IDX_UP_10-':
+            idx = 10
+         case '-P_IDX_UP_100-':
+            idx = 100
+         case '-P_IDX_LAST-':
+            idx = 65535
+      idx = idx + portidxadd
+      portidxadd = idx
+      if portidxadd > 65535: # 16 bit port field max value is 65535
+         portidxadd = 65535 # Prevent possibility of infinite growth
+      v4hostint = int(values['-V4HOST_SLIDER-'])
+      rule_calc(last_params, user_pd, v4hostint, portidx = idx)
+
+   # Save Current BMR in bottom Multiline field for user to copy
+   # Only BMR parameter list section needs to be entered
+   #-------------------------------------------------------------#
+   if event == '-SAVE-' and last_params:
+      rule = values["-BMR_STRING_DSPLY-"]
+      name = rule.split('|')
+      name = name[0]
+
+      if name in values["-MLINE_SAVED-"]:
+         window['-PARAM_MESSAGES-'].update('Duplicate Rule Name')
+      elif rule[rule.index('|'):] in values["-MLINE_SAVED-"]:
+         # print(rule[rule.index('|'):])
+         window['-PARAM_MESSAGES-'].update('Duplicate Rule')
+      else:
+         savstr = f'{values["-BMR_STRING_DSPLY-"]} ' \
+                  f'(IPs-{window["-IPS_DSPLY-"].get()}, ' \
+                  f'SHR-{window["-RATIO_DSPLY-"].get()}, ' \
+                  f'USRS-{window["-USERS_DSPLY-"].get()}, ' \
+                  f'PTS-{window["-PORTS_DSPLY-"].get()}, ' \
+                  f'XPTS-{window["-EXCL_PORTS_DSPLY-"].get()})\n'
+
+         if savctr == True:
+            window['-MLINE_SAVED-'].update(savstr, append=True)
+         else:
+            window['-MLINE_SAVED-'].update(savstr)
+            savctr = True
+
+   elif event == '-SAVE-':
+      window['-PARAM_MESSAGES-'].update('Enter Rule')
 
    # DHCPv6 operations
    #-------------------------------------------------------------#
    # Disable section until valid BMR is entered
-   if event == 'DMR_INPUT_FOCUS':
-      if last_params:
-         print(last_params)
+   if last_params:
+      if event == 'DMR_INPUT_FOCUS':
          window['DMR_INPUT'].update(disabled=False)
          if not values['OPT_95']:
             if values['DMR_INPUT'] == 'Ex. 2001:db8:ffff::/64':
                window['DMR_INPUT'].update('')
-            # else:
-            #    window['DMR_INPUT'].update(bad_value) #............No bad_value yet
-      else:
-         window['DMR_INPUT'].update(examples_dic['DMR_INPUT'])
+            else:
+               window['DMR_INPUT'].update(bad_value)
 
-   # Validate entered DMR value
-   if event == 'DMR_ENTER' or event == 'DMR_INPUT' + '_Enter':
-      if last_params:
+      if event == 'DMR_ENTER' or event == 'DMR_INPUT' + '_Enter':
          try:
             dmr_obj = ip.ip_network(values['DMR_INPUT'])
-         except ValueError as ve: #........................Use "ve" for better message?
+         except ValueError as ve:
             window['-DHCP_MESSAGES-'].update(f"'{values['DMR_INPUT']}' is not a valid IPv6 network")
             bad_value = values['DMR_INPUT']
             clear_dhcp_fields(reset_prompt=False)
@@ -1625,34 +1589,39 @@ while True:
                dhcp_calc(values['DMR_INPUT'], fmr=False)
                last_dmr_entry = values['DMR_INPUT']
                last_fmr_flag = values['FMR_FLAG']
-         # Move focus out of Input field to enable "focus in" events
+
+      # Move focus out of DMR_INPUT to reset for next DMR_INPUT_FOCUS event
+      if event == 'DMR_INPUT' + '_Enter':
          window['DMR_ENTER'].set_focus()
 
-   # FMR checkbox changes option string to FMR without re-clicking DMR Enter Button
-   if event == 'FMR_FLAG' and values['OPT_95']:
-      if values['FMR_FLAG'] != last_fmr_flag:
-         window['OPT_95'].update('')
-         window['OPT_89'].update('')
-         window.read(timeout=50) # Flashes changing fields so user knows what updated
-         last_fmr_flag = values['FMR_FLAG']
-         window['DMR_INPUT'].update(last_dmr_entry)
-         dhcp_calc(last_dmr_entry, values['FMR_FLAG'])
+      # FMR checkbox changes option string to FMR without re-clicking DMR Enter Button
+      if event == 'FMR_FLAG' and values['OPT_95']:
+         if values['FMR_FLAG'] != last_fmr_flag:
+            window['OPT_95'].update('')
+            window['OPT_89'].update('')
+            window.read(timeout=50)
+            last_fmr_flag = values['FMR_FLAG']
+            window['DMR_INPUT'].update(last_dmr_entry)
+            dhcp_calc(last_dmr_entry, values['FMR_FLAG'])
 
-
-   print(values["OPT_95"])
 
    print(f'#------- End Event {cntr - 1} -------#')
 
+
+
+   '''
+   # Utilities:
+   #----------------------------------------#
+
+   # This prints all available element keys:
+   #----------------------------------------#
+   print('\n ---- VALUES KEYS ----')
+   for x in values.keys():
+      print(x)
+
+   # This prints all variables:
+   #----------------------------------------#
+   print(dir())
+   '''
+
 window.close()
-
-'''
-TO DO:
- - Add "cleared=False" to end of rule_calc() - DONE
- - Add "cleared=True" to "CLEAR" event - DONE
- - Replace example text in input fields on "CLEAR" event (dictionary done, near top) (new feature)
- - Don't clear example text in BMR String Input field
-
-
-
-'''
-
