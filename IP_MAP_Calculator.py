@@ -173,14 +173,6 @@ multiline2_layout = [
     no_scrollbar=True, key='MLINE_BIN_2')]
 ]
 
-# Frame 3 - Allocated source ports display
-multiline3_layout = [
-   [sg.Multiline(size=(83, 11), auto_size_text=True,
-    font=('Courier', 14, 'bold'), background_color='#fdfdfc',
-    expand_x=True, horizontal_scroll = False, disabled=True,
-    no_scrollbar=False, key='MLINE_BIN_3')]
-]
-
 bin_display_col1 = [
    [sg.Sizer(h_pixels=0, v_pixels=6)],
    [sg.Frame(
@@ -664,22 +656,6 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
       'v6sip_binstr2': f'     {pad2}:{v4sip_bin}:{psid_bin} ]:{port_int}'
    }
 
-   # User Ports List data
-   #--------------------------------------------------#
-   psid_ofst = param_ls[6]
-   # Interval between initial port sequence numbers assigned to the same user
-   prt_rng_intvl = 2 ** (16 - psid_ofst)
-   # Number of contiguous port sequences (and omits seq 0)
-   rng = range(1, 2**psid_ofst)
-   # Number of port bits - PSID and Offset bits
-   prt_seq_bits = (16 - psid_ofst - psidlen)
-   prt_seq_len = 2**prt_seq_bits  # Length of contiguous port sequences
-   psid_idx = int(psid, 2)
-   prt_seq_mod = psid_idx * prt_seq_len
-   prt_seq_ls = [
-       f"{x * prt_rng_intvl + prt_seq_mod}-{(x * prt_rng_intvl + prt_seq_mod) + prt_seq_len - 1}" for x in rng
-   ]
-
    #-------------------------------------------------------------------------#
    # Binary display highlight indices
    #-------------------------------------------------------------------------#
@@ -776,8 +752,7 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
       'bin_ipstr_dic': bin_ipstr_dic,
       'hl_dic1': hl_dic1,
       'hl_dic2': hl_dic2,
-      'num_excl_ports': 2 ** (16 - param_ls[6]),
-      'prt_seq_ls': prt_seq_ls
+      'num_excl_ports': 2 ** (16 - param_ls[6])
    }
 
    # If v4host is None, clear DHCPv6 fields. If v4host is 0, don't clear
@@ -827,7 +802,6 @@ def displays_update(dic, pd_obj):
    # Binary displays update values and highlights
    multiline1: sg.Multiline = window['MLINE_BIN_1']
    multiline2: sg.Multiline = window['MLINE_BIN_2']
-   multiline3: sg.Multiline = window['MLINE_BIN_3']
 
    # Output binary strings to binary string editor
    multiline1.update('') # Clear field
@@ -845,43 +819,6 @@ def displays_update(dic, pd_obj):
    # Apply highlighting
    highlights(multiline1, dic)
    highlights(multiline2, dic)
-
-   # Format port list and output to Source Port List field
-   #-------------------------------------------------------#
-   # "x" row result array will be transposed into "x" columns, to fit in the output field
-   rows = 6
-   port_seqs = dic['prt_seq_ls']
-   width = max(len(item) for item in port_seqs)  # Find max item width
-
-   # Pad list items to keep columns aligned
-   for i, item in enumerate(port_seqs):
-      port_seqs[i] = port_seqs[i].ljust(width)
-   
-   # Make list fit evenly into number of rows (will be transposed to columns)
-   columns, remainder = divmod(len(port_seqs), rows)
-
-   if remainder:
-      add = range(rows - remainder)
-      for x in add:
-         port_seqs.append('')
-      columns += 1
-
-   idx = (x for x in range(len(port_seqs))) # Generator for port_seqs list indices
-   array = [[port_seqs[next(idx)] for _ in range(columns)] for _ in range(rows)]
-
-   # Transpose n rows into n columns.
-   newarray = []
-   newarray = transpose(array, newarray)
-
-   # # Output port list to User Port List multiline field
-   window['MLINE_BIN_3'].update('')
-   # Don't append "\n" to last line
-   for ls in enumerate(newarray):
-      if ls[0] + 1 < len(newarray):
-         line = '  '.join(ls[1]) + '\n'
-      else:
-         line = '  '.join(ls[1])
-      window['MLINE_BIN_3'].update(line, append=True)
 
    # Output values to binary editor sliders and input fields
    window['-V6PFX_LEN_SLDR-'].update(disabled=False)
@@ -1628,7 +1565,7 @@ while True:
             if values['DMR_INPUT'] == 'Ex. 2001:db8:ffff::/64':
                window['DMR_INPUT'].update('')
             # else:
-            #    window['DMR_INPUT'].update(bad_value) # no bad_value value yet
+            #    window['DMR_INPUT'].update(bad_value) # No bad_value yet
 
       if event == 'DMR_ENTER' or event == 'DMR_INPUT' + '_Enter':
          try:

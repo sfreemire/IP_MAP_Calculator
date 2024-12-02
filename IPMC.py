@@ -1567,11 +1567,7 @@ while True:
             if values['DMR_INPUT'] == 'Ex. 2001:db8:ffff::/64':
                window['DMR_INPUT'].update('')
             # else:
-<<<<<<< HEAD
             #    window['DMR_INPUT'].update(bad_value) # No bad_value value yet
-=======
-            #    window['DMR_INPUT'].update(bad_value)
->>>>>>> revert-bad-commit
 
       if event == 'DMR_ENTER' or event == 'DMR_INPUT' + '_Enter':
          try:
