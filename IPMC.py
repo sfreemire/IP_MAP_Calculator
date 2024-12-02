@@ -4,11 +4,11 @@ import ipaddress as ip
 import os
 import sys
 
-'''IPMC.py: Calculates the results of IP MAP Rule parameters'''
+'''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters
+
+This version of IP_MAP_ADDRESS_CALCULATOR uses the FreeSimpleGUI graphics package.'''
 
 # IP_MAP_ADDRESS_CALCULATOR v0.12.00 - 11/13/2024 - D. Scott Freemire
-
-'''This version of IP_MAP_ADDRESS_CALCULATOR uses the FreeSimpleGUI graphics package.'''
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -1566,8 +1566,8 @@ while True:
          if not values['OPT_95']:
             if values['DMR_INPUT'] == 'Ex. 2001:db8:ffff::/64':
                window['DMR_INPUT'].update('')
-            else:
-               window['DMR_INPUT'].update(bad_value)
+            # else:
+            #    window['DMR_INPUT'].update(bad_value)
 
       if event == 'DMR_ENTER' or event == 'DMR_INPUT' + '_Enter':
          try:
