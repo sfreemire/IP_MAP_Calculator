@@ -4,9 +4,11 @@ import ipaddress as ip
 import os
 import sys
 
-'''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
+'''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters
 
-# IP_MAP_ADDRESS_CALCULATOR v0.12.01 - 11/27/2024 - D. Scott Freemire
+This version of IP_MAP_ADDRESS_CALCULATOR uses the FreeSimpleGUI graphics package.'''
+
+# IP_MAP_ADDRESS_CALCULATOR v0.12.00 - 11/13/2024 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -1565,7 +1567,11 @@ while True:
             if values['DMR_INPUT'] == 'Ex. 2001:db8:ffff::/64':
                window['DMR_INPUT'].update('')
             # else:
+<<<<<<< HEAD
             #    window['DMR_INPUT'].update(bad_value) # No bad_value value yet
+=======
+            #    window['DMR_INPUT'].update(bad_value)
+>>>>>>> revert-bad-commit
 
       if event == 'DMR_ENTER' or event == 'DMR_INPUT' + '_Enter':
          try:

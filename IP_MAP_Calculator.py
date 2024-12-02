@@ -6,7 +6,7 @@ import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.12.00 - 11/27/2024 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.12.00 - 11/13/2024 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -320,7 +320,7 @@ bin_display_layout = [
    [sg.Column(bin_display_col3, expand_x=True)],
 ]
 
-# DHCP Display (5th frame)
+# DHCP Display (4th frame)
 #-------------------------------------#
 dhcp_layout = [
    # [sg.Text('------- DHCPv6 Options for MAP-T CEs -------', font=(None, 12, 'bold'),
@@ -393,9 +393,6 @@ sections_layout = [
     expand_x=True, border_width=6, relief='ridge')],
    [sg.Frame('', bin_display_layout, expand_x=True, border_width=6,
     relief='ridge')],
-   [sg.Frame('User TCP/UDP Port Ranges', multiline3_layout,
-      font=('Helvetica', 13, 'bold'), title_location=sg.TITLE_LOCATION_TOP,
-      expand_x=True, border_width=6, relief='ridge')],
    [sg.Frame('DHCPv6 Options for MAP-T CEs', dhcp_layout,
       font=('Helvetica', 13, 'bold'), title_location=sg.TITLE_LOCATION_TOP,
       expand_x=True, border_width=6, relief='ridge')],
@@ -427,7 +424,7 @@ window = sg.Window('IP MAP Calculator', layout, font=windowfont,
    location=sg.user_settings_get_entry('-location-', (None, None)),
    # keep_on_top=False, resizable=True, size=(780, 1150), finalize=True) #(755, 1070)
    # keep_on_top=False, resizable=True, size=(780, 1260), finalize=True) #(755, 1070)
-   keep_on_top=False, resizable=True, size=(780, 1475), finalize=True) #(755, 1070)
+   keep_on_top=False, resizable=True, size=(780, 1445), finalize=True) #(755, 1070)
 
 # Prevent horizontal window resizing
 # window.set_resizable(False, True) # Not available until PySimpleGUI v5
@@ -1280,24 +1277,6 @@ def resource_path(relative_path):
       base_path = os.path.abspath(".")
    return os.path.join(base_path, relative_path)
 
-def transpose(array, array_new):
-   """
-   Transposes a 2d array (rows to columns).
-
-   Args:
-     array: Original 2d array (list of lists).
-     array_new: Transposed array.
-   """
-   # iterate over list array to the length of an item 
-   for i in range(len(array[0])):
-      row =[]
-      for item in array:
-         # appending to new list with values and index positions
-         # i contains index position and item contains values
-         row.append(item[i])
-      array_new.append(row)
-   return array_new
-
 # Clear DHCPv6 results fields, but not DMR entry field
 #------------------------------------------------------#
 def clear_dhcp_fields(reset_prompt=True):
@@ -1397,7 +1376,6 @@ while True:
       window['-STRING_IN-'].update('')
       window['-SP_INDEX-'].update('')
       window['-SP_INT-'].update('')
-      window['MLINE_BIN_3'].update('')
       clear_dhcp_fields()
       window['FMR_FLAG'].update(False)
       last_dmr_entry = None
@@ -1567,6 +1545,9 @@ while True:
       user_pd = userpds.new_pd()
 #     v4hostint = int(values['-V4HOST_SLIDER-']) # slider values are floats
       rule_calc(last_params, user_pd, v4hostint)
+      if last_dmr_entry:
+         window['DMR_INPUT'].update(last_dmr_entry)
+         dhcp_calc(last_dmr_entry, values['FMR_FLAG'])
 
    # Increment IPv4 host address
    #-----------------------------------------#
