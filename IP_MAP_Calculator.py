@@ -181,6 +181,254 @@ bin_display_col1 = [
     font=('Helvetica', 13, 'bold'), title_location=sg.TITLE_LOCATION_TOP,)],
 ]
 
+######################################
+######################################
+######################################
+######################################
+
+bmr_pd_layout = [
+   [sg.Multiline("BMR and User PD prefixes", size=(83, 13),
+      pad=((4, 4), (4, 0)), font=('Courier', 12), background_color='#fdfdfc',
+      expand_x=True, disabled=True, border_width=2, # horizontal_scroll = True,
+      no_scrollbar=True, key='MLINE_BINOPS')
+   ],
+   [sg.Text('IPv6 Prefix Length:', font=(None, 11, 'bold'),
+      background_color="#e5dfcf", pad=((6, 0), (14, 0))),
+    sg.Slider(range=(32, 64), default_value=32, orientation='h',
+      disable_number_display=False, enable_events=True,
+      size=(19, 10), trough_color='white', font=(None, 11, 'bold'),
+      text_color=None, background_color="#e5dfcf", disabled=True,
+      border_width=2, pad=((0, 4), (0, 0)), key='-V6PFX_LEN_SLDR-'),
+    sg.Push(background_color="#e5dfcf"),
+    sg.Text('EA Length:', font=(None, 11, 'bold'), background_color="#e5dfcf",
+      pad=((0, 0), (14, 0))),
+    sg.Slider(range=(0, 32), default_value=0, orientation='h', # Per RFC 7598 (dhcp) 0-48 is valid.
+      disable_number_display=False, enable_events=True,
+      size=(19, 10), trough_color='white', font=(None, 11, 'bold'),
+      text_color=None, disabled=True, background_color="#e5dfcf",
+      border_width=2, pad=((0, 4), (0, 0)), key='-EA_LEN_SLDR-'),
+    sg.Sizer(h_pixels=3)
+   ],
+   [sg.Text('IPv4 Prefix Length:', font=(None, 11, 'bold'),
+      background_color="#e5dfcf", pad=((6, 0), (10, 0))),
+    sg.Slider(range=(16, 32), default_value=16, orientation='h',
+      disable_number_display=False, enable_events=True,
+      size=(19, 10), trough_color='white', font=(None, 11, 'bold'),
+      text_color=None, background_color="#e5dfcf", disabled=True,
+      border_width=2, pad=((0, 4), (0, 4)), key='-V4PFX_LEN_SLDR-'),
+    sg.Push(background_color="#e5dfcf"),
+    sg.Text('PSID Offset:', font=(None, 11, 'bold'),
+      background_color="#e5dfcf", pad=((0, 0), (10, 0))),
+    sg.Slider(range=(0, 15), default_value=0, orientation='h',
+      disable_number_display=False, enable_events=True,
+      size=(19, 10), trough_color='white', font=(None, 11, 'bold'),
+      text_color=None, disabled=True, background_color="#e5dfcf",
+      border_width=2, pad=((0, 4), (0, 4)), key='-PSID_OFST_SLDR-'),
+    sg.Sizer(h_pixels=3)
+   ],
+# [sg.Sizer(h_pixels=612, v_pixels=4)], # Sets necessary width for binary strings
+   [sg.Sizer(v_pixels=4)],
+   [sg.HorizontalSeparator()],
+   [sg.Sizer(v_pixels=4)],
+   [sg.Sizer(h_pixels=63),
+    sg.Text('IPv6 User PD:', font=(None, 11, 'bold'), pad=((4, 0), (2, 4))),
+    sg.Text('', font=('Courier', 12), justification='centered',
+      size=(30, 1), pad=((0, 4), (4, 4)), border_width=2, relief='sunken',
+      background_color='#f5f2eb', key='USER_PD'),
+    sg.Button('First', font='None 8', pad=((4, 0), (4, 4))),
+    sg.Button('Next', font='None 8', pad=((3, 0), (4, 4))),
+    sg.Button('Last', font='None 8', pad=((3, 4), (4, 4))),
+    sg.Push()
+   ],
+   [sg.Text('CE MAP-T WAN Address:', font=(None, 11, 'bold'),
+      pad=((4, 0), (2, 4))),
+    sg.Text('', font=('Courier', 12), size=(30, 1), #......................Maybe make Input for copy/paste
+      justification='centered', pad=((0, 4), (4, 4)), border_width=2,
+      relief='sunken', background_color='#f5f2eb', key='CE_V6_WAN'),
+      # key='USER_PD'),
+    sg.Push()
+   ],
+   [sg.Sizer(v_pixels=1)],
+]
+
+ipv4_test_text = (" IPv4 Prefix and Host Bits\n\n"
+                  " IPv4 Addr:     192  .   168  .    0   .    0   /24\n"
+                  " IPv4 Addr:  11000000.10101000.00000000.00000000/24")
+
+ipv4_section = [
+   [sg.Multiline('IPv4 Prefix and Host Bits', size=(None, 4), # size=(83, 13), # auto_size_text=True,...Needed?
+      p=4, font=('Courier', 12), background_color='#fdfdfc',
+      expand_x=True, disabled=True, border_width=2, # horizontal_scroll = True,
+      no_scrollbar=True, key='MLINE_IPV4')
+   ],
+   [sg.Push(),
+    sg.Text('IPv4 Host:', font=(None, 11, 'bold'), pad=((4, 0), (10, 0))),
+    sg.Slider(range=(0, 0), default_value=0, orientation='h',
+    disable_number_display=False, enable_events=True, border_width=2,
+    size=(42, 10), trough_color='white', font=(None, 11, 'bold'),
+    pad=((0, 2), (0, 6)), key='-V4HOST_SLIDER-'),
+    sg.Button(' + 1', font='None 8', pad=((2, 5), (12, 0)), key='-NEXT_HOST-'),
+    sg.Push()
+   ],
+   [sg.Sizer(v_pixels=4)],
+]
+
+portidx_multiline = [
+   [sg.Multiline("Port Set ID and Port Selection", size=(None, 4), # size=(83, 13), # auto_size_text=True,...Needed?
+      p=4, font=('Courier', 12), background_color='#fdfdfc',
+      expand_x=True, disabled=True, border_width=2, # horizontal_scroll = True,
+      no_scrollbar=True, key='MLINE_PORTIDX')
+   ],
+   [sg.Sizer(v_pixels=3)],
+   [sg.Text('Source Port Index:', font=(None, 11, 'bold'),
+      pad=((6, 0), (1, 4))),
+    sg.Text('', font=('Courier', 12, 'bold'), justification='centered',
+    size=(16, 1), border_width=2, relief='sunken', pad=((1, 4), (4, 4)),
+      background_color='#f5f2eb', key='-SP_INDEX-'),
+    sg.Text(f'= Port', font=(None, 11, 'bold'), pad=((0, 0), (1, 4))),
+    sg.Text('', font=('Courier', 12, 'bold'), justification='centered',
+      size=(7, 1), pad=((0, 0), (4, 4)), border_width=2, relief='sunken',
+      background_color='#f5f2eb', key='-SP_INT-'),
+    sg.Sizer(h_pixels=16),
+    sg.Button(' <<', font='None 8', pad=((4, 2), (4, 4)), key='-P_IDX_FIRST-'),
+    sg.Button(' + 1', font='None 8', pad=((2, 2), (4, 4)), key='-P_IDX_UP_1-'),
+    sg.Button(' + 10', font='None 8', pad=((2, 2), (4, 4)), key='-P_IDX_UP_10-'),
+    sg.Button(' + 100', font='None 8', pad=((2, 2), (4, 4)), key='-P_IDX_UP_100-'),
+    sg.Button(' >>', font='None 8', pad=((2, 0), (4, 4)), key='-P_IDX_LAST-')],
+   [sg.Sizer(v_pixels=4)]
+]
+
+bmr_binops_tab_layout = [
+   [sg.Frame("", [
+      [sg.Sizer(v_pixels=3)],
+      [sg.Text(('Bit analysis performed by CE, to determine its allocated '
+                'IPv4 host addresses and ports'),
+       font='None 12 bold', background_color="#E5DECF", justification='centered', 
+       border_width=0, relief='raised', pad=0, expand_x=True)],],
+       expand_x=True, border_width=0, relief='raised')
+   ],
+   [sg.Sizer(v_pixels=4)],
+   [sg.Frame("", bmr_pd_layout, font='None 11 bold italic',
+      title_location=sg.TITLE_LOCATION_TOP_LEFT, expand_x=True, border_width=3,
+      relief="raised", pad=((4, 4), (0, 0)))],
+   [sg.Column([[]], pad=((4, 4), (0, 0)), background_color='#45433e',
+      size=(2, 3), expand_x=True)],
+   [sg.Frame("", ipv4_section, font='None 11 bold italic',
+      title_location=sg.TITLE_LOCATION_TOP_LEFT, expand_x=True, border_width=3,
+      relief="raised", pad=((4, 4), (0, 0)))
+   ],
+   [sg.Column([[]], pad=((4, 4), (0, 0)), background_color='#45433e',
+      size=(2, 3), expand_x=True)],
+   [sg.Frame("", portidx_multiline,
+      font='None 11 bold italic', title_location=sg.TITLE_LOCATION_TOP_LEFT,
+      expand_x=True, border_width=3, relief="raised", pad=((4, 4), (0, 4)))
+   ],
+]
+
+user_ports_multiline = [
+      [sg.Multiline(
+         'All user ports list',
+         size=(None, 11), # size=(83,
+         border_width=2,
+         pad=3,
+         auto_size_text=True,
+         font=('Courier', 12),
+         background_color='#fdfdfc',
+         expand_x=True,
+         horizontal_scroll = False,
+         disabled=True,
+         no_scrollbar=False,
+         key='MLINE_PORTS')]
+]
+
+user_ports_tab_layout = [
+   [sg.Sizer(v_pixels=3)],
+   [sg.Text("All ports for current PSID ",
+      font=(None, 12, 'bold'), expand_x=True, justification='centered')],
+   [sg.Frame("", user_ports_multiline, p=4, expand_x=True, border_width=3,
+      relief='raised')],
+   [sg.Sizer(v_pixels=6)],
+]
+
+dhcp_fields = [
+   [sg.Sizer(0, 6),],
+   [sg.Text('DMR', font=(None, 11, 'bold'), pad=((4, 0), (3, 0))),
+    sg.Input('', font=('Courier', 12), size=25, justification='centered',
+      background_color='#fdfdfc', pad=((0, 0), (4, 0)), border_width=2,
+      disabled=True, key='DMR_INPUT'),
+    sg.Button('Enter', font='None 8', key='DMR_ENTER')],
+   [sg.Text('S46 MAP-T Container Option 95:', font=(None, 11, 'bold')),
+    sg.Checkbox('Make FMR String', font=(None, 11, 'bold'), #tooltip=fmr_tooltip,
+      enable_events=True, tooltip=fmr_tooltip, key='FMR_FLAG'),
+    sg.Text('', text_color='red', font='None 11 bold', key='-DHCP_MESSAGES-')],
+   [sg.Sizer(0, 0),
+    sg.Input('', size=(93, 1), font=('Courier', 12), justification='centered',
+      disabled=True, use_readonly_for_disable=True, key='OPT_95')],
+   [sg.Text(f'Option 89', font=(None, 11, 'bold')),
+    sg.Input('', size=(55, 1), font=('Courier', 12), justification='centered',
+      disabled=True, use_readonly_for_disable=True, key='OPT_89')], # OPTION_S46_RULE (89)
+   [sg.Text('Option 93', justification='centered', font=(None, 11, 'bold')),
+    sg.Input('', font=('Courier', 12), justification='centered',
+      disabled=True, use_readonly_for_disable=True, key='OPT_93')], # OPTION_S46_PORTPARAMS (93)
+   [sg.Text(f'Option 91', justification='centered', font=(None, 11, 'bold')),
+    sg.Input('', font=('Courier', 12), justification='centered',
+      disabled=True, use_readonly_for_disable=True, key='OPT_91')], # OPTION_S46_DMR (91)
+   [sg.Sizer(v_pixels=6)],
+]
+
+dhcp_tab_layout = [
+   [sg.Sizer(v_pixels=3)],
+   [sg.Text("Softwire 46 MAP-T Options for DHCPv6", font=(None, 12, 'bold'),
+      expand_x=True, justification='centered')],
+   [sg.Frame("", dhcp_fields, expand_x=True, border_width=3, relief='raised')]
+]
+
+saved_rules_multiline =[
+   [sg.Multiline(
+      default_text='IP MAP Calculator BMR strings', 
+      size=(None, 11),
+      border_width=2,
+      pad=3,
+      font=('Courier', 12), 
+      background_color='#fdfdfc', 
+      expand_x=True, 
+      disabled=True, 
+      autoscroll=True,
+      horizontal_scroll=True,
+      key='-MLINE_SAVED-'
+      )
+   ]
+]
+
+saved_rules_tab_layout = [
+   [sg.Sizer(v_pixels=3)],
+   [sg.Push(),
+    sg.Text("Saved BMR Strings",
+      font=(None, 12, 'bold'), justification='centered'),
+    sg.Text("(To re-enter in 'BMR String' field)",
+      font=(None, 12, 'italic'), justification='centered'),
+    sg.Push()],
+   [sg.Frame("", saved_rules_multiline, p=4, expand_x=True, border_width=3,
+      relief='raised')],
+   [sg.Sizer(v_pixels=6)],
+]
+
+tab_group_layout = [
+   [sg.Tab('Binary Operations', bmr_binops_tab_layout,
+      key='TAB_BINARY'),
+    # image_source=binops_tab_label, key='TAB_BINARY'),
+    # sg.Tab('User PD', user_pd_tab_layout, key='TAB_UPD'),
+    sg.Tab('User Ports', user_ports_tab_layout, key='TAB_PORTS'),
+    sg.Tab('DHCP Options', dhcp_tab_layout, key='TAB_DHCP'),
+    sg.Tab('Saved Rules', saved_rules_tab_layout, key='TAB_SAVED')]
+]
+
+######################################
+######################################
+######################################
+######################################
+
+
 bin_display_col2 = [
    [
     sg.Sizer(37, 0),
@@ -189,7 +437,7 @@ bin_display_col2 = [
     sg.Slider(range=(32, 64), default_value=32, orientation='h',
     disable_number_display=False, enable_events=True,
     size=(16, 8), trough_color='white', font=('Helvetica', 13, 'bold'),
-    text_color=None, disabled=True, key='-V6PFX_LEN_SLDR-'),
+    text_color=None, disabled=True, key='-V6PFX_LEN_SLDR-XX'),
 #    sg.Push(),
     sg.Sizer(8, 0),
     sg.VerticalSeparator(),
@@ -201,7 +449,7 @@ bin_display_col2 = [
     sg.Slider(range=(0, 32), default_value=32, orientation='h', # Per RFC 7598 (dhcp) 0-48 is valid.
     disable_number_display=False, enable_events=True,
     size=(19, 8), trough_color='white', font=('Helvetica', 13, 'bold'),
-    text_color=None, disabled=True, key='-EA_LEN_SLDR-'),
+    text_color=None, disabled=True, key='-EA_LEN_SLDR-XX'),
 #    sg.Sizer(40, 0),
     ],
    [
@@ -212,7 +460,7 @@ bin_display_col2 = [
     disable_number_display=False, enable_events=True,
     size=(16, 8), trough_color='white', font=('Helvetica', 13, 'bold'),
     disabled=True, text_color=None,
-    key='-V4PFX_LEN_SLDR-'),
+    key='-V4PFX_LEN_SLDR-XX'),
 #    sg.Push(),
     sg.Sizer(8, 0),
     sg.VerticalSeparator(),
@@ -223,7 +471,7 @@ bin_display_col2 = [
     sg.Slider(range=(0, 15), default_value=0, orientation='h',
     disable_number_display=False, enable_events=True,
     size=(19, 8), trough_color='white', font=('Helvetica', 13, 'bold'),
-    pad=((5, 5), (0, 10)), disabled=True, key='-PSID_OFST_SLDR-'),
+    pad=((5, 5), (0, 10)), disabled=True, key='-PSID_OFST_SLDR-XX'),
 #    sg.Push()
     ],
 
@@ -235,11 +483,11 @@ bin_display_col2 = [
     relief='ridge', key='-SP_INDEX-'),
 #    sg.Input('', size=(16, 1), justification='centered',
 #    use_readonly_for_disable=True,disabled=True, key='-SP_INDEX-'),
-    sg.Button(' <<', font='Helvetica 11', key='-P_IDX_FIRST-'),
-    sg.Button(' + 1', font='Helvetica 11', key='-P_IDX_UP_1-'),
-    sg.Button(' + 10', font='Helvetica 11', key='-P_IDX_UP_10-'),
-    sg.Button(' + 100', font='Helvetica 11', key='-P_IDX_UP_100-'),
-    sg.Button(' >>', font='Helvetica 11', key='-P_IDX_LAST-'),
+    sg.Button(' <<', font='Helvetica 11', key='-P_IDX_FIRST-XX'),
+    sg.Button(' + 1', font='Helvetica 11', key='-P_IDX_UP_1-XX'),
+    sg.Button(' + 10', font='Helvetica 11', key='-P_IDX_UP_10-XX'),
+    sg.Button(' + 100', font='Helvetica 11', key='-P_IDX_UP_100-XX'),
+    sg.Button(' >>', font='Helvetica 11', key='-P_IDX_LAST-XX'),
     sg.Text(f'= Port', font=('Helvetica', 14, 'bold')),
     sg.Text('', font=('Helvetica', 14, 'bold'), justification='centered',
     size=(7, 1), background_color='#fdfdfc', border_width=4,
@@ -290,7 +538,7 @@ bin_display_col2 = [
     sg.Slider(range=(0, 0), default_value=0, orientation='h',
     disable_number_display=False, enable_events=True,
     size=(42, 8), trough_color='white', font=('Helvetica', 14, 'bold'),
-    pad=((5, 10), (0, 0)), key='-V4HOST_SLIDER-'),
+    pad=((5, 10), (0, 0)), key='-V4HOST_SLIDER-XX'),
     sg.Button(' + 1', font='Helvetica 11', key='-NEXT_HOST-'),
    ],
 ]
@@ -327,15 +575,15 @@ dhcp_layout = [
     sg.Text('', text_color='red', font='None 14 bold', key='-DHCP_MESSAGES-')],
    [sg.Sizer(4, 0),
     sg.Input('', justification='centered', size=(85, 1), disabled=True,
-      use_readonly_for_disable=True, key='OPT_95')],
+      use_readonly_for_disable=True, key='OPT_95-XX')],
    # [sg.Text(f'Option 95', font=('Helvetica', 13, 'bold')),
    #  sg.Input('', disabled=True, use_readonly_for_disable=True, key='OPT_95')], # OPTION_S46_CONT_MAPT (95)
    [sg.Text(f'Option 89', font=('Helvetica', 13, 'bold')),
-    sg.Input('', size=(55, 1), disabled=True, use_readonly_for_disable=True, key='OPT_89')], # OPTION_S46_RULE (89)
+    sg.Input('', size=(55, 1), disabled=True, use_readonly_for_disable=True, key='OPT_89-XX')], # OPTION_S46_RULE (89)
    [sg.Text('Option 93', font=('Helvetica', 13, 'bold')),
-    sg.Input('', disabled=True, use_readonly_for_disable=True, key='OPT_93')], # OPTION_S46_PORTPARAMS (93)
+    sg.Input('', disabled=True, use_readonly_for_disable=True, key='OPT_93-XX')], # OPTION_S46_PORTPARAMS (93)
    [sg.Text(f'Option 91', font=('Helvetica', 13, 'bold')),
-    sg.Input('', disabled=True, use_readonly_for_disable=True, key='OPT_91')], # OPTION_S46_DMR (91)
+    sg.Input('', disabled=True, use_readonly_for_disable=True, key='OPT_91-XX')], # OPTION_S46_DMR (91)
    # [sg.Button('Generate', key='DHCP_GENERATE')]
 ]
 
@@ -371,7 +619,7 @@ saved_section_layout = [
        sg.Multiline(default_text='', size=(81, 8),
        font=('Courier', 14, 'bold'), disabled=True, autoscroll=True,
        expand_x=True, expand_y=True, pad=(0,0), horizontal_scroll=True,
-       background_color='#fdfdfc', key='-MLINE_SAVED-'),
+       background_color='#fdfdfc', key='-MLINE_SAVED-XX'),
        sg.Push()]
 ]
 
@@ -383,6 +631,8 @@ sections_layout = [
    [sg.Frame('Enter or Edit BMR Parameters', editor_layout,
     font=('Helvetica', 13, 'bold'), title_location=sg.TITLE_LOCATION_TOP,
     expand_x=True, border_width=6, relief='ridge')],
+   [sg.TabGroup(tab_group_layout, enable_events=True, border_width=1,
+      key="TABGROUP")],
    [sg.Frame('', bin_display_layout, expand_x=True, border_width=6,
     relief='ridge')],
    [sg.Frame('DHCPv6 Options for MAP-T CEs', dhcp_layout,
@@ -802,6 +1052,7 @@ def displays_update(dic, pd_obj):
    # Binary displays update values and highlights
    multiline1: sg.Multiline = window['MLINE_BIN_1']
    multiline2: sg.Multiline = window['MLINE_BIN_2']
+   multiline3: sg.Multiline = window['MLINE_BINOPS']
 
    # Output binary strings to binary string editor
    multiline1.update('') # Clear field
@@ -815,6 +1066,11 @@ def displays_update(dic, pd_obj):
       # Don't append \n after last line
       multiline2.update(dic['bin_ipstr_dic'][bstr]
        + ('\n' if num < len(dic['bin_ipstr_dic']) -1 else ''), append=True)
+
+   multiline3.update('')
+   for num, bstr in enumerate(dic['bin_str_dic']):
+      multiline3.update(dic['bin_str_dic'][bstr]
+       + ('\n' if num < len(dic['bin_str_dic']) -1 else ''), append=True)
 
    # Apply highlighting
    highlights(multiline1, dic)
@@ -1060,7 +1316,7 @@ def dhcp_calc(dmr, fmr=False):
    opt_95_payload = opt_89_str + opt_91_str
    opt_95_w_head = f"({opt_95_lbl}{opt_95_len_hx}){opt_95_payload}"
 
-   # window['OPT_95'].update(opt_95_payload
+   # window['OPT_95'].update(opt_95_payload)
    window['OPT_95'].update(opt_95_w_head)
    window['OPT_89'].update(opt_89_str)
    window['OPT_93'].update(opt_93_str)
@@ -1277,6 +1533,12 @@ while True:
       # Save screen location when closing window
       sg.user_settings_set_entry('-location-', window.current_location())
       break
+
+   # Workaround for tab contents not appearing until cursor is moved off of selected tab
+   if event == "TABGROUP":
+      window[event].get_previous_focus().set_focus()
+      window.refresh()
+      window[event].get_next_focus().set_focus()
 
    if event == 'About':
       if os.path.isfile('files/about_txt'):
