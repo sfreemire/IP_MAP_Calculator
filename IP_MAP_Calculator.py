@@ -159,27 +159,27 @@ editor_layout = [
 
 # Binary Display (3rd frame)
 #-------------------------------------#
-multiline1_layout = [
-   [sg.Multiline(size=(83, 13), auto_size_text=True,
-    font=('Courier', 14, 'bold'), background_color='#fdfdfc',
-    expand_x=True, disabled=True, # horizontal_scroll = True,
-    no_scrollbar=True, key='MLINE_BIN_1')]
-]
+# multiline1_layout = [
+#    [sg.Multiline(size=(83, 13), auto_size_text=True,
+#     font=('Courier', 14, 'bold'), background_color='#ffffff',
+#     expand_x=True, disabled=True, # horizontal_scroll = True,
+#     no_scrollbar=True, key='MLINE_BIN_1')]
+# ]
 
-multiline2_layout = [
+multiline5_layout = [
    [sg.Multiline(size=(83, 7), auto_size_text=True,
     font=('Courier', 14, 'bold'), background_color='#fdfdfc',
     expand_x=True, horizontal_scroll = False, disabled=True,
     no_scrollbar=True, key='MLINE_BIN_2')]
 ]
 
-bin_display_col1 = [
-   [sg.Sizer(h_pixels=0, v_pixels=6)],
-   [sg.Frame(
-    'BMR Prefix, User Prefix, & IPv4 Prefix - IPv4 Host & Port Calculation',
-    multiline1_layout, expand_x=True, border_width=1, relief='ridge',
-    font=('Helvetica', 13, 'bold'), title_location=sg.TITLE_LOCATION_TOP,)],
-]
+# bin_display_col1 = [
+#    [sg.Sizer(h_pixels=0, v_pixels=6)],
+#    [sg.Frame(
+#     'BMR Prefix, User Prefix, & IPv4 Prefix - IPv4 Host & Port Calculation',
+#     multiline1_layout, expand_x=True, border_width=1, relief='ridge',
+#     font=('Helvetica', 13, 'bold'), title_location=sg.TITLE_LOCATION_TOP,)],
+# ]
 
 ######################################
 ######################################
@@ -188,7 +188,7 @@ bin_display_col1 = [
 
 bmr_pd_layout = [
    [sg.Multiline("BMR and User PD prefixes", size=(83, 13),
-      pad=((4, 4), (4, 0)), font=('Courier', 12), background_color='#fdfdfc',
+      pad=((4, 4), (4, 0)), font=('Courier', 12, 'bold'), background_color='#f1eee7',
       expand_x=True, disabled=True, border_width=2, # horizontal_scroll = True,
       no_scrollbar=True, key='MLINE_BINOPS')
    ],
@@ -234,9 +234,9 @@ bmr_pd_layout = [
     sg.Text('IPv6 User PD:', font=(None, 11, 'bold'), pad=((4, 0), (2, 4))),
     sg.Text('', font=('Courier', 12), justification='centered',
       size=(30, 1), pad=((0, 4), (4, 4)), border_width=2, relief='sunken',
-      background_color='#f5f2eb', key='USER_PD'),
+      background_color='#f5f2eb', key='-USER_PD-'),
     sg.Button('First', font='None 8', pad=((4, 0), (4, 4))),
-    sg.Button('Next', font='None 8', pad=((3, 0), (4, 4))),
+    sg.Button('Next', font='None 8', pad=((3, 0), (4, 4)), key='-NXT_USER_PD-'),
     sg.Button('Last', font='None 8', pad=((3, 4), (4, 4))),
     sg.Push()
    ],
@@ -430,71 +430,71 @@ tab_group_layout = [
 
 
 bin_display_col2 = [
-   [
-    sg.Sizer(37, 0),
-    sg.Text('IPv6 Prefix Length:', font=('Helvetica', 13, 'bold'),
-    pad=((0, 1), (5, 0))),
-    sg.Slider(range=(32, 64), default_value=32, orientation='h',
-    disable_number_display=False, enable_events=True,
-    size=(16, 8), trough_color='white', font=('Helvetica', 13, 'bold'),
-    text_color=None, disabled=True, key='-V6PFX_LEN_SLDR-XX'),
-#    sg.Push(),
-    sg.Sizer(8, 0),
-    sg.VerticalSeparator(),
-    sg.Sizer(8, 0),
-#    sg.Push(),
-    sg.Text('EA Length:', font=('Helvetica', 13, 'bold'),
-      pad=((0, 14), (5, 0))),
-#    sg.Sizer(h_pixels=5, v_pixels=0),
-    sg.Slider(range=(0, 32), default_value=32, orientation='h', # Per RFC 7598 (dhcp) 0-48 is valid.
-    disable_number_display=False, enable_events=True,
-    size=(19, 8), trough_color='white', font=('Helvetica', 13, 'bold'),
-    text_color=None, disabled=True, key='-EA_LEN_SLDR-XX'),
-#    sg.Sizer(40, 0),
-    ],
-   [
-    sg.Sizer(37, 0),
-    sg.Text('IPv4 Prefix Length:', font=('Helvetica', 13, 'bold'),
-      pad=((0, 1), (5, 0))),
-    sg.Slider(range=(16, 32), default_value=16, orientation='h',
-    disable_number_display=False, enable_events=True,
-    size=(16, 8), trough_color='white', font=('Helvetica', 13, 'bold'),
-    disabled=True, text_color=None,
-    key='-V4PFX_LEN_SLDR-XX'),
-#    sg.Push(),
-    sg.Sizer(8, 0),
-    sg.VerticalSeparator(),
-    sg.Sizer(8, 0),
-#    sg.Push(),
-    sg.Text('PSID Offset:', font=('Helvetica', 13, 'bold'),
-    pad=((0, 5), (0, 5))),
-    sg.Slider(range=(0, 15), default_value=0, orientation='h',
-    disable_number_display=False, enable_events=True,
-    size=(19, 8), trough_color='white', font=('Helvetica', 13, 'bold'),
-    pad=((5, 5), (0, 10)), disabled=True, key='-PSID_OFST_SLDR-XX'),
-#    sg.Push()
-    ],
+#    [
+#     sg.Sizer(37, 0),
+#     sg.Text('IPv6 Prefix Length:', font=('Helvetica', 13, 'bold'),
+#     pad=((0, 1), (5, 0))),
+#     sg.Slider(range=(32, 64), default_value=32, orientation='h',
+#     disable_number_display=False, enable_events=True,
+#     size=(16, 8), trough_color='white', font=('Helvetica', 13, 'bold'),
+#     text_color=None, disabled=True, key='-V6PFX_LEN_SLDR-XX'),
+# #    sg.Push(),
+#     sg.Sizer(8, 0),
+#     sg.VerticalSeparator(),
+#     sg.Sizer(8, 0),
+# #    sg.Push(),
+#     sg.Text('EA Length:', font=('Helvetica', 13, 'bold'),
+#       pad=((0, 14), (5, 0))),
+# #    sg.Sizer(h_pixels=5, v_pixels=0),
+#     sg.Slider(range=(0, 32), default_value=32, orientation='h', # Per RFC 7598 (dhcp) 0-48 is valid.
+#     disable_number_display=False, enable_events=True,
+#     size=(19, 8), trough_color='white', font=('Helvetica', 13, 'bold'),
+#     text_color=None, disabled=True, key='-EA_LEN_SLDR-XX'),
+# #    sg.Sizer(40, 0),
+#     ],
+#    [
+#     sg.Sizer(37, 0),
+#     sg.Text('IPv4 Prefix Length:', font=('Helvetica', 13, 'bold'),
+#       pad=((0, 1), (5, 0))),
+#     sg.Slider(range=(16, 32), default_value=16, orientation='h',
+#     disable_number_display=False, enable_events=True,
+#     size=(16, 8), trough_color='white', font=('Helvetica', 13, 'bold'),
+#     disabled=True, text_color=None,
+#     key='-V4PFX_LEN_SLDR-XX'),
+# #    sg.Push(),
+#     sg.Sizer(8, 0),
+#     sg.VerticalSeparator(),
+#     sg.Sizer(8, 0),
+# #    sg.Push(),
+#     sg.Text('PSID Offset:', font=('Helvetica', 13, 'bold'),
+#     pad=((0, 5), (0, 5))),
+#     sg.Slider(range=(0, 15), default_value=0, orientation='h',
+#     disable_number_display=False, enable_events=True,
+#     size=(19, 8), trough_color='white', font=('Helvetica', 13, 'bold'),
+#     pad=((5, 5), (0, 10)), disabled=True, key='-PSID_OFST_SLDR-XX'),
+# #    sg.Push()
+#     ],
 
-   [sg.Sizer(h_pixels=0, v_pixels=9)],
-   [sg.Push(),
-    sg.Text('Source Port Index:', font=('Helvetica', 13, 'bold')),
-    sg.Text('', font=('Arial', 14, 'bold'), justification='centered',
-    size=(16, 1), background_color='#fdfdfc', border_width=4,
-    relief='ridge', key='-SP_INDEX-'),
-#    sg.Input('', size=(16, 1), justification='centered',
-#    use_readonly_for_disable=True,disabled=True, key='-SP_INDEX-'),
-    sg.Button(' <<', font='Helvetica 11', key='-P_IDX_FIRST-XX'),
-    sg.Button(' + 1', font='Helvetica 11', key='-P_IDX_UP_1-XX'),
-    sg.Button(' + 10', font='Helvetica 11', key='-P_IDX_UP_10-XX'),
-    sg.Button(' + 100', font='Helvetica 11', key='-P_IDX_UP_100-XX'),
-    sg.Button(' >>', font='Helvetica 11', key='-P_IDX_LAST-XX'),
-    sg.Text(f'= Port', font=('Helvetica', 14, 'bold')),
-    sg.Text('', font=('Helvetica', 14, 'bold'), justification='centered',
-    size=(7, 1), background_color='#fdfdfc', border_width=4,
-    relief='ridge', key='-SP_INT-'),
-#    sg.Input('', size=(7, 1), justification='centered',
-#    use_readonly_for_disable=True, disabled=True, key='-SP_INT-'),
-    sg.Push()],
+#    [sg.Sizer(h_pixels=0, v_pixels=9)],
+#    [sg.Push(),
+#     sg.Text('Source Port Index:', font=('Helvetica', 13, 'bold')),
+#     sg.Text('', font=('Arial', 14, 'bold'), justification='centered',
+#     size=(16, 1), background_color='#fdfdfc', border_width=4,
+#     relief='ridge', key='-SP_INDEX-'),
+# #    sg.Input('', size=(16, 1), justification='centered',
+# #    use_readonly_for_disable=True,disabled=True, key='-SP_INDEX-'),
+#     sg.Button(' <<', font='Helvetica 11', key='-P_IDX_FIRST-XX'),
+#     sg.Button(' + 1', font='Helvetica 11', key='-P_IDX_UP_1-XX'),
+#     sg.Button(' + 10', font='Helvetica 11', key='-P_IDX_UP_10-XX'),
+#     sg.Button(' + 100', font='Helvetica 11', key='-P_IDX_UP_100-XX'),
+#     sg.Button(' >>', font='Helvetica 11', key='-P_IDX_LAST-XX'),
+#     sg.Text(f'= Port', font=('Helvetica', 14, 'bold')),
+#     sg.Text('', font=('Helvetica', 14, 'bold'), justification='centered',
+#     size=(7, 1), background_color='#fdfdfc', border_width=4,
+#     relief='ridge', key='-SP_INT-'),
+# #    sg.Input('', size=(7, 1), justification='centered',
+# #    use_readonly_for_disable=True, disabled=True, key='-SP_INT-'),
+#     sg.Push()],
 
    [sg.Sizer(0, 9)],
    [sg.HorizontalSeparator()],
@@ -504,11 +504,12 @@ bin_display_col2 = [
     sg.Text('End-user IPv6 prefix (User PD):',
             pad=0, font=('Helvetica', 13, 'bold'))],
    [sg.Sizer(h_pixels=0, v_pixels=8)],
+
    [sg.Push(),
     sg.Text('User PD', font=('Helvetica', 13, 'bold'), pad=((5, 0), (5, 5))),
     sg.Input('', size=(24, 1), pad=((4, 5), (5, 5)),
     font=('Helvetica', 13, 'bold'), justification='centered',
-    use_readonly_for_disable=True, disabled=True, key='-USER_PD-',
+    use_readonly_for_disable=True, disabled=True, key='-USER_PD-XX',
     disabled_readonly_background_color='#fdfdfc'),
     sg.Push(),
     sg.Text('CE IP', font='Helvetica 13 bold', pad=((0, 0), (5, 5))),
@@ -526,13 +527,13 @@ bin_display_col2 = [
 
    [sg.Sizer(0, 5)],
    [sg.Frame('User IPv6 Source Address and Port',
-    multiline2_layout, expand_x=True, border_width=1, relief='ridge',
+    multiline5_layout, expand_x=True, border_width=1, relief='ridge',
     font=('Helvetica', 13, 'bold'), pad=((0, 0), (0, 0)),
     title_location=sg.TITLE_LOCATION_TOP,)],
    [sg.Sizer(0, 7)],
 
    [sg.Sizer(h_pixels=2, v_pixels=0),
-    sg.Button('Next User PD', font='Helvetica 11', key='-NXT_USER_PD-'),
+    sg.Button('Next User PD', font='Helvetica 11', key='-NXT_USER_PD-XX'),
     sg.Push(),
     sg.Text('IPv4 Host:', font=('Helvetica', 13, 'bold')),
     sg.Slider(range=(0, 0), default_value=0, orientation='h',
@@ -553,47 +554,12 @@ bin_display_col3 = [
 ]
 
 bin_display_layout = [
-   [sg.Column(bin_display_col1, element_justification='centered',
-    expand_x=True)],
+   # [sg.Column(bin_display_col1, element_justification='centered',
+   #  expand_x=True)],
    [sg.Column(bin_display_col2,
     expand_x=True)],
    [sg.Column(bin_display_col3, expand_x=True)],
 ]
-
-# DHCP Display (4th frame)
-#-------------------------------------#
-dhcp_layout = [
-   # [sg.Text('------- DHCPv6 Options for MAP-T CEs -------', font=(None, 12, 'bold'),
-      # expand_x=True, justification='center')],
-   [sg.Text('DMR:', font=(None, 13, 'bold')),
-    sg.Input('Ex. 2001:db8:ffff::/64', background_color='#fdfdfc',
-      border_width=2, disabled=True, key='DMR_INPUT'),
-    sg.Button('Enter', key='DMR_ENTER')],
-   [sg.Text('S46 MAP-T Container Option 95:', font=('Helvetica', 13, 'bold')),
-    sg.Checkbox('FMR String', font=('Helvetica', 13, 'bold'), tooltip=fmr_tooltip,
-      enable_events=True, key='FMR_FLAG'),
-    sg.Text('', text_color='red', font='None 14 bold', key='-DHCP_MESSAGES-')],
-   [sg.Sizer(4, 0),
-    sg.Input('', justification='centered', size=(85, 1), disabled=True,
-      use_readonly_for_disable=True, key='OPT_95-XX')],
-   # [sg.Text(f'Option 95', font=('Helvetica', 13, 'bold')),
-   #  sg.Input('', disabled=True, use_readonly_for_disable=True, key='OPT_95')], # OPTION_S46_CONT_MAPT (95)
-   [sg.Text(f'Option 89', font=('Helvetica', 13, 'bold')),
-    sg.Input('', size=(55, 1), disabled=True, use_readonly_for_disable=True, key='OPT_89-XX')], # OPTION_S46_RULE (89)
-   [sg.Text('Option 93', font=('Helvetica', 13, 'bold')),
-    sg.Input('', disabled=True, use_readonly_for_disable=True, key='OPT_93-XX')], # OPTION_S46_PORTPARAMS (93)
-   [sg.Text(f'Option 91', font=('Helvetica', 13, 'bold')),
-    sg.Input('', disabled=True, use_readonly_for_disable=True, key='OPT_91-XX')], # OPTION_S46_DMR (91)
-   # [sg.Button('Generate', key='DHCP_GENERATE')]
-]
-
-   #  sg.Input('', font=('Courier', 15, 'bold'),
-   # # use_readonly... with disabled creates display field that can be
-   # # selected and copied with cursor, but not edited (review need for this)
-   #  justification='centered', size=(60, 1), use_readonly_for_disable=True,
-   #  disabled=True, pad=((0, 8), (0, 0)), background_color='#fdfdfc',
-   #  key='-BMR_STRING_DSPLY-'),
-
 
 # Binary Display (5th frame)
 #-------------------------------------#
@@ -611,18 +577,6 @@ button_layout = [
    [sg.Column(button_col1, expand_x=True)]
 ]
 
-# Saved rule string frame (6th frame)
-#-------------------------------------#
-#MLINE_SAVED = '-MLINE_SAVED-'+sg.WRITE_ONLY_KEY
-saved_section_layout = [
-      [sg.Sizer(h_pixels=3, v_pixels=0),
-       sg.Multiline(default_text='', size=(81, 8),
-       font=('Courier', 14, 'bold'), disabled=True, autoscroll=True,
-       expand_x=True, expand_y=True, pad=(0,0), horizontal_scroll=True,
-       background_color='#fdfdfc', key='-MLINE_SAVED-XX'),
-       sg.Push()]
-]
-
 # All Sections
 #-------------------------------------#
 sections_layout = [
@@ -635,14 +589,14 @@ sections_layout = [
       key="TABGROUP")],
    [sg.Frame('', bin_display_layout, expand_x=True, border_width=6,
     relief='ridge')],
-   [sg.Frame('DHCPv6 Options for MAP-T CEs', dhcp_layout,
-      font=('Helvetica', 13, 'bold'), title_location=sg.TITLE_LOCATION_TOP,
-      expand_x=True, border_width=6, relief='ridge')],
+   # [sg.Frame('DHCPv6 Options for MAP-T CEs', dhcp_layout,
+   #    font=('Helvetica', 13, 'bold'), title_location=sg.TITLE_LOCATION_TOP,
+   #    expand_x=True, border_width=6, relief='ridge')],
    [sg.Frame('', button_layout, expand_x=True, border_width=6,
     relief='ridge')],
-   [sg.Frame('Saved Rule Strings', saved_section_layout, expand_x=True,
-    font=('Helvetica', 13, 'bold'), title_location=sg.TITLE_LOCATION_TOP,
-    border_width=6, relief='ridge')]
+   # [sg.Frame('Saved Rule Strings', saved_section_layout, expand_x=True,
+   #  font=('Helvetica', 13, 'bold'), title_location=sg.TITLE_LOCATION_TOP,
+   #  border_width=6, relief='ridge')]
 ]
 
 # Final Layout
@@ -708,7 +662,6 @@ window['DMR_INPUT'].bind('<Return>', '_Enter')
 # param_ls = [name, v6pfx, v6pfx len, v4pfx, v4pfx len, ealen, psid offset]
 # user_pd_obj is "User delegated prefix" received from DHCP
 def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
-#   print('\n********** START rule_calc **************')
    '''The rule_calc function accepts a BMR paramater list, an IPv6
    user PD (ipaddress object), and an optional port index integer from
    a user input or editing option. It calculates the network address results,
@@ -721,6 +674,7 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
    psidlen = (param_ls[5] - (32 - param_ls[4])) # ea_len - host_len
    bmrpfx_len = param_ls[2]
    upd_len = user_pd_obj.prefixlen
+   psid_ofst = param_ls[6]
 
    # ppusr = 2^(16 - k) - 2^m (per rfc7597) (2^m is # of excluded ports)
    # 16 is the number of IP port bits (constant)
@@ -797,11 +751,8 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
 
    # Sec 1, IPv4 string data
    #-----------------------------------#
-#   v4ip_str = v4str #param_ls[3]
    v4_seglst = v4str.split('.')
    v4mask = param_ls[4]
-#   v4_obj = ip.ip_network(v4str + '/' + str(v4mask), strict=False)
-#   v4_bin = f'{ip.IPv4Address(v4ip_str):b}'
    # make segments equal length for display
    v4_bin_seglst = [newv4bin[i:i+8] for i in range(0, 32, 8)]
    v4_bin_fmt = '.'.join(v4_bin_seglst) + f'/{v4mask}'
@@ -825,16 +776,16 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
          pidx_int = int(pidx_bin, 2)
          pidx_int = pidx_int + portidx
          pidx_bin = bin(pidx_int)[2:].zfill(len(pidx_bin)) # for d_dic
-         psid_ofst_bin = pidx_bin[: len(psid_ofst_bin)]
-         portrpad_bin = pidx_bin[len(psid_ofst_bin) :]
+         psid_ofst_bin = pidx_bin[: psid_ofst]
+         portrpad_bin = pidx_bin[psid_ofst:]
          port_bin = psid_ofst_bin + psid + portrpad_bin
          port_int = int(port_bin, 2) # for d_dic
       else:
          window['-PD_MESSAGES-'].update('Port index maximum reached')
          pidx_bin = "1" * len(pidx_bin)
          pidx_int = int(pidx_bin, 2)
-         psid_ofst_bin = pidx_bin[: len(psid_ofst_bin)]
-         portrpad_bin = pidx_bin[len(psid_ofst_bin) :]
+         psid_ofst_bin = pidx_bin[: psid_ofst]
+         portrpad_bin = pidx_bin[psid_ofst:]
          port_bin = psid_ofst_bin + psid + portrpad_bin
          port_int = int(port_bin, 2) # for d_dic
 
@@ -842,9 +793,6 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
    # BMR PD, User PD, and EA Bits dictionary entries
    #--------------------------------------------------#
    bin_str_dic = {
-      # 'params_str': (f'          --- BMR PD Len /{param_ls[2]},'
-      #                f' with User PD Len /{upd_len}'
-      #                f' = EA Bits Len {param_ls[5]} ---')
       'blank1': '',
       'v6p_hexstr': (f" BMR PD:{' ' * 8}"
                      f"{'      :      '.join(v6p_hex_seglst)}"
@@ -874,6 +822,23 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
                    f' = Port {port_int}')
    }
 
+   ipv4_str_dic = {
+      'blank2': '',
+      'v4_intstr': (f" IPv4 Addr:     "
+                    f"{'  .   '.join(v4_seglst)}"
+                    f"  /{v4mask}"),
+      'v4_binstr': f" IPv4 Addr:  {v4_bin_fmt}",
+   }
+
+   portidx_str_dic = {
+      'blank3': '',
+      'portidx': (f' The "PORT INDEX" is PSID-Offset/Right-Padding:'
+                  f' {psid_ofst_bin}-{portrpad_bin}'),
+      'port_bin': (f' The PORT is PSID-Offset/PSID/Right-Padding: '
+                   f'{psid_ofst_bin}-{psid}-{portrpad_bin}'
+                   f' = Port {port_int}')   
+   }
+
    # Sec 2, User source IPv6 string data
    #--------------------------------------------------#
    pad1 = ' ' * 6
@@ -884,7 +849,7 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
    v4hex_segls = [hex(x)[2:].zfill(4) for x in v4hex_segls]
    v4hex_segs = f'{pad1}{v4hex_segls[0]}{pad1}:{pad1}{v4hex_segls[1]}{pad1}'
    if psid != '':
-      psid_hex = int(psid,2)
+      psid_hex = int(psid, 2)
    else:
       psid_hex = 0
    psid_hex = pad1 + hex(psid_hex)[2:].zfill(4)
@@ -906,14 +871,59 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
       'v6sip_binstr2': f'     {pad2}:{v4sip_bin}:{psid_bin} ]:{port_int}'
    }
 
+   # User Ports Segments List
+   #--------------------------------------------------#
+   if psid != '':
+      if psid_ofst != 0:
+         # Number of user contiguous port sequences (omits sequence 0)
+         sequences = range(1, 2 ** psid_ofst)
+
+         # Interval between *initial port numbers* of contiguous port sequences
+         seq_rng_intvl = 2 ** (16 - psid_ofst)
+
+         # Number of ports in contiguous port sequences
+         seq_len = (16 - psid_ofst - psidlen) # 'm' bits
+         prt_seq_len = 2 ** seq_len
+
+         # List of port sequences with format "start-end"
+         psid_int = int(psid, 2) # PSID value as an integer
+         seq_mod = psid_int * prt_seq_len
+         seq_list = [
+            (f"{x * seq_rng_intvl + seq_mod}"
+             f"-{(x * seq_rng_intvl + seq_mod) + prt_seq_len - 1}")
+            for x in sequences
+         ]
+      else:
+         seq_list = [
+            f"{int(psid + '0' * (16 - psidlen), 2)}-{int(psid + '1' * (16 - psidlen), 2)}"
+         ]
+         no_offset = True
+   else:
+      seq_list = [
+         f"{int(psid_ofst_bin + '0' * (16 - psid_ofst), 2)}-{int(psid_ofst_bin + '1' * (16 - psid_ofst), 2)}"
+      ]
+
+   # PSID and PSID Offset Warnings flags
+   no_psid = False
+   no_offset = False
+   high_offset = False
+   if psid == '':
+      no_psid = True
+   elif psid_ofst == 0:
+      no_offset = True
+   elif psid_ofst > 6:
+      high_offset = True
+      
+
    #-------------------------------------------------------------------------#
    # Binary display highlight indices
    #-------------------------------------------------------------------------#
+
    # Binary display 1 highlight index data
    #---------------------------------------------#
    # return index of first character after " BMR PD: "
    bmr_pfx_l = next(i for (i, e) in enumerate(bin_str_dic["bmr_binstr"])
-      if e not in "BMR PD: ")
+      if e not in "BMR PD: ") #................................Can this be hardcoded to 10?
    bmr_pfx_r = bmr_pfx_l + V6Indices(param_ls[2])
    v6_pfxlen_l = 79
    v6_pfxlen_r = 82
@@ -932,7 +942,7 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
    prtidx_pad_r = prtidx_pad_l + (16 - param_ls[6] - psidlen)
    portbin_ofst_hl_l = 45
    portbin_ofst_hl_r = portbin_ofst_hl_l + param_ls[6]
-   portbin_psid_hl_l = 45 + len(psid_ofst_bin) + 1
+   portbin_psid_hl_l = 45 + psid_ofst + 1
    portbin_psid_hl_r = portbin_psid_hl_l + psidlen
    portbin_pad_hl_l = portbin_psid_hl_r + 1
    portbin_pad_hl_r = portbin_pad_hl_l + (16 - param_ls[6] - psidlen)
@@ -957,6 +967,13 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
       'portbin_ofst_hl': [f'12.{portbin_ofst_hl_l}', f'12.{portbin_ofst_hl_r}'],
       'portbin_psid_hl': [f'12.{portbin_psid_hl_l}', f'12.{portbin_psid_hl_r}'],
       'portbin_pad_hl': [f'12.{portbin_pad_hl_l}', f'12.{portbin_pad_hl_r}']
+   }
+
+   # Binary IPv4 display highlight index dictionary
+   #------------------------------------------------#
+   hl_dic_v4 = {
+      'v4ip_hl': [f'2.{v4ip_hl_l}', f'2.{v4ip_hl_r}'],
+      'v4ipbin_hl': [f'3.{v4ip_hl_l}', f'3.{v4ip_hl_r}'],
    }
 
    # Binary display 2 highlight index data
@@ -999,14 +1016,20 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
       'port_int': port_int,
       'pidx_bin': pidx_bin,
       'bin_str_dic': bin_str_dic,
+      'ipv4_str_dic': ipv4_str_dic,
+      'portidx_str_dic': portidx_str_dic,
       'bin_ipstr_dic': bin_ipstr_dic,
       'hl_dic1': hl_dic1,
+      'hl_dic_v4': hl_dic_v4,
       'hl_dic2': hl_dic2,
-      'num_excl_ports': 2 ** (16 - param_ls[6])
+      'num_excl_ports': 2 ** (16 - param_ls[6]),
+      'seq_list': seq_list,
+      'no_psid': no_psid,
+      'no_offset': no_offset,
+      'high_offset': high_offset
    }
 
-   # If v4host is None, clear DHCPv6 fields. If v4host is 0, don't clear
-   if not v4host and v4host != 0:
+   if v4host == None:
       clear_dhcp_fields()
 
    displays_update(d_dic, user_pd_obj)
@@ -1050,31 +1073,111 @@ def displays_update(dic, pd_obj):
    window['-SP_INDEX-'].update(dic['pidx_bin'])
 
    # Binary displays update values and highlights
-   multiline1: sg.Multiline = window['MLINE_BIN_1']
-   multiline2: sg.Multiline = window['MLINE_BIN_2']
-   multiline3: sg.Multiline = window['MLINE_BINOPS']
+   multiline1: sg.Multiline = window['MLINE_BINOPS']
+   multiline2: sg.Multiline = window['MLINE_IPV4']
+   multiline3: sg.Multiline = window['MLINE_PORTIDX']
+   multiline5: sg.Multiline = window['MLINE_BIN_2']
 
    # Output binary strings to binary string editor
-   multiline1.update('') # Clear field
+   # multiline1.update('') # Clear field
+   # for num, bstr in enumerate(dic['bin_str_dic']):
+   #    # Don't append \n after last line
+   #    multiline1.update(dic['bin_str_dic'][bstr]
+   #     + ('\n' if num < len(dic['bin_str_dic']) -1 else ''), append=True)
+
+   multiline1.update('')
    for num, bstr in enumerate(dic['bin_str_dic']):
-      # Don't append \n after last line
       multiline1.update(dic['bin_str_dic'][bstr]
        + ('\n' if num < len(dic['bin_str_dic']) -1 else ''), append=True)
 
-   multiline2.update('') # Clear field
-   for num, bstr in enumerate(dic['bin_ipstr_dic']):
-      # Don't append \n after last line
-      multiline2.update(dic['bin_ipstr_dic'][bstr]
-       + ('\n' if num < len(dic['bin_ipstr_dic']) -1 else ''), append=True)
+   multiline2.update('')
+   for num, bstr in enumerate(dic['ipv4_str_dic']):
+      multiline2.update(dic['ipv4_str_dic'][bstr]
+       + ('\n' if num < len(dic['ipv4_str_dic']) -1 else ''), append=True)
 
    multiline3.update('')
-   for num, bstr in enumerate(dic['bin_str_dic']):
-      multiline3.update(dic['bin_str_dic'][bstr]
-       + ('\n' if num < len(dic['bin_str_dic']) -1 else ''), append=True)
+   for num, bstr in enumerate(dic['portidx_str_dic']):
+      multiline3.update(dic['portidx_str_dic'][bstr]
+       + ('\n' if num < len(dic['portidx_str_dic']) -1 else ''), append=True)
+
+   multiline5.update('') # Clear field
+   for num, bstr in enumerate(dic['bin_ipstr_dic']):
+      # Don't append \n after last line
+      multiline5.update(dic['bin_ipstr_dic'][bstr]
+       + ('\n' if num < len(dic['bin_ipstr_dic']) -1 else ''), append=True)
 
    # Apply highlighting
    highlights(multiline1, dic)
    highlights(multiline2, dic)
+   highlights(multiline3, dic)
+   highlights(multiline5, dic)
+
+   # Format port list and output to Source Port List field
+   #-------------------------------------------------------#
+   # "x" row result array will be transposed into "x" columns, to fit in the output field
+   rows = 6
+   port_seqs = dic['seq_list']
+   width = max(len(item) for item in port_seqs)  # Find max item width
+
+   # Pad list items to keep columns aligned
+   for i, item in enumerate(port_seqs):
+      port_seqs[i] = port_seqs[i].ljust(width)
+   
+   # Make list fit evenly into number of rows (will be transposed to columns)
+   columns, remainder = divmod(len(port_seqs), rows)
+
+   if remainder:
+      add = range(rows - remainder)
+      for x in add:
+         port_seqs.append('')
+      columns += 1
+
+   # Generator for port_seqs list indices
+   idx = (x for x in range(len(port_seqs)))
+   array = [[port_seqs[next(idx)] for _ in range(columns)] for _ in range(rows)]
+
+   # Transpose n rows into n columns.
+   newarray = []
+   newarray = transpose(array, newarray)
+
+   # Output port sequences list to User Ports multiline field
+   array_list = []
+   window['MLINE_PORTS'].update('') # Clear field
+   for ls in enumerate(newarray):
+      # Don't append "\n" to last line
+      if ls[0] + 1 < len(newarray):
+         line = '  '.join(ls[1]) + '\n'
+      else:
+         line = '  '.join(ls[1])
+      array_list.append(line)
+      array_string = ''.join(array_list)
+   window['MLINE_PORTS'].update(array_string)
+
+   # Warnings for 'no psid = well known ports may be included'
+   if dic['no_psid'] == True:
+      alert_line = ('No PSID!\n'
+              'Sharing Ratio = 1.\n\n')
+      window['MLINE_PORTS'].update(alert_line)
+      window['MLINE_PORTS'].update(array_string, append=True)
+      window['-PARAM_MESSAGES-'].update('No PSID. Sharing Ratio = 1.')
+
+   # Warnings for no psid offset'
+   if dic['no_offset'] == True:
+      alert_line = ('No PSID Offset!\nNo Ports Excluded!\n'
+              'To exclude ports, lower bound on allowed set of PSID values is required.\n'
+              'See RFC 7597, Appendix B.1.\n'
+              'https://datatracker.ietf.org/doc/html/rfc7597#appendix-B.1\n\n')
+      window['MLINE_PORTS'].update(alert_line)
+      window['MLINE_PORTS'].update(array_string, append=True)
+      window['-PARAM_MESSAGES-'].update('No PSID Offset. See "User Ports" tab for details.')
+
+   # Warnings for 'high psid offset = well-known ports may be included'
+   if dic['high_offset'] == True:
+      alert_line = ('PSID Offset > 6!\nWell-known ports may be included!\n'
+              'Ports included by the first User PDs may be < 1024.\n\n')
+      window['MLINE_PORTS'].update(alert_line)
+      window['MLINE_PORTS'].update(array_string, append=True)
+      window['-PARAM_MESSAGES-'].update('High PSID Offset. See "User Ports" tab for details.')
 
    # Output values to binary editor sliders and input fields
    window['-V6PFX_LEN_SLDR-'].update(disabled=False)
@@ -1118,15 +1221,16 @@ def highlights(display, dic):
    # Highlight color option definitions
    #-------------------------------------#
    widget.tag_config('white', foreground='black', background='#FFFFFF')
-   widget.tag_config('yellow', foreground='black', background='#FFFF00')
+   widget.tag_config('yellow', foreground='black', background='#FFFF21') #FFFF00
    widget.tag_config('new_yellow', foreground='black', background='#F8FF00')
    widget.tag_config('burley', foreground='black', background='#FFD39B') # burlywood
    widget.tag_config('burley3', foreground='black', background='#CDAA7D') # burlywood3
    widget.tag_config('grey49', foreground='black', background='#7D7D7D')
    widget.tag_config('sage', foreground='black', background='#C2C9A6')
    widget.tag_config('peri', foreground='black', background='#B2CAFA') # periwinkle
-   widget.tag_config('pink', foreground='black', background='#EDABBF') # cherry blossom pink
+   widget.tag_config('pink', foreground='black', background='#ff90c7')
    widget.tag_config('new_teal', foreground='black', background='#7cdff3') # moonstone
+   widget.tag_config('Turquoise', foreground='black', background='#46E1D1')
    widget.tag_config('lt_purple', foreground='black', background='#D7C1D5')
    widget.tag_config('lt_blue1', foreground='black', background='#B3C3D1') # lt blue grey
    widget.tag_config('lt_blue2', foreground='black', background='#CCD7E0') # ltr blue grey
@@ -1135,29 +1239,59 @@ def highlights(display, dic):
    widget.tag_config('lt_tan', foreground='black', background='#dbcdbd')
    widget.tag_config('lt_orange', foreground='black', background='#ffcc99')
    widget.tag_config('new_lt_green', foreground='black', background='#c2ebc2')
+   widget.tag_config('light_green', foreground='black', background='#00ff19')
+   widget.tag_config('grey_blue', foreground='black', background='#a4b5c1')
+   widget.tag_config('Sunshade', foreground='black', background='#fdaf46')
+   widget.tag_config('Malibu', foreground='black', background='#FFFF21')
 
    if display.Key == 'MLINE_BIN_1':
 #      widget.tag_add('lt_orange', *dic['hl_dic1']['title_hl'])
-      widget.tag_add('new_lt_green', *dic['hl_dic1']['bmr_hl'])
-      widget.tag_add('new_lt_green', *dic['hl_dic1']['bmr_len_hl'])
-      widget.tag_add('new_lt_green', *dic['hl_dic1']['upd_hl'])
-      widget.tag_add('new_lt_green', *dic['hl_dic1']['upd_len_hl'])
-      widget.tag_add('grey49', *dic['hl_dic1']['sbnt_hl'])
+      widget.tag_add('light_green', *dic['hl_dic1']['bmr_hl'])
+      widget.tag_add('light_green', *dic['hl_dic1']['bmr_len_hl'])
+      widget.tag_add('light_green', *dic['hl_dic1']['upd_hl'])
+      widget.tag_add('light_green', *dic['hl_dic1']['upd_len_hl'])
+      widget.tag_add('grey_blue', *dic['hl_dic1']['sbnt_hl'])
       widget.tag_add('pink', *dic['hl_dic1']['ea_v4_hl'])
-      widget.tag_add('new_teal', *dic['hl_dic1']['ea_psid_hl'])
-      widget.tag_add('burley', *dic['hl_dic1']['prtidx_ofst_hl'])
-      widget.tag_add('yellow', *dic['hl_dic1']['prtidx_pad_hl'])
-      widget.tag_add('burley', *dic['hl_dic1']['portbin_ofst_hl'])
-      widget.tag_add('new_teal', *dic['hl_dic1']['portbin_psid_hl'])
-      widget.tag_add('yellow', *dic['hl_dic1']['portbin_pad_hl'])
+      widget.tag_add('yellow', *dic['hl_dic1']['ea_psid_hl'])
+      widget.tag_add('Sunshade', *dic['hl_dic1']['prtidx_ofst_hl'])
+      widget.tag_add('Turquoise', *dic['hl_dic1']['prtidx_pad_hl'])
+      widget.tag_add('Sunshade', *dic['hl_dic1']['portbin_ofst_hl'])
+      widget.tag_add('yellow', *dic['hl_dic1']['portbin_psid_hl'])
+      widget.tag_add('Turquoise', *dic['hl_dic1']['portbin_pad_hl'])
       widget.tag_add('pink', *dic['hl_dic1']['v4ip_hl'])
       widget.tag_add('pink', *dic['hl_dic1']['v4ipbin_hl'])
-   elif display.Key == 'MLINE_BIN_2':
+#    elif display.Key == 'MLINE_BIN_2':
+# #      widget.tag_add('lt_orange', *dic['hl_dic2']['heading_hl'])
+#       widget.tag_add('pink', *dic['hl_dic2']['v4if_hl1'])
+#       widget.tag_add('new_teal', *dic['hl_dic2']['psid_hl1'])
+#       widget.tag_add('pink', *dic['hl_dic2']['v4if_hl2'])
+#       widget.tag_add('new_teal', *dic['hl_dic2']['psid_hl2'])
+   elif display.Key == 'MLINE_IPV4':
 #      widget.tag_add('lt_orange', *dic['hl_dic2']['heading_hl'])
-      widget.tag_add('pink', *dic['hl_dic2']['v4if_hl1'])
-      widget.tag_add('new_teal', *dic['hl_dic2']['psid_hl1'])
-      widget.tag_add('pink', *dic['hl_dic2']['v4if_hl2'])
-      widget.tag_add('new_teal', *dic['hl_dic2']['psid_hl2'])
+      widget.tag_add('pink', *dic['hl_dic_v4']['v4ip_hl'])
+      widget.tag_add('pink', *dic['hl_dic_v4']['v4ipbin_hl'])
+   elif display.Key == 'MLINE_BINOPS':
+      widget.tag_add('light_green', *dic['hl_dic1']['bmr_hl'])
+      widget.tag_add('light_green', *dic['hl_dic1']['bmr_len_hl'])
+      widget.tag_add('light_green', *dic['hl_dic1']['upd_hl'])
+      widget.tag_add('light_green', *dic['hl_dic1']['upd_len_hl'])
+      widget.tag_add('grey_blue', *dic['hl_dic1']['sbnt_hl'])
+      widget.tag_add('pink', *dic['hl_dic1']['ea_v4_hl'])
+      widget.tag_add('yellow', *dic['hl_dic1']['ea_psid_hl'])
+      widget.tag_add('Sunshade', *dic['hl_dic1']['prtidx_ofst_hl'])
+      widget.tag_add('Turquoise', *dic['hl_dic1']['prtidx_pad_hl'])
+      widget.tag_add('Sunshade', *dic['hl_dic1']['portbin_ofst_hl'])
+      widget.tag_add('yellow', *dic['hl_dic1']['portbin_psid_hl'])
+      widget.tag_add('Turquoise', *dic['hl_dic1']['portbin_pad_hl'])
+      widget.tag_add('pink', *dic['hl_dic1']['v4ip_hl'])
+      widget.tag_add('pink', *dic['hl_dic1']['v4ipbin_hl'])
+   elif display.Key == "MLINE_PORTIDX":
+      widget.tag_add('Sunshade', *dic['hl_dic1']['prtidx_ofst_hl'])
+      widget.tag_add('Turquoise', *dic['hl_dic1']['prtidx_pad_hl'])
+      widget.tag_add('Sunshade', *dic['hl_dic1']['portbin_ofst_hl'])
+      widget.tag_add('yellow', *dic['hl_dic1']['portbin_psid_hl'])
+      widget.tag_add('Turquoise', *dic['hl_dic1']['portbin_pad_hl'])
+
 
    return
 
@@ -1470,6 +1604,24 @@ def resource_path(relative_path):
       base_path = os.path.abspath(".")
    return os.path.join(base_path, relative_path)
 
+def transpose(array, array_new):
+   """
+   Transposes a 2d array (rows to columns).
+
+   Args:
+     array: Original 2d array (list of lists).
+     array_new: Transposed array.
+   """
+   # iterate over list array to the length of an item 
+   for i in range(len(array[0])):
+      row =[]
+      for item in array:
+         # appending to new list with values and index positions
+         # i contains index position and item contains values
+         row.append(item[i])
+      array_new.append(row)
+   return array_new
+
 # Clear DHCPv6 results fields, but not DMR entry field
 #------------------------------------------------------#
 def clear_dhcp_fields(reset_prompt=True):
@@ -1508,6 +1660,12 @@ pframe_ls = ['-RULENAME-', '-R6PRE-', '-R6LEN-', '-R4PRE-', '-R4LEN-',
 #   '-PORT_INDEX-', 'MLINE_BIN_1']       # Binary Editor fields
 #sframe_ls = ['MLINE_SAVED']                # Don't clear Save frame
 
+# Output Fields
+#---------------------------------#
+outfields_ls = ['MLINE_BINOPS', 'MLINE_PORTS', 'MLINE_IPV4', 'MLINE_PORTIDX',
+                'CE_V6_WAN', 'USER_PD', '-BMR_STRING_DSPLY-', '-SP_INDEX-', # 'BMR_STRING'
+                '-SP_INT-']
+
 # Event Loop Variables
 #----------------------------------#
 chars = 'abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ-0123456789().'
@@ -1518,6 +1676,7 @@ userpds = None
 savctr = False
 portidxadd = 0 # used with 'Source Port Index n = Port' section
 last_params = None
+last_dmr_entry = None
 
 #-------------------------------------------------------------------------#
 # Main Event Loop - runs once for each 'event'
@@ -1538,7 +1697,7 @@ while True:
    if event == "TABGROUP":
       window[event].get_previous_focus().set_focus()
       window.refresh()
-      window[event].get_next_focus().set_focus()
+      # window[event].get_next_focus().set_focus()
 
    if event == 'About':
       if os.path.isfile('files/about_txt'):
@@ -1561,7 +1720,7 @@ while True:
    if event == '-CLEAR-':
       for i in [*dframe_ls, *pframe_ls]: #, *sframe_ls]:
          window[i].update('')
-      window['MLINE_BIN_1'].update('')
+      # window['MLINE_BIN_1'].update('')
       window['MLINE_BIN_2'].update('')
       window['-V4HOST_SLIDER-'].update(value=0)
       window['-V4HOST_SLIDER-'].update(range=(0, 0))
@@ -1602,6 +1761,8 @@ while True:
       rule_calc(param_ls, user_pd, v4hostint)
       window['-V4HOST_SLIDER-'].update(value=0)
       window['MLINE_BIN_2'].Widget.xview_moveto('0.0')
+      window['DMR_INPUT'].update('Ex. 2001:db8:ffff::/64')
+
 
    # BMR parameter entry - validate input as it is typed
    #-----------------------------------------------------#
@@ -1865,6 +2026,9 @@ while True:
             last_fmr_flag = values['FMR_FLAG']
             window['DMR_INPUT'].update(last_dmr_entry)
             dhcp_calc(last_dmr_entry, values['FMR_FLAG'])
+
+   foc_elmt = window.find_element_with_focus()
+   print(f"The focus is: {foc_elmt.Key}")
 
 
    print(f'#------- End Event {cntr - 1} -------#')
