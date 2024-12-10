@@ -8,7 +8,7 @@ import sys
 
 This version of IP_MAP_ADDRESS_CALCULATOR uses the FreeSimpleGUI graphics package.'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.12.00 - 11/13/2024 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.12.01 - 12/09/2024 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -1474,7 +1474,8 @@ while True:
          rule_calc(param_ls, user_pd)
          window['MLINE_BIN_2'].Widget.xview_moveto('0.9')
       else:
-         print('SLIDER ERROR')
+         param_ls = last_params
+         # print('SLIDER ERROR')
 
    # Display next User Delegated Prefix (PD)
    #-----------------------------------------#
