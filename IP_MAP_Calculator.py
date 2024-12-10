@@ -174,7 +174,7 @@ editor_layout = [
     sg.Combo(psidoff, readonly=True, font=('Helvetica', 11),
     enable_events=True, background_color='#fdfdfc', 
     size=(2, 1), pad=((6, 2), (2, 0)), key='-OFFSET-')],
-   [sg.Sizer(v_pixels=4)],
+   [sg.Sizer(v_pixels=2)],
    [sg.Sizer(h_pixels=40),
     sg.Text('BMR String (optional)', font=(None, 10), pad=(4, 0))],
    [sg.Sizer(h_pixels=40),
@@ -185,8 +185,6 @@ editor_layout = [
       # Move focus out of input fields so "focus_in" works for all of them on app start
       sg.Button('Enter', font='None 8 bold', key="-ENTER_PARAMS-"),
       sg.Button('Save', font='None 8 bold', pad=0, focus=True, key="SAVE")], 
-   # [sg.Sizer(v_pixels=8)],
-
    [sg.Sizer(h_pixels=40),
     sg.Text('IPv6 Prefix Length:', font=(None, 10),
       background_color="#e5dfcf", pad=((6, 0), (14, 0))),
@@ -229,9 +227,9 @@ editor_layout = [
 
 bmr_pd_layout = [
    [sg.Multiline("BMR and User PD prefixes", size=(83, 7),
-      pad=((4, 4), (4, 0)), font=('Courier', 12, 'bold'), background_color='#f1eee7',
-      expand_x=True, disabled=True, border_width=2, # horizontal_scroll = True,
-      no_scrollbar=True, key='MLINE_BINOPS')
+      pad=((4, 4), (4, 0)), font=('Courier', 12, 'bold'),
+      background_color='#f1eee7', expand_x=True, disabled=True, # horizontal_scroll = True,
+      border_width=2, no_scrollbar=True, key='MLINE_BINOPS') 
    ],
    [sg.Sizer(v_pixels=4)],
    [sg.Sizer(h_pixels=63),
@@ -239,11 +237,13 @@ bmr_pd_layout = [
     sg.Input('', size=(30, 1), font=('Courier', 12), justification='centered',
       disabled=True, disabled_readonly_background_color='#fdfdfc',
       pad=((0, 4), (4, 4)), key="-USER_PD-"),
-    sg.Button('First', font='None 8 bold', pad=((4, 0), (4, 4))),
-    sg.Button('Next', font='None 8 bold', pad=((3, 0), (4, 4)), key='-NXT_USER_PD-'),
-    sg.Button('Last', font='None 8 bold', pad=((3, 4), (4, 4))),
-    sg.Text('(Changes PSID)', font=(None, 11, 'italic'),
-      pad=((3, 3), (0, 4))),
+    sg.Button('First', font='None 8 bold', pad=((4, 0), (4, 4)), key='FIRST_USER_PD'),
+    sg.Button('Next', font='None 8 bold', pad=((3, 0), (4, 4)),
+      key='NEXT_USER_PD'),
+    sg.Button('Last', font='None 8 bold', pad=((3, 4), (4, 4)), key='LAST_USER_PD'),
+    sg.Text('', text_color='red', font='None 12 bold', key='PD_MESSAGES'),
+    # sg.Text('(Changes PSID)', font=(None, 11, 'italic'),
+    #   pad=((3, 3), (0, 4))),
     sg.Push()
    ],
    [sg.Text('CE MAP-T WAN Address:', font=(None, 11, 'bold'),
@@ -268,7 +268,8 @@ ipv4_section = [
     disable_number_display=False, enable_events=True, border_width=2,
     size=(42, 10), trough_color='white', font=(None, 11, 'bold'),
     pad=((0, 2), (0, 6)), key='-V4HOST_SLIDER-'),
-    sg.Button(' + 1', font='None 8 bold', pad=((2, 5), (12, 0)), key='-NEXT_HOST-'),
+    sg.Button(' + 1', font='None 8 bold', pad=((2, 5), (12, 0)),
+      key='-NEXT_HOST-'),
     sg.Push()
    ],
    [sg.Sizer(v_pixels=4)],
@@ -306,15 +307,15 @@ bmr_binops_tab_layout = [
       [sg.Sizer(v_pixels=3)],
       [sg.Text(('Bit analysis performed by CE, to determine its allocated '
                 'IPv4 host addresses and ports'),
-       font='None 12 bold', text_color='black', background_color="#8399C4",
+       font='None 12 bold', text_color='white', background_color="#8399C4",
        justification='centered', 
        border_width=0, relief='raised', pad=0, expand_x=True)],],
        expand_x=True, background_color='#8399C4', border_width=0)
    ],
    [sg.Sizer(v_pixels=4)],
    [sg.Frame("", bmr_pd_layout, font='None 11 bold italic',
-      title_location=sg.TITLE_LOCATION_TOP_LEFT, expand_x=True, border_width=2, relief='raised',
-      pad=((4, 4), (0, 4)))],
+      title_location=sg.TITLE_LOCATION_TOP_LEFT, expand_x=True, border_width=2,
+      relief='raised', pad=((4, 4), (0, 4)))],
    [sg.Frame("", ipv4_section, font='None 11 bold italic',
       title_location=sg.TITLE_LOCATION_TOP_LEFT, expand_x=True, border_width=2,
       relief="raised", pad=((4, 4), (0, 4)))
@@ -344,9 +345,11 @@ user_ports_multiline = [
 user_ports_tab_layout = [
    [sg.Sizer(v_pixels=3)],
    [sg.Text("All ports for current PSID ",
-      font=(None, 12, 'bold'), text_color='black', expand_x=True, justification='centered', background_color='#8399C4',)],
+      font=(None, 12, 'bold'), text_color='white', expand_x=True,
+      justification='centered', background_color='#8399C4',)],
    [sg.Sizer(v_pixels=3)],
-   [sg.Frame("", user_ports_multiline, expand_x=True, border_width=2, relief='raised')],
+   [sg.Frame("", user_ports_multiline, expand_x=True, border_width=2,
+      relief='raised')],
    [sg.Sizer(v_pixels=6)],
    [sg.Sizer(v_pixels=4)],
 ]
@@ -359,33 +362,96 @@ dhcp_fields = [
       disabled_readonly_background_color='#fdfdfc', pad=((0, 0), (4, 0)),
       disabled=True, key='DMR_INPUT'),
     sg.Button('Enter', font='None 8 bold', key='DMR_ENTER')],
+   # OPTION_S46_CONT_MAPT (95)
    [sg.Text('S46 MAP-T Container Option 95:', font=(None, 11, 'bold')),
     sg.Checkbox('Make FMR String', font=(None, 11, 'bold'), #tooltip=fmr_tooltip,
       enable_events=True, tooltip=fmr_tooltip, key='FMR_FLAG'),
     sg.Text('', text_color='red', font='None 11 bold', key='-DHCP_MESSAGES-')],
-   [sg.Sizer(0, 0),
-    sg.Input('', size=(93, 1), font=('Courier', 11), justification='centered',
-      disabled=True, use_readonly_for_disable=True,
-      disabled_readonly_background_color='#fdfdfc', key='OPT_95')],
+   # [sg.Sizer(0, 0),
+
+    # sg.Input('', size=(93, 1), font=('Courier', 11), justification='left',
+    #   disabled=True, use_readonly_for_disable=True,
+    #   disabled_readonly_background_color='#fdfdfc', key='OPT_95')],
+
+   [sg.Multiline(
+         '',
+         size=(93, 1), # size=(83,
+         # border_width=2,
+         pad=((3, 4), (0, 4)),
+         # auto_size_text=True,
+         font=('Courier', 12),
+         justification='left',
+         background_color='#fdfdfc',
+         # expand_x=True,
+         horizontal_scroll = False,
+         disabled=True,
+         no_scrollbar=True,
+         key='OPT_95')],
+
+   # OPTION_S46_RULE (89)
    [sg.Text(f'Option 89', font=(None, 11, 'bold')),
-    sg.Input('', size=(55, 1), font=('Courier', 12), justification='centered',
-      disabled=True, use_readonly_for_disable=True,
-      disabled_readonly_background_color='#fdfdfc', key='OPT_89')], # OPTION_S46_RULE (89)
+    # sg.Input('', size=(55, 1), font=('Courier', 12), justification='centered',
+    #   disabled=True, use_readonly_for_disable=True,
+    #   disabled_readonly_background_color='#fdfdfc', key='OPT_89')], # OPTION_S46_RULE (89)
+    sg.Multiline(
+         '',
+         size=(55, 1), # size=(83,
+         # border_width=2,
+         # pad=4,
+         # auto_size_text=True,
+         font=('Courier', 12),
+         justification='left',
+         background_color='#fdfdfc',
+         # expand_x=True,
+         horizontal_scroll = False,
+         disabled=True,
+         no_scrollbar=True,
+         key='OPT_89'),
+    sg.Text('S46 Rule Option', font=(None, 11))],
+
+   # OPTION_S46_PORTPARAMS (93)
    [sg.Text('Option 93', justification='centered', font=(None, 11, 'bold')),
-    sg.Input('', font=('Courier', 12), justification='centered',
-      disabled=True, use_readonly_for_disable=True,
-      disabled_readonly_background_color='#fdfdfc', key='OPT_93')], # OPTION_S46_PORTPARAMS (93)
-   [sg.Text(f'Option 91', justification='centered', font=(None, 11, 'bold')),
-    sg.Input('', font=('Courier', 12), justification='centered',
-      disabled=True, use_readonly_for_disable=True,
-      disabled_readonly_background_color='#fdfdfc', key='OPT_91')], # OPTION_S46_DMR (91)
+    sg.Multiline(
+         '',
+         size=(45, 1), # size=(83,
+         # border_width=2,
+         # pad=4,
+         # auto_size_text=True,
+         font=('Courier', 12),
+         justification='left',
+         background_color='#fdfdfc',
+         # expand_x=True,
+         horizontal_scroll = False,
+         disabled=True,
+         no_scrollbar=True,
+         key='OPT_93'),
+    sg.Text('S46 Port Parameters Option (no PSID data)', font=(None, 11))],
+
+   # OPTION_S46_DMR (91)
+   [sg.Text('Option 91', justification='centered', font=(None, 11, 'bold')),
+    sg.Multiline(
+         '',
+         size=(45, 1), # size=(83,
+         # border_width=2,
+         pad=((7, 4), (4, 4)),
+         # auto_size_text=True,
+         font=('Courier', 12),
+         justification='left',
+         background_color='#fdfdfc',
+         # expand_x=True,
+         horizontal_scroll = False,
+         disabled=True,
+         no_scrollbar=True,
+         key='OPT_91'),
+    sg.Text('S46 DMR Option', font=(None, 11))],
+
    [sg.Sizer(v_pixels=6)],
 ]
 
 dhcp_tab_layout = [
    [sg.Sizer(v_pixels=3)],
    [sg.Text("Softwire 46 MAP-T Options for DHCPv6", font=(None, 12, 'bold'),
-      text_color='black', background_color='#8399C4', expand_x=True,
+      text_color='white', background_color='#8399C4', expand_x=True,
       justification='centered')],
    [sg.Frame("", dhcp_fields, expand_x=True, border_width=2, relief='raised')]
 ]
@@ -410,12 +476,13 @@ saved_rules_multiline =[
 saved_rules_tab_layout = [
    [sg.Sizer(v_pixels=3)],
    [sg.Push( background_color='#8399C4'),
-    sg.Text("Saved BMR Strings", font=(None, 12, 'bold'),
-       text_color='black', background_color='#8399C4', justification='centered'),
+    sg.Text("Saved BMR Strings", font=(None, 12, 'bold'), text_color='white',
+      background_color='#8399C4', justification='centered'),
     sg.Text("(To enter in 'BMR String' field)", font=(None, 12, 'italic'),
-       text_color='black', background_color='#8399C4', justification='centered'),
+       text_color='white', background_color='#8399C4', justification='centered'),
     sg.Push( background_color='#8399C4')],
-   [sg.Frame("", saved_rules_multiline, p=4, expand_x=True, border_width=2, relief='raised')],
+   [sg.Frame("", saved_rules_multiline, p=4, expand_x=True, border_width=2,
+      relief='raised')],
    [sg.Sizer(v_pixels=6)],
 ]
 
@@ -424,9 +491,12 @@ tab_group_layout = [
       key='TAB_BINARY'),
     # image_source=binops_tab_label, key='TAB_BINARY'),
     # sg.Tab('User PD', user_pd_tab_layout, key='TAB_UPD'),
-    sg.Tab('User Ports', user_ports_tab_layout,  background_color='#8399C4', key='TAB_PORTS'),
-    sg.Tab('DHCP Options', dhcp_tab_layout, background_color='#8399C4', key='TAB_DHCP'),
-    sg.Tab('Saved Rules', saved_rules_tab_layout, background_color='#8399C4', key='TAB_SAVED')]
+    sg.Tab('User Ports', user_ports_tab_layout,  background_color='#8399C4',
+      key='TAB_PORTS'),
+    sg.Tab('DHCP Options', dhcp_tab_layout, background_color='#8399C4',
+      key='TAB_DHCP'),
+    sg.Tab('Saved Rules', saved_rules_tab_layout, background_color='#8399C4',
+      key='TAB_SAVED')]
 ]
 
 # Error messages
@@ -463,7 +533,7 @@ layout = [
       border_width=4, expand_x=True,)],
    [sg.TabGroup(tab_group_layout, enable_events=True, border_width=1,
       tab_background_color='#C8D1E5', selected_background_color='#8399C4',
-      title_color='black', selected_title_color='black', tab_border_width=2,
+      title_color='black', selected_title_color='white', tab_border_width=2,
       key="TABGROUP")],
    [sg.Sizer(v_pixels=5)],
    [sg.Sizer(h_pixels=8),
@@ -514,6 +584,8 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
    UI display function displays_update().
    '''
 
+   print(f"rule_calc user_pd_obj is {user_pd_obj}") # rule_calc gets right user_pd ...PRINT
+
    # initial values
    #----------------------------------#
    psidlen = (param_ls[5] - (32 - param_ls[4])) # ea_len - host_len
@@ -533,6 +605,7 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
    # and update v4pfx value in param_ls
    if v4host != None:
       pdbin = f'{user_pd_obj.network_address:b}'
+      print(f"pdbin is {pdbin}") #......................PRINT
       pdbin_l = pdbin[:param_ls[2]]
       pdbin_r = pdbin[param_ls[2] + (32 - last_params[4]) : ]
       v4hostbin = bin(v4host)[2:].zfill(32 - param_ls[4])
@@ -546,6 +619,7 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
       newv4int = int(newv4bin, 2)
       newv4add = ip.IPv4Address(newv4int)
       v4str = newv4add.compressed
+      print(f"v4str is {v4str}") #.......................PRINT
    else:
       v4pfxbin = f'{ip.IPv4Address(param_ls[3]):b}'
       v4hostbin = f'{user_pd_obj.network_address:b}]'[bmrpfx_len : bmrpfx_len + (32 - param_ls[4])]
@@ -577,12 +651,15 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
 
    # Sec 1, User PD (upd) string data
    #-----------------------------------#
-   v4hostbin_len = 32 - param_ls[4]
+   v4hostbin_len = 32 - param_ls[4] # ....................Move to top!!!
    psid_idxl = param_ls[2] + v4hostbin_len
    psid_idxr = param_ls[2] + param_ls[5]
    psid = upd_bin[psid_idxl : psid_idxr]
+
+   print(f"psid is {psid}") #.............................PRINT
+
    # Generate 16 bit string for Port number
-   # is PSID > 0?
+   # is PSID Offset > 0?
    if param_ls[6] > 0:
       psid_ofst_bin = bin(1)[2:].zfill(param_ls[6]) # binary 1 with len = offset
    else:
@@ -698,7 +775,7 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
          f"{int(psid_ofst_bin + '0' * (16 - psid_ofst), 2)}-{int('1' * 16, 2)}"
       ]
 
-   # PSID and PSID Offset Warnings flags
+   # PSID and PSID Offset warning flags
    no_psid = False
    no_offset = False
    high_offset = False
@@ -790,11 +867,9 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
       'bin_str_dic': bin_str_dic,
       'ipv4_str_dic': ipv4_str_dic,
       'portidx_str_dic': portidx_str_dic,
-      # 'bin_ipstr_dic': bin_ipstr_dic,
       'hl_dic1': hl_dic1,
       'hl_dic_v4': hl_dic_v4,
       'hl_dic_port': hl_dic_port,
-      # 'hl_dic2': hl_dic2,
       'num_excl_ports': 2 ** (16 - param_ls[6]),
       'seq_list': seq_list,
       'no_psid': no_psid,
@@ -831,7 +906,6 @@ def displays_update(dic, pd_obj):
    window['-USERS_DSPLY-'].update(dic['users'])
    window['-PORTS_DSPLY-'].update(dic['ppusr'])
    window['-EXCL_PORTS_DSPLY-'].update(dic['excl_ports'])
-   # window['-BMR_STRING_DSPLY-'].update(dic['bmr_str'])
 
    # Output values to Edit String and Values fields
    window['-STRING_IN-'].update(dic['bmr_str'])
@@ -840,16 +914,16 @@ def displays_update(dic, pd_obj):
 
    # Output User PD, CE IP, and Port to binary string editor
    window['-USER_PD-'].update(dic['upd_str'])
-   # window['-USER_IP4-'].update(dic['ce_ip'])
-   # window['-USER_PORT-'].update(dic['port_int'])
    window['-SP_INT-'].update(dic['port_int'])
    window['-SP_INDEX-'].update(dic['pidx_bin'])
+
+   # DHCP Options tab, DMR input field
+   # window['DMR_INPUT'].update('Ex. 2001:db8:ffff::/64') # Not working
 
    # Binary displays update values and highlights
    multiline1: sg.Multiline = window['MLINE_BINOPS']
    multiline2: sg.Multiline = window['MLINE_IPV4']
    multiline3: sg.Multiline = window['MLINE_PORTIDX']
-   # multiline5: sg.Multiline = window['MLINE_BIN_2']
 
    multiline1.update('')
    for num, bstr in enumerate(dic['bin_str_dic']):
@@ -870,7 +944,6 @@ def displays_update(dic, pd_obj):
    highlights(multiline1, dic)
    highlights(multiline2, dic)
    highlights(multiline3, dic)
-   # highlights(multiline5, dic)
 
    # Format port list and output to Source Port List field
    #-------------------------------------------------------#
@@ -988,20 +1061,25 @@ def highlights(display, dic):
    widget.tag_config('grey49', foreground='black', background='#7D7D7D')
    widget.tag_config('sage', foreground='black', background='#C2C9A6')
    widget.tag_config('peri', foreground='black', background='#B2CAFA') # periwinkle
-   widget.tag_config('pink', foreground='black', background='#ff90c7')
+   # widget.tag_config('pink', foreground='black', background='#ff90c7')
+   widget.tag_config('pink', foreground='black', background='#fec7e2')
    widget.tag_config('new_teal', foreground='black', background='#7cdff3') # moonstone
    widget.tag_config('Turquoise', foreground='black', background='#46E1D1')
+   widget.tag_config('lt_turquoise', foreground='black', background='#a2efe7')
    widget.tag_config('lt_purple', foreground='black', background='#D7C1D5')
    widget.tag_config('lt_blue1', foreground='black', background='#B3C3D1') # lt blue grey
    widget.tag_config('lt_blue2', foreground='black', background='#CCD7E0') # ltr blue grey
    widget.tag_config('lt_blue', foreground='black', background='#B2CAFA') # lt blue
    widget.tag_config('tan', foreground='black', background='tan')
    widget.tag_config('lt_tan', foreground='black', background='#dbcdbd')
-   widget.tag_config('lt_orange', foreground='black', background='#ffcc99')
    widget.tag_config('new_lt_green', foreground='black', background='#c2ebc2')
-   widget.tag_config('light_green', foreground='black', background='#00ff19')
+   # widget.tag_config('light_green', foreground='black', background='#00ff19')
+   widget.tag_config('light_green', foreground='black', background='#80fe8c')
+
+
+  
    widget.tag_config('grey_blue', foreground='black', background='#a4b5c1')
-   widget.tag_config('Sunshade', foreground='black', background='#fdaf46')
+   widget.tag_config('lt_orange', foreground='black', background='#fdd6a2')
    widget.tag_config('Malibu', foreground='black', background='#FFFF21')
 
    if display.Key == 'MLINE_BINOPS':
@@ -1013,16 +1091,28 @@ def highlights(display, dic):
       widget.tag_add('pink', *dic['hl_dic1']['ea_v4_hl'])
       widget.tag_add('yellow', *dic['hl_dic1']['ea_psid_hl'])
 
-   elif display.Key == 'MLINE_IPV4':
+   if display.Key == 'MLINE_IPV4':
       widget.tag_add('pink', *dic['hl_dic_v4']['v4ip_hl'])
       widget.tag_add('pink', *dic['hl_dic_v4']['v4ipbin_hl'])
 
-   elif display.key == 'MLINE_PORTIDX':
-      widget.tag_add('Sunshade', *dic['hl_dic_port']['prtidx_ofst_hl'])
-      widget.tag_add('Turquoise', *dic['hl_dic_port']['prtidx_pad_hl'])
-      widget.tag_add('Sunshade', *dic['hl_dic_port']['portbin_ofst_hl'])
+   if display.Key == 'MLINE_PORTIDX':
+      widget.tag_add('lt_orange', *dic['hl_dic_port']['prtidx_ofst_hl'])
+      widget.tag_add('lt_turquoise', *dic['hl_dic_port']['prtidx_pad_hl'])
+      widget.tag_add('lt_orange', *dic['hl_dic_port']['portbin_ofst_hl'])
       widget.tag_add('yellow', *dic['hl_dic_port']['portbin_psid_hl'])
-      widget.tag_add('Turquoise', *dic['hl_dic_port']['portbin_pad_hl'])
+      widget.tag_add('lt_turquoise', *dic['hl_dic_port']['portbin_pad_hl'])
+
+   if display.Key == 'OPT_89':
+      ...
+
+   if display.Key == 'OPT_93':
+      ...
+
+   if display.Key == 'OPT_91':
+      ...
+
+   if display.Key == 'OPT_95':
+      ...
 
    return
 
@@ -1073,7 +1163,7 @@ class ExampleParams:
          return(plist)
 
 class UserPd:
-   '''Return a User Delegated Prefix (PD|upd) object.
+   '''Return an IPv6 Prefix object to be used for Prefix Delegation (PD)
    If BMR parameters (last_plist) remains the same, it returns
    PD object from current object. If the parameters change,
    a new PD object is created.
@@ -1085,9 +1175,10 @@ class UserPd:
       self.pd_obj = None
       self.lastpd = ''
 
-   def new_pd(self):
-      if self.plist == self.last_plist:  # Next PD from current PD object
+   def new_pd(self, first_flag=False):
+      if self.plist == self.last_plist and not first_flag:  # Next PD from current PD object
          nextpd = next(self.pd_obj)
+         print(f'nextpd is {nextpd}')
          self.lastpd = nextpd
          return nextpd
       else:                              # New PD object & new PD
@@ -1098,6 +1189,19 @@ class UserPd:
          nextpd = next(self.pd_obj)
          self.lastpd = nextpd
          return nextpd
+
+   def last_pd(self):
+      last_pd_item = ''
+      for last_pd_item in self.pd_obj:
+         print(last_pd_item)
+      if last_pd_item == '':
+         print('send message saying already at last pd')
+         window['PD_MESSAGES'].update('Final PD reached')
+      else:
+         print(last_pd_item)
+         nextpd = last_pd_item
+         self.lastpd = nextpd
+         return last_pd_item
 
 # "Pad right" when IPv6 prefix not divisible by 8
 def find_next_divisible(num):
@@ -1158,8 +1262,8 @@ def dhcp_calc(dmr, fmr=False):
    else:
       rule_flags_hx = "00" # Option for BMR, not FMR
 
-   # S46 Port Parameters
-   opt_93_val = ps_ofst_hx + "000000" # Hard coding PSID Length & PSID to all 0's per this design
+   # S46 Port Parameters Option
+   opt_93_val = ps_ofst_hx + "000000" # Hard coding PSID Length & PSID to all 0's per this domain design
    opt_93_str = opt_93_lbl_hex + opt_93_len_hx + opt_93_val
 
    # S46 Rule Option
@@ -1181,15 +1285,75 @@ def dhcp_calc(dmr, fmr=False):
    opt_95_payload = opt_89_str + opt_91_str
    opt_95_w_head = f"({opt_95_lbl_hex}{opt_95_len_hx}){opt_95_payload}"
 
-   # window['OPT_95'].update(opt_95_payload)
    window['OPT_95'].update(opt_95_w_head)
    window['OPT_89'].update(opt_89_str)
    window['OPT_93'].update(opt_93_str)
    window['OPT_91'].update(opt_91_str)
 
+   opt95_str_len = len(opt_95_w_head)
    opt89_str_len = len(opt_89_str)
-   opt93_str_len = 15
+   opt93_str_len = 16
    opt91_str_len = len(opt_91_str)
+
+   # Highlight indexes
+   opt89_idxl = '1.0'
+   opt89_idxr = f'1.{opt89_str_len - opt93_str_len}'
+   opt89_opt93_idxl = opt89_idxr
+   opt89_opt93_idxr = f'1.{int(opt89_idxr[2:]) + opt93_str_len}'
+
+   opt91_idxl = '1.0'
+   opt91_idxr = f'1.{opt91_str_len}'
+
+   opt95_opt89_idxl = '1.10'
+   opt95_opt89_idxr = f'1.{opt89_str_len - opt93_str_len + 10}'
+   opt95_opt93_idxl = f'1.{int(opt95_opt89_idxr[2:])}'
+   opt95_opt93_idxr = f'1.{int(opt95_opt93_idxl[2:]) + opt93_str_len}'
+   opt95_opt91_idxl = opt95_opt93_idxr
+   opt95_opt91_idxr = f'1.{int(opt95_opt93_idxr[2:]) + opt91_str_len}'
+
+   opt89_wgt = window['OPT_89'].Widget
+   opt89_wgt.tag_config('lt_orange', foreground='black', background='#fdd6a2')
+   opt89_wgt.tag_config('yellow', foreground='black', background='#FFFF21')   
+   opt89_wgt.tag_add('lt_orange', opt89_idxl, opt89_idxr)
+   opt89_wgt.tag_add('yellow', opt89_opt93_idxl, opt89_opt93_idxr)
+
+   opt93_wgt = window['OPT_93'].Widget
+   opt93_wgt.tag_config('yellow', foreground='black', background='#FFFF21')
+   opt93_wgt.tag_add('yellow', '1.0', f'1.{opt93_str_len}')
+
+   opt91_wgt = window['OPT_91'].Widget
+   opt91_wgt.tag_config('lt_turquoise', foreground='black', background='#a2efe7')
+   opt91_wgt.tag_add('lt_turquoise', '1.0', opt91_idxr)
+
+   opt95_wgt = window['OPT_95'].Widget
+   opt95_wgt.tag_config('lt_orange', foreground='black', background='#fdd6a2')
+   opt95_wgt.tag_config('yellow', foreground='black', background='#FFFF21')
+   opt95_wgt.tag_config('lt_turquoise', foreground='black', background='#a2efe7')
+   opt95_wgt.tag_add('lt_orange', opt95_opt89_idxl, opt95_opt89_idxr)
+   opt95_wgt.tag_add('yellow', opt95_opt93_idxl, opt95_opt93_idxr)
+   opt95_wgt.tag_add('lt_turquoise', opt95_opt91_idxl, opt95_opt91_idxr)
+
+
+
+#    opt89_wgt.tag_add('some_color', 0, 5)
+
+
+#    window['OPT_89'].Widget.tag_config('yellow', foreground='black')
+
+
+
+# def highlights(display, dic):
+#    """ Highlighting for binary displays. Called from displays_update() """
+#    widget = display.Widget
+ 
+#    widget.tag_config('grey_blue', foreground='black', background='#a4b5c1')
+#    widget.tag_config('lt_orange', foreground='black', background='#fdaf46')
+#    widget.tag_config('Malibu', foreground='black', background='#FFFF21')
+
+#    if display.Key == 'MLINE_BINOPS':
+#       widget.tag_add('light_green', *dic['hl_dic1']['bmr_hl'])
+#       widget.tag_add('light_green', *dic['hl_dic1']['bmr_len_hl'])
+
 
 
 
@@ -1416,6 +1580,7 @@ savctr = False
 portidxadd = 0 # used with 'Source Port Index n = Port' section
 last_params = None
 last_dmr_entry = None
+param_ls = []
 
 #-------------------------------------------------------------------------#
 # Main Event Loop - runs once for each 'event'
@@ -1556,7 +1721,8 @@ while True:
                user_pd = userpds.new_pd()
                rule_calc(param_ls, user_pd)
             else:
-               print('PARAMETER ENTRY ERROR')
+               param_ls = last_params
+               # print('PARAMETER ENTRY ERROR')
 
    # Validate Enter/Edit String
    # Values in allowable ranges. But not tested that they work in BMR!
@@ -1615,7 +1781,6 @@ while True:
    #--------------------------------------------#
    if event.endswith('SLDR-') and last_params: # rule to edit must exist
       portidxadd = 0
-      print(f'last_params is {last_params}')
       param_ls = [
          param_ls[0],
          param_ls[1],
@@ -1639,15 +1804,32 @@ while True:
 
    # Display next User Delegated Prefix (PD)
    #-----------------------------------------#
-   if event == '-NXT_USER_PD-' and last_params:
-      # If last_params=None (initial state or Clear was used) ignore button
+   # If last_params=None (initial state or Clear was used) ignore button
+   if event == 'NEXT_USER_PD' and last_params:
       portidxadd = 0
       user_pd = userpds.new_pd()
-#     v4hostint = int(values['-V4HOST_SLIDER-']) # slider values are floats
       rule_calc(last_params, user_pd, v4hostint)
       if last_dmr_entry:
          window['DMR_INPUT'].update(last_dmr_entry)
          dhcp_calc(last_dmr_entry, values['FMR_FLAG'])
+
+   if event == 'FIRST_USER_PD' and last_params:
+      portidxadd = 0
+      user_pd = userpds.new_pd(first_flag=True)
+      rule_calc(last_params, user_pd, v4hostint)
+      if last_dmr_entry:
+         window['DMR_INPUT'].update(last_dmr_entry)
+         dhcp_calc(last_dmr_entry, values['FMR_FLAG'])
+
+   if event == 'LAST_USER_PD' and last_params:
+      user_pd = userpds.last_pd()
+      print(f"userpd is {user_pd}")
+      rule_calc(last_params, user_pd, v4hostint)
+      if last_dmr_entry:
+         window['DMR_INPUT'].update(last_dmr_entry)
+         dhcp_calc(last_dmr_entry, values['FMR_FLAG'])
+
+
 
    # Increment IPv4 host address
    #-----------------------------------------#
@@ -1771,7 +1953,7 @@ while True:
 
    print(f'#------- End Event {cntr - 1} -------#')
 
-   print(window.size)
+   # print(window.size)
 
 
 
@@ -1782,6 +1964,8 @@ while True:
     - Look at moving parameter sliders out of tabbed frame - DONE 12/6/24
     - Change eabits var to ealen (also related keys)
     - Change all multiline fields with highlighted text to white background
+    - DMR example text missing after "Example"
+    - In rule_calc: v4hostbin_len = 32 - param_ls[4] # ....................Move to top!!!
 
    # Utilities:
    #----------------------------------------#
