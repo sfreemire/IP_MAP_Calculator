@@ -499,30 +499,30 @@ tab_group_layout = [
       key='TAB_SAVED')]
 ]
 
-# Error messages
-bin_display_col3 = [
-   [sg.Push(),
-    sg.Text('', text_color='red', font='None 14 bold',
-            pad=((5, 5), (0, 0)), key='-PARAM_MESSAGES-'),
-    sg.Push()],
-   [sg.Sizer(h_pixels=0, v_pixels=1)]
-]
+# # Error messages
+# bin_display_col3 = [
+#    [sg.Push(),
+#     sg.Text('', text_color='red', font='None 14 bold',
+#             pad=((5, 5), (0, 0)), key='-PARAM_MESSAGES-'),
+#     sg.Push()],
+#    [sg.Sizer(h_pixels=0, v_pixels=1)]
+# ]
 
-# Binary Display (5th frame)
-#-------------------------------------#
-button_col1 = [
-   [sg.Button('Example', font='Helvetica 11', key='-EXAMPLE-'),
-    sg.Button('Clear', font='Helvetica 11', key='-CLEAR-'),
-    sg.Text('', text_color='red', font='None 14 bold', key='-PARAM_MESSAGES-'),
-    sg.Push(),
-#    sg.Button('Save', font='Helvetica 11', key=('-SAVE_MAIN-')),
-    sg.Button('About', font=('Helvetica', 12)),
-    sg.Button(' Exit ', font=('Helvetica', 12, 'bold'))]
-]
+# # Binary Display (5th frame)
+# #-------------------------------------#
+# button_col1 = [
+#    [sg.Button('Example', font='Helvetica 11', key='-EXAMPLE-'),
+#     sg.Button('Clear', font='Helvetica 11', key='-CLEAR-'),
+#     sg.Text('', text_color='red', font='None 14 bold', key='-PARAM_MESSAGES-'),
+#     sg.Push(),
+# #    sg.Button('Save', font='Helvetica 11', key=('-SAVE_MAIN-')),
+#     sg.Button('About', font=('Helvetica', 12)),
+#     sg.Button(' Exit ', font=('Helvetica', 12, 'bold'))]
+# ]
 
-button_layout = [
-   [sg.Column(button_col1, expand_x=True)]
-]
+# button_layout = [
+#    [sg.Column(button_col1, expand_x=True)]
+# ]
 
 layout = [
    [sg.Sizer(v_pixels=4)],
@@ -584,11 +584,12 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
    UI display function displays_update().
    '''
 
-   print(f"rule_calc user_pd_obj is {user_pd_obj}") # rule_calc gets right user_pd ...PRINT
+   # print(f"rule_calc user_pd_obj is {user_pd_obj}") # rule_calc gets right user_pd ...PRINT
 
    # initial values
    #----------------------------------#
-   psidlen = (param_ls[5] - (32 - param_ls[4])) # ea_len - host_len
+   v4hostbin_len = 32 - param_ls[4] # ....................Moved here
+   psidlen = (param_ls[5] - v4hostbin_len) # ea_len - host_len
    bmrpfx_len = param_ls[2]
    upd_len = user_pd_obj.prefixlen
    psid_ofst = param_ls[6]
@@ -605,30 +606,40 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
    # and update v4pfx value in param_ls
    if v4host != None:
       pdbin = f'{user_pd_obj.network_address:b}'
-      print(f"pdbin is {pdbin}") #......................PRINT
+      # User PD bits up to BMR prefix length
       pdbin_l = pdbin[:param_ls[2]]
+      # UPD bits from after IPv4 host bits to end
       pdbin_r = pdbin[param_ls[2] + (32 - last_params[4]) : ]
-      v4hostbin = bin(v4host)[2:].zfill(32 - param_ls[4])
+      v4hostbin = bin(v4host)[2:].zfill(v4hostbin_len)
       newpdbin = pdbin_l + v4hostbin + pdbin_r
       newpdint = int(newpdbin, 2)
-      new_upd_add_str = \
+      new_upd_pfx_str = \
          ip.IPv6Address(newpdint).compressed + '/' + str(user_pd_obj.prefixlen)
-      user_pd_obj = ip.IPv6Network(new_upd_add_str)
+      user_pd_obj = ip.IPv6Network(new_upd_pfx_str)
+      # BMR IPv4 bits to prefix len
       v4pfxbin = f'{ip.IPv4Address(param_ls[3]):b}'[: int(param_ls[4])]
       newv4bin = v4pfxbin + v4hostbin
       newv4int = int(newv4bin, 2)
       newv4add = ip.IPv4Address(newv4int)
+      # print(f"ipv4 newv4add is {newv4add}, type is {type(newv4add)}")
       v4str = newv4add.compressed
-      print(f"v4str is {v4str}") #.......................PRINT
+      # print(f"v4str is {v4str}, type is {type(v4str)}")
+      
+      #--------------------TEST------------------------
+      # param_ls[3] = v4str # Updates BMR IPv4 entry value. Not desired.
+      #------------------------------------------------
+
    else:
       v4pfxbin = f'{ip.IPv4Address(param_ls[3]):b}'
-      v4hostbin = f'{user_pd_obj.network_address:b}]'[bmrpfx_len : bmrpfx_len + (32 - param_ls[4])]
-      v4hostint = int(v4hostbin, 2)
+      v4hostbin = f'{user_pd_obj.network_address:b}]'[bmrpfx_len : bmrpfx_len + (v4hostbin_len)]
+   #    v4hostint = int(v4hostbin, 2)
       newv4bin = v4pfxbin[:param_ls[4]] + v4hostbin
-      # window['-V4HOST_SLIDER-'].update(value=0)
+   #    # window['-V4HOST_SLIDER-'].update(value=0)
       newv4add = ip.IPv4Address(int(newv4bin, 2))
       v4str = newv4add.compressed
-      window['-V4HOST_SLIDER-'].update(v4hostint)
+   #    window['-V4HOST_SLIDER-'].update(v4hostint)
+      # print(f">>>>>in 'else', v4str is {v4str}")
+
 
    #-------------------------------------------------------------------------#
    # Binary display strings
@@ -637,8 +648,12 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
    #--------------------------------------------------#
    v6p_hex_exp = ip.IPv6Address(param_ls[1]).exploded # Hex style: 0000:0000:...
    v6p_hex_seglst = v6p_hex_exp.split(':')[:4] # ['0000', '0000', ...]
+   # print(v6p_hex_seglst)
    upd_hex_exp = ip.IPv6Address(user_pd_obj.network_address).exploded # 0000:0000:...
    upd_hex_seglst = upd_hex_exp.split(':')[:4] # ['0000', '0000', ...]
+
+   # print(f"upd_hex_seglst is {upd_hex_seglst}") #.................PRINT
+
    v6p_bin = f'{ip.IPv6Address(param_ls[1]):b}'[:64] # first 64 bits of pfx
    v6p_bin_seglst = [v6p_bin[i:i+16] for i in range(0, 64, 16)]
    v6p_bin_fmt = ':'.join(v6p_bin_seglst) + f'::/{bmrpfx_len}'
@@ -651,12 +666,12 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
 
    # Sec 1, User PD (upd) string data
    #-----------------------------------#
-   v4hostbin_len = 32 - param_ls[4] # ....................Move to top!!!
+   # v4hostbin_len = 32 - param_ls[4] # ....................Move to top!!!
    psid_idxl = param_ls[2] + v4hostbin_len
    psid_idxr = param_ls[2] + param_ls[5]
    psid = upd_bin[psid_idxl : psid_idxr]
 
-   print(f"psid is {psid}") #.............................PRINT
+   # print(f"psid is {psid}") #.............................PRINT
 
    # Generate 16 bit string for Port number
    # is PSID Offset > 0?
@@ -861,7 +876,7 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
       'excl_ports': 65536 - ((2 ** psidlen) * (ppusr)),
       'bmr_str': '|'.join([str(x) for x in param_ls]),
       'upd_str': user_pd_obj.compressed, # upd_str = User Delegated Prefix (PD)
-      'ce_ip': v4str,
+      # 'ce_ip': v4str,
       'port_int': port_int,
       'pidx_bin': pidx_bin,
       'bin_str_dic': bin_str_dic,
@@ -876,6 +891,8 @@ def rule_calc(param_ls, user_pd_obj, v4host = None, portidx = None):
       'no_offset': no_offset,
       'high_offset': high_offset
    }
+
+   # print(f"d_dic['upd_str'] is {d_dic['upd_str']}")
 
    if v4host == None:
       clear_dhcp_fields()
@@ -1171,17 +1188,18 @@ class UserPd:
    print(x.new_pd())'''
    def __init__(self, plist):
       self.plist = plist
-      self.last_plist = []
+      self.last_plist = [] # can't use comparison in def new_pd below!!!!
       self.pd_obj = None
-      self.lastpd = ''
+      # self.lastpd = ''
 
    def new_pd(self, first_flag=False):
-      if self.plist == self.last_plist and not first_flag:  # Next PD from current PD object
+      # Next PD from current PD object
+      if self.plist == self.last_plist and not first_flag:
          nextpd = next(self.pd_obj)
-         print(f'nextpd is {nextpd}')
          self.lastpd = nextpd
          return nextpd
-      else:                              # New PD object & new PD
+      # New PD object & new PD
+      else:
          self.last_plist = self.plist
          bmr_v6p = ip.ip_network('/'.join((self.plist[1], str(self.plist[2]))))
          pd_len = int(self.plist[2]) + int(self.plist[5])
@@ -1191,17 +1209,65 @@ class UserPd:
          return nextpd
 
    def last_pd(self):
-      last_pd_item = ''
-      for last_pd_item in self.pd_obj:
-         print(last_pd_item)
-      if last_pd_item == '':
-         print('send message saying already at last pd')
-         window['PD_MESSAGES'].update('Final PD reached')
-      else:
-         print(last_pd_item)
-         nextpd = last_pd_item
-         self.lastpd = nextpd
-         return last_pd_item
+      print('IN last_pd -----------')
+      first_pd = self.new_pd(first_flag=True)
+      print(f"first_user_pd is {first_pd}")
+      multiplier = v4hostint
+
+      ea_bit_len =  first_pd.prefixlen - self.plist[2]
+      psid_bit_len = ea_bit_len - (32 - self.plist[4])
+      port_seq_bit_len = 16 - self.plist[6] - psid_bit_len
+      port_seq_val_max = 2 ** port_seq_bit_len - 1
+
+      last_itr_item = ''
+      for last_itr_item in self.new_pd():
+         pass
+
+      print('test>>>>>>>>>>>>>>>>')
+
+      print(last_itr_item)
+
+      # x = self.new_pd()
+      # print(f"x is {x}")
+      # y = self.new_pd()
+      # print(f"y is {y}")
+
+      # print(f"last_itr_ite?m is {last_itr_item}")
+
+      # last_pd_item = ''
+      # for last_pd_item in self.pd_obj:
+      #    pass
+      # if last_pd_item == '':
+      #    # print('send message saying already at last pd')
+      #    window['PD_MESSAGES'].update('Final PD reached')
+      # else:
+      #    print(last_pd_item)
+      #    nextpd = last_pd_item
+      #    self.lastpd = nextpd
+      #    return last_pd_item
+
+
+
+
+      # nextpd = first_user_pd.new_pd()
+      # return last_itr_item
+
+      
+
+      
+      # last_pd_item = ''
+      # for last_pd_item in self.pd_obj:
+      #    pass
+      # if last_pd_item == '':
+      #    # print('send message saying already at last pd')
+      #    window['PD_MESSAGES'].update('Final PD reached')
+      # else:
+      #    print(last_pd_item)
+      #    nextpd = last_pd_item
+      #    self.lastpd = nextpd
+      #    return last_pd_item
+
+
 
 # "Pad right" when IPv6 prefix not divisible by 8
 def find_next_divisible(num):
@@ -1597,6 +1663,8 @@ while True:
       sg.user_settings_set_entry('-location-', window.current_location())
       break
 
+   print(f"#--------Begin Main Loop---------#")
+
    # Workaround for tab contents not appearing until cursor is moved off of selected tab
    if event == "TABGROUP":
       window[event].get_previous_focus().set_focus()
@@ -1805,7 +1873,7 @@ while True:
    # Display next User Delegated Prefix (PD)
    #-----------------------------------------#
    # If last_params=None (initial state or Clear was used) ignore button
-   if event == 'NEXT_USER_PD' and last_params:
+   if event == 'NEXT_USER_PD' and last_params: # For current host number (YES)
       portidxadd = 0
       user_pd = userpds.new_pd()
       rule_calc(last_params, user_pd, v4hostint)
@@ -1813,7 +1881,7 @@ while True:
          window['DMR_INPUT'].update(last_dmr_entry)
          dhcp_calc(last_dmr_entry, values['FMR_FLAG'])
 
-   if event == 'FIRST_USER_PD' and last_params:
+   if event == 'FIRST_USER_PD' and last_params: # First for current host number? (NO)
       portidxadd = 0
       user_pd = userpds.new_pd(first_flag=True)
       rule_calc(last_params, user_pd, v4hostint)
@@ -1821,13 +1889,43 @@ while True:
          window['DMR_INPUT'].update(last_dmr_entry)
          dhcp_calc(last_dmr_entry, values['FMR_FLAG'])
 
-   if event == 'LAST_USER_PD' and last_params:
+   if event == 'LAST_USER_PD' and last_params: # For current host number? (YES)
+      print(f"Event is {event}, user_pd is {user_pd}")
+      portidxadd = 0
       user_pd = userpds.last_pd()
-      print(f"userpd is {user_pd}")
-      rule_calc(last_params, user_pd, v4hostint)
-      if last_dmr_entry:
-         window['DMR_INPUT'].update(last_dmr_entry)
-         dhcp_calc(last_dmr_entry, values['FMR_FLAG'])
+      print(f"button ops user_pd is {user_pd}")
+      # user_pd = userpds.last_pd()
+
+      # bmr_v6p_len: int = last_params[2]
+      # user_pd_len: int = user_pd.prefixlen
+      # user_pd_bin: str = f'{user_pd.network_address:b}'
+      # v4_host_len: int = 32 - last_params[4]
+      # psid_len: int = last_params[5] - v4_host_len
+      # # port_seq_len: int = 16 - (last_params[6] - psid_len)
+      # port_seq_bin: str = user_pd_bin[ bmr_v6p_len + v4_host_len : user_pd_len ]
+      # port_seq_len: int = len(port_seq_bin)
+      # port_seq_val: int = int(port_seq_bin, 2)
+      # v4_host: int = int(values['-V4HOST_SLIDER-'])
+
+      # user_pd = userpds.last_pd(user_pd):
+
+      
+
+
+
+
+      # last user pd = first upd -> next upd * max_seq_val (* port seq val)
+      # next user pd = 
+
+
+      # print(f' {}')
+      # user_pd = userpds.last_pd(user_pd)
+      # print(f"last_plist is {last_plist}, type {type(last_plist)} (button function)")
+      # user_pd = userpds.last_pd(user_pd)
+      # rule_calc(last_params, user_pd, v4hostint)
+      # if last_dmr_entry:
+      #    window['DMR_INPUT'].update(last_dmr_entry)
+      #    dhcp_calc(last_dmr_entry, values['FMR_FLAG'])
 
 
 
@@ -1953,6 +2051,9 @@ while True:
 
    print(f'#------- End Event {cntr - 1} -------#')
 
+   # print(f"globals are {globals()}")
+
+
    # print(window.size)
 
 
@@ -1965,7 +2066,7 @@ while True:
     - Change eabits var to ealen (also related keys)
     - Change all multiline fields with highlighted text to white background
     - DMR example text missing after "Example"
-    - In rule_calc: v4hostbin_len = 32 - param_ls[4] # ....................Move to top!!!
+    - In rule_calc: v4hostbin_len = 32 - param_ls[4] # ....Move to top!!! - DONE 12/11/24
 
    # Utilities:
    #----------------------------------------#
