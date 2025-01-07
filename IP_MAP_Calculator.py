@@ -6,7 +6,7 @@ import sys
 
 '''IP_MAP_Calculator.py: Calculates the results of IP MAP Rule parameters'''
 
-# IP_MAP_ADDRESS_CALCULATOR v0.12.01 - 12/09/2024 - D. Scott Freemire
+# IP_MAP_ADDRESS_CALCULATOR v0.12.02 - 01/07/2025 - D. Scott Freemire
 
 # Window theme and frame variables
 #-------------------------------------#
@@ -1262,6 +1262,7 @@ userpds = None
 savctr = False
 portidxadd = 0 # used with 'Source Port Index n = Port' section
 last_params = None
+last_dmr_entry = None
 
 #-------------------------------------------------------------------------#
 # Main Event Loop - runs once for each 'event'
@@ -1483,6 +1484,7 @@ while True:
       user_pd = userpds.new_pd()
 #     v4hostint = int(values['-V4HOST_SLIDER-']) # slider values are floats
       rule_calc(last_params, user_pd, v4hostint)
+      print 
       if last_dmr_entry:
          window['DMR_INPUT'].update(last_dmr_entry)
          dhcp_calc(last_dmr_entry, values['FMR_FLAG'])
