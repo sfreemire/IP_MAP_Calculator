@@ -1482,7 +1482,7 @@ while True:
       # If last_params=None (initial state or Clear was used) ignore button
       portidxadd = 0
       user_pd = userpds.new_pd()
-#     v4hostint = int(values['-V4HOST_SLIDER-']) # slider values are floats
+      v4hostint = int(values['-V4HOST_SLIDER-']) # slider values are floats
       rule_calc(last_params, user_pd, v4hostint)
       print 
       if last_dmr_entry:
