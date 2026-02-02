@@ -13,7 +13,7 @@ IP_MAP_Calculator calculates IPv4 address sharing and port allocations for "Mapp
 * ~~PySimpleGUI 4.60.4+ Python package~~*
 * FreeSimpleGUI 5.2.0+
 
-* The PySimpleGUI project has been shut down.
+\* The PySimpleGUI project has been shut down.
 
 ## MAP-T Function and Rules Explanation
 
