@@ -1,10 +1,10 @@
-IP MAP Calculator v0.12.02 - 01/07/2025
+IP MAP Calculator v0.13 - 02/02/2026
 https://github.com/sfreemire/IP_MAP_Calculator
 
 License:
 
 MIT License
-Copyright (c) 2023-2024 David Scott Freemire
+Copyright (c) 2023-2026 David Scott Freemire
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -22,6 +22,6 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 
-Graphics created with tkinter and configured using the PySimpleGUI library
+Graphics created with tkinter and configured using the FreeSimpleGUI library
 which is released under the GNU Lesser General Public License (LGPL 3) +
-https://www.pysimplegui.org/
+https://github.com/spyoungtech/FreeSimpleGUI
